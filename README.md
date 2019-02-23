@@ -1,4 +1,4 @@
-# SkullIsland
+# Skull Island
 
 Work In Progress for a full-featured SDK for Kong 0.14.x (with 1.0.x details added for future development).
 
