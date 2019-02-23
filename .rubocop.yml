@@ -1,0 +1,35 @@
+AllCops:
+  TargetRubyVersion: 2.5
+
+Metrics/MethodLength:
+  Max: 50
+
+Metrics/LineLength:
+  Max: 100
+
+Metrics/ClassLength:
+  Max: 165
+
+Metrics/ModuleLength:
+  Max: 165
+
+Metrics/CyclomaticComplexity:
+  Max: 7
+
+Metrics/AbcSize:
+  Max: 25
+
+Metrics/BlockLength:
+  Max: 35
+  Exclude:
+    - '*.gemspec'
+    - Rakefile
+    - 'spec/**/*_spec.rb'
+    - 'spec/spec_helper.rb'
+
+Layout/IndentHeredoc:
+  Enabled: false
+
+Security/Eval:
+  Exclude:
+    - Gemfile

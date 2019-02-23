@@ -1,0 +1,14 @@
+sudo: false
+language: ruby
+cache: bundler
+rvm:
+- 2.5.3
+before_install: gem install bundler -v 2.0.1
+deploy:
+  provider: rubygems
+  api_key:
+    secure: Gj3+sg3iSZytx7vNsnu6U/I61BVwz2rFB3WoclMoFuqdWwUyK/4qd2wC0OIvQQJg6Ex1nBwws6VjHUUOCtRiUIF62yR7pDE/ITHkzjjEtZ/ru/6ZKkyHmpenV6Pu0TzENgEY7EIu7pGOJr/57INUuuq7bZM0qV5Rew6Feg2t9n3o8hAONS614MB64Ig6PHRSiGUkm9iogaksQodeb2RvHrQgCXNnhAxq/TdU0TPV7DDDtx4piM1hpdm4sMwznCqZKC89WV7WajeWhQJdaXoGWxDq2ZmF3gM5q8cnK5Uh5wf2pKWce3N8ikeOuiLe06RLQ2pH7UBU9ku9u3+naqFjDZb3d/2DRoxZFjy/P6CRinfoOrsR0k74pc5lnsyQlkxJsJILoOLz7hV4oi9MBi8tDafGz6XVi+UMGE34Nj/7oZjvnbmIuYRJSC+7564y7tsPykOXuCOV6BuDUclXLxTbaLUTLCRcbDluzNrxymbxs3KSZBfM6jli66oXroagaYCdL5zPiGDD5W0crv0c6eDRQAuDOTUllQy/75FRGFn5hbomHQBVM18pm9sx/k6AB+thanIcottdRKst6xh/EN3KnQsLV1M2hSq3gG8EyoqObkIhvcOtCKqfG5VId8qOxT01UcaKui4exyqAv8LAW0WCAL1kyl6Oty1ArZao5fibGUI=
+  gem: skull_island
+  on:
+    tags: true
+    repo: jgnagy/skull_island
