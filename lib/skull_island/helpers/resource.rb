@@ -43,14 +43,6 @@ module SkullIsland
         !@entity.key?(id_property.to_s)
       end
 
-      def paths
-        self.class.paths
-      end
-
-      def path_for(kind)
-        self.class.path_for(kind)
-      end
-
       # ActiveRecord ActiveModel::Model compatibility method
       def persisted?
         !new?
@@ -89,6 +81,55 @@ module SkullIsland
       # ActiveRecord ActiveModel::Conversion compatibility method
       def to_param
         new? ? nil : id.to_s
+      end
+
+      def destroy
+        raise Exceptions::ImmutableModification if immutable?
+
+        unless new?
+          @api_client.delete(relative_uri.to_s)
+          @api_client.invalidate_cache_for(relative_uri.to_s)
+          @lazy = false
+          @tainted = true
+          @entity.delete('id')
+        end
+        true
+      end
+
+      def reload
+        if new?
+          # Can't reload a new resource
+          false
+        else
+          @api_client.invalidate_cache_for(relative_uri.to_s)
+          entity_data = @api_client.cache(relative_uri.to_s) do |client|
+            client.get(relative_uri.to_s)
+          end
+          @entity  = entity_data
+          @lazy    = false
+          @tainted = false
+          true
+        end
+      end
+
+      def save
+        saveable_data = @entity.select do |prop, value|
+          pr = prop.to_sym
+          go = properties.key?(pr) && !properties[pr][:read_only] && !value.nil?
+          @modified_properties.uniq.include?(pr) if go
+        end
+
+        validate_required_properties(saveable_data)
+
+        if new?
+          @entity  = @api_client.post(self.class.relative_uri.to_s, saveable_data)
+          @lazy    = true
+        else
+          @api_client.invalidate_cache_for(relative_uri.to_s)
+          @api_client.put(relative_uri, saveable_data)
+        end
+        @tainted = false
+        true
       end
 
       # ActiveRecord ActiveModel compatibility method

@@ -18,11 +18,11 @@ module SkullIsland
       property :created_at, read_only: true, postprocess: true
 
       def self.enabled_names
-        APIClient.instance.get("#{path_for(:all)}/enabled")['enabled_plugins']
+        APIClient.instance.get("#{relative_uri}/enabled")['enabled_plugins']
       end
 
       def self.schema(name)
-        APIClient.instance.get("#{path_for(:all)}/schema/#{name}")
+        APIClient.instance.get("#{relative_uri}/schema/#{name}")
       end
 
       private

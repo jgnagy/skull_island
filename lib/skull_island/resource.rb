@@ -50,11 +50,6 @@ module SkullIsland
       @paths ||= {}
     end
 
-    def self.path_for(kind)
-      guess = kind.to_sym == :all ? route_key : "#{route_key}/#{kind}"
-      paths[kind.to_sym] || guess
-    end
-
     def self.gen_getter_method(name, opts)
       determine_getter_names(name, opts).each do |method_name|
         define_method(method_name) do
@@ -101,11 +96,14 @@ module SkullIsland
       end
     end
 
+    # The URI (relative to the API base) for this object (or its index/list)
+    def self.relative_uri
+      route_key
+    end
+
     def self.all(options = {})
       # TODO: Add validations for options
-
       # TODO: add validation checks for the required pieces
-      raise Exceptions::MissingPath unless path_for(:all)
 
       api_client = options[:api_client] || APIClient.instance
 
@@ -113,7 +111,13 @@ module SkullIsland
       # TODO: do something with lazy requests...
 
       ResourceCollection.new(
-        api_client.get(path_for(:all))[root].collect do |record|
+        api_client.get(relative_uri)[root].collect do |record|
+          unless options[:lazy]
+            api_client.invalidate_cache_for "#{relative_uri}/#{record['id']}"
+            api_client.cache("#{relative_uri}/#{record['id']}") do
+              record
+            end
+          end
           new(
             entity: record,
             lazy: (options[:lazy] ? true : false),
@@ -129,7 +133,6 @@ module SkullIsland
     def self.from_hash(hash)
       # TODO: better options validations
       raise Exceptions::InvalidOptions unless options.is_a?(Hash)
-      raise Exceptions::MissingPath unless path_for(:all)
 
       api_client = options[:api_client] || APIClient.instance
 
@@ -143,16 +146,28 @@ module SkullIsland
 
     def self.get(id, options = {})
       # TODO: Add validations for options
-      raise Exceptions::MissingPath unless path_for(:all)
 
       api_client = options[:api_client] || APIClient.instance
 
-      new(
-        entity: api_client.get("#{path_for(:all)}/#{id}"),
-        lazy: false,
-        tainted: false,
-        api_client: api_client
-      )
+      if options[:lazy]
+        new(
+          entity: { 'id' => id },
+          lazy: true,
+          tainted: false,
+          api_client: api_client
+        )
+      else
+        entity_data = api_client.cache("#{relative_uri}/#{id}") do |client|
+          client.get("#{relative_uri}/#{id}")
+        end
+
+        new(
+          entity: entity_data,
+          lazy: false,
+          tainted: false,
+          api_client: api_client
+        )
+      end
     end
 
     def self.where(attribute, value, options = {})
@@ -189,47 +204,8 @@ module SkullIsland
       self.class.class_eval { gen_property_methods }
     end
 
-    def destroy
-      raise Exceptions::ImmutableModification if immutable?
-
-      unless new?
-        @api_client.delete("#{path_for(:all)}/#{id}")
-        @lazy = false
-        @tainted = true
-        @entity.delete('id')
-      end
-      true
-    end
-
-    def reload
-      if new?
-        # Can't reload a new resource
-        false
-      else
-        @entity  = @api_client.get("#{path_for(:all)}/#{id}")
-        @lazy    = false
-        @tainted = false
-        true
-      end
-    end
-
-    def save
-      saveable_data = @entity.select do |prop, value|
-        pr = prop.to_sym
-        go = properties.key?(pr) && !properties[pr][:read_only] && !value.nil?
-        @modified_properties.uniq.include?(pr) if go
-      end
-
-      validate_required_properties(saveable_data)
-
-      if new?
-        @entity  = @api_client.post(path_for(:all).to_s, saveable_data)
-        @lazy    = true
-      else
-        @api_client.put("#{path_for(:all)}/#{id}", saveable_data)
-      end
-      @tainted = false
-      true
+    def relative_uri
+      "#{self.class.relative_uri}/#{id}"
     end
   end
 end
