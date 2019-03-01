@@ -113,12 +113,7 @@ module SkullIsland
       end
 
       def save
-        saveable_data = @entity.select do |prop, value|
-          pr = prop.to_sym
-          go = properties.key?(pr) && !properties[pr][:read_only] && !value.nil?
-          @modified_properties.uniq.include?(pr) if go
-        end
-
+        saveable_data = prune_for_save(@entity)
         validate_required_properties(saveable_data)
 
         if new?
@@ -126,7 +121,7 @@ module SkullIsland
           @lazy    = true
         else
           @api_client.invalidate_cache_for(relative_uri.to_s)
-          @api_client.put(relative_uri, saveable_data)
+          @entity = @api_client.put(relative_uri, saveable_data)
         end
         @tainted = false
         true
@@ -163,6 +158,15 @@ module SkullIsland
           0
         else
           raise Exceptions::InvalidArguments
+        end
+      end
+
+      def prune_for_save(data)
+        data.reject do |k, v|
+          k.to_sym == id_property ||
+            !properties[k.to_sym] ||
+            properties[k.to_sym][:read_only] ||
+            v.nil?
         end
       end
     end

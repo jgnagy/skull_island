@@ -14,6 +14,7 @@ SimpleCov.start do
   add_filter '/.bundle/'
 end
 require 'skull_island'
+require 'skull_island/rspec'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -25,4 +26,6 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  include SkullIsland::RSpec
 end

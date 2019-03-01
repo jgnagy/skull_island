@@ -52,7 +52,7 @@ module SkullIsland
         )
       end
 
-      # Used to validate {#upstream} on set
+      # Used to validate #upstream on set
       def validate_upstream(value)
         # allow either a Upstream object or a String
         value.is_a?(Upstream) || value.is_a?(String)

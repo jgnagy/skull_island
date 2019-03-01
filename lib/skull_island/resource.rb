@@ -4,7 +4,7 @@ module SkullIsland
   # A generic API resource
   # TODO: Thread safety
   class Resource
-    attr_accessor :client
+    attr_accessor :api_client
     attr_reader :errors
 
     include Comparable

@@ -9,10 +9,6 @@ module SkullIsland
     include Validations::APIClient
     include Helpers::APIClient
 
-    def about_service
-      get '/'
-    end
-
     def api_uri
       @api_uri ||= URI.parse(server)
       @api_uri.path = base_uri if base_uri
@@ -25,32 +21,12 @@ module SkullIsland
       @username && @password ? true : false
     end
 
-    def cache(key)
-      symbolized_key = key.to_sym
-      if !@cache.has?(symbolized_key) && block_given?
-        result = yield(self)
-        @cache.store(symbolized_key, result)
-      elsif !@cache.has?(symbolized_key)
-        return nil
-      end
-      @cache.retrieve(symbolized_key)
-    end
-
     def configured?
       @configured ? true : false
     end
 
-    def invalidate_cache_for(key)
-      symbolized_key = key.to_sym
-      @cache.invalidate(symbolized_key)
-    end
-
     def json_headers
       { content_type: :json, accept: :json }
-    end
-
-    def lru_cache
-      @cache
     end
 
     def get(uri, data = nil)

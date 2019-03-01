@@ -4,6 +4,30 @@ module SkullIsland
   module Helpers
     # Simple helper methods for the API Client
     module APIClient
+      def about_service
+        get '/'
+      end
+
+      def cache(key)
+        symbolized_key = key.to_sym
+        if !@cache.has?(symbolized_key) && block_given?
+          result = yield(self)
+          @cache.store(symbolized_key, result)
+        elsif !@cache.has?(symbolized_key)
+          return nil
+        end
+        @cache.retrieve(symbolized_key)
+      end
+
+      def invalidate_cache_for(key)
+        symbolized_key = key.to_sym
+        @cache.invalidate(symbolized_key)
+      end
+
+      def lru_cache
+        @cache
+      end
+
       # Substitute characters with their JSON-supported versions
       # @return [String]
       def json_escape(string)

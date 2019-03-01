@@ -33,3 +33,7 @@ Layout/IndentHeredoc:
 Security/Eval:
   Exclude:
     - Gemfile
+
+Style/NumericLiterals:
+  Exclude:
+    - 'spec/**/*_spec.rb'
