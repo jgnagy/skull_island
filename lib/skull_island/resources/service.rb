@@ -21,7 +21,7 @@ module SkullIsland
 
       # Convenience method to add routes
       def add_route!(details)
-        r = details.is_a?(Route) ? details : Route.from_hash(details)
+        r = details.is_a?(Route) ? details : Route.from_hash(details, api_client: api_client)
 
         r.service = self
         r.save

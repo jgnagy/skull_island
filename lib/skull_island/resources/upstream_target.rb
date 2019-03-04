@@ -8,12 +8,28 @@ module SkullIsland
     # @see https://docs.konghq.com/0.14.x/admin-api/#target-object Target API definition
     class UpstreamTarget < Resource
       property :target, required: true, validate: true, preprocess: true
-      property :upstream_id, read_only: true, postprocess: true, as: :upstream
+      property(
+        :upstream_id,
+        required: true, validate: true, preprocess: true, postprocess: true, as: :upstream
+      )
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
 
+      def self.get(id, options = {})
+        if options[:upstream]&.is_a?(Upstream)
+          options[:upstream].target(id)
+        elsif options[:upstream]
+          upstream_opts = options.merge(lazy: true)
+          Upstream.get(options[:upstream], upstream_opts).target(id)
+        end
+      end
+
       def relative_uri
-        "#{upstream.relative_uri}/targets/#{id}"
+        upstream ? "#{upstream.relative_uri}/targets/#{id}" : nil
+      end
+
+      def save_uri
+        upstream ? "#{upstream.relative_uri}/targets" : nil
       end
 
       def preprocess_target(input)
@@ -21,6 +37,16 @@ module SkullIsland
           "#{input.host}:#{input.port || 8000}"
         else
           input
+        end
+      end
+
+      def preprocess_upstream_id(input)
+        if input.is_a?(Hash)
+          input['id']
+        elsif input.is_a?(String)
+          input
+        else
+          input.id
         end
       end
 

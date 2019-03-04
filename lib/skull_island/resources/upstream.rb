@@ -28,6 +28,27 @@ module SkullIsland
         end
       end
 
+      # Convenience method to add upstream targets
+      def add_target!(details)
+        r = if details.is_a?(UpstreamTarget)
+              details
+            else
+              UpstreamTarget.from_hash(details, api_client: api_client)
+            end
+
+        r.upstream = self
+        r.save
+      end
+
+      def target(target_id)
+        UpstreamTarget.new(
+          entity: { 'id' => target_id, 'upstream_id' => id },
+          lazy: true,
+          tainted: false,
+          api_client: api_client
+        )
+      end
+
       def targets
         target_list_data = api_client.get("#{relative_uri}/targets")
         root = 'data' # root for API JSON response data

@@ -117,7 +117,7 @@ module SkullIsland
         validate_required_properties(saveable_data)
 
         if new?
-          @entity  = @api_client.post(self.class.relative_uri.to_s, saveable_data)
+          @entity  = @api_client.post(save_uri.to_s, saveable_data)
           @lazy    = true
         else
           @api_client.invalidate_cache_for(relative_uri.to_s)
@@ -125,6 +125,10 @@ module SkullIsland
         end
         @tainted = false
         true
+      end
+
+      def save_uri
+        self.class.relative_uri
       end
 
       # ActiveRecord ActiveModel compatibility method
