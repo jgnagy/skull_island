@@ -2,6 +2,30 @@
 
 Work In Progress for a full-featured SDK for Kong 0.14.x (with 1.0.x details added for future development).
 
+## Installation
+
+Either:
+
+```sh
+gem install skull_island
+```
+
+Or add this to your Gemfile:
+
+```ruby
+gem 'skull_island',  '~>0.1'
+```
+
+Or add this to your .gemspec:
+
+```ruby
+Gem::Specification.new do |spec|
+ # ...
+ spec.add_runtime_dependency 'skull_island', '~> 0.1'
+ # ...
+end
+```
+
 ## Usage
 
 The API Client requires configuration before it can be used. For now, this is a matter of calling `APIClient.configure()`, passing a Hash, with Symbols for keys:
@@ -272,7 +296,7 @@ resource.plugins
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3e...
 ```
 
-#### Upstream
+#### Upstreams (and their Targets)
 
 ```ruby
 resource = Resources::Upstream.new
