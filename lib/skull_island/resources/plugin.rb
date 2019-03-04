@@ -9,8 +9,7 @@ module SkullIsland
     class Plugin < Resource
       property :name
       property :enabled, type: :boolean
-      property :run_on
-      property :sources
+      # property :run_on  # 1.0.x only
       property :config, validate: true
       property :consumer_id, validate: true, preprocess: true, postprocess: true, as: :consumer
       property :route_id, validate: true, preprocess: true, postprocess: true, as: :route

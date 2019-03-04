@@ -67,7 +67,7 @@ Resources::Consumer.where(
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e380924...
 
 # Finder methods can also be chained
-Resources::Consumer.where(:username, /.*foo.*/).and(:custom_id, 'foobar')
+Resources::Consumer.where(:username, /.*foo.*/).and(:username, /\w{10,}/)
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e358964...
 Resources::Consumer.where(:username, /.*foo.*/).or(:custom_id, /.*bar.*/)
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e568410...
@@ -114,6 +114,80 @@ service.add_route!(my_route)
 # => true
 service.routes.size
 # => 4
+```
+
+From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/0.14.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
+
+#### Certificates
+
+```ruby
+resource = Resources::Certificate.new
+
+# These attributes can be set and read
+resource.cert = '-----BEGIN CERTIFICATE-----...'    # PEM-encoded public key
+resource.key  = '-----BEGIN RSA PRIVATE KEY-----...' # PEM-encoded private key
+resource.snis = ['example.com', 'example.org']      # Array of names for which this cert is valid
+
+resource.save
+
+# These attributes are read-only
+resource.id
+# => "1cad3055-1027-459d-b76e-f590dc5f0071"
+resource.created_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+```
+
+#### Consumers
+
+```ruby
+resource = Resources::Consumer.new
+
+# These attributes can be set and read
+resource.custom_id = 'user1' # A string
+resource.username  = 'user1' # A string
+
+resource.save
+
+# These attributes are read-only
+resource.id
+# => "1cad3055-1027-459d-b76e-f590dc5f0071"
+resource.created_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+```
+
+#### Plugins
+
+Note that this doesn't _install_ plugins; it only allows using them.
+
+```ruby
+resource = Resources::Plugin.new
+
+# These attributes can be set and read
+resource.name     = 'rate-limiting' # The name of the plugin
+resource.enabled  = true            # A Boolean
+resource.config   = { 'minute' => 50, 'hour' => 1000 } # A Hash of config keys and values
+
+# Either reference related resources by ID
+resource.service  = { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' }
+resource.service
+# => #<SkullIsland::Resources::Services:0x00007f9f201f6f44...
+
+# Or reference related resources directly
+resource.consumer = Resources::Consumer.get('a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4')
+resource.consumer
+# => #<SkullIsland::Resources::Consumer:0x00007f9f201f6f98...
+
+resource.route = Resources::Route.get('1cad3055-1027-459d-b76e-f590dc5f0023')
+resource.route
+# => #<SkullIsland::Resources::Route:0x00007f9f201f6f98...
+
+resource.save
+
+# These attributes are read-only
+resource.id
+# => "1cad3055-1027-459d-b76e-f590dc5f0071"
+resource.created_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
 ```
 
 ## License
