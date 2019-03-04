@@ -153,6 +153,8 @@ resource.id
 # => "1cad3055-1027-459d-b76e-f590dc5f0071"
 resource.created_at
 # => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+resource.plugins
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3e...
 ```
 
 #### Plugins
@@ -177,7 +179,7 @@ resource.consumer = Resources::Consumer.get('a3dX2dh2-1adb-40a5-c042-63b19dbx83h
 resource.consumer
 # => #<SkullIsland::Resources::Consumer:0x00007f9f201f6f98...
 
-resource.route = Resources::Route.get('1cad3055-1027-459d-b76e-f590dc5f0023')
+resource.route    = Resources::Route.get('1cad3055-1027-459d-b76e-f590dc5f0023')
 resource.route
 # => #<SkullIsland::Resources::Route:0x00007f9f201f6f98...
 
@@ -188,6 +190,86 @@ resource.id
 # => "1cad3055-1027-459d-b76e-f590dc5f0071"
 resource.created_at
 # => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+
+# The resource class itself allows the following methods as well:
+
+# This provides a list of plugin names that are enabled
+Resources::Plugin.enabled_names
+# => ["response-transformer",...
+
+# This looks up the configuration schema for a particular plugin by its name
+Resources::Plugin.schema('acl')
+# => {"fields"=>{"hide_groups_header"=>{"default"=>false...
+```
+
+#### Routes
+
+```ruby
+resource = Resources::Route.new
+
+# These attributes can be set and read
+resource.hosts          = ['example.com', 'example.org']
+resource.protocols      = ['https']
+resource.methods        = ['GET', 'POST']
+resource.paths          = ['/some/path']
+resource.regex_priority = 10
+resource.strip_path     = false
+resource.preserve_host  = true
+
+# Either reference related resources by ID
+resource.service = { 'id' => '4e13f54a-bbf1-47a8-8777-255fed7116f2' }
+# Or reference related resources directly
+resource.service = Resources::Service.get('4e13f54a-bbf1-47a8-8777-255fed7116f2')
+resource.service
+# => #<SkullIsland::Resources::Service:0x00007f9f201f6f98...
+
+resource.save
+
+# These attributes are read-only
+resource.id
+# => "1cad3055-1027-459d-b76e-f590dc5f0071"
+resource.created_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+resource.updated_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+resource.plugins
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3e...
+```
+
+#### Services
+
+```ruby
+resource = Resources::Service.new
+
+# These attributes can be set and read
+resource.protocol        = 'http'
+resource.connect_timeout = 60000
+resource.host            = 'example.com'
+resource.port            = 80
+resource.path            = '/api'
+resource.name            = 'example-service'
+resource.retries         = 10
+resource.read_timeout    = 60000
+resource.write_timeout   = 60000
+
+# Either reference related resources by ID
+my_route = Resources::Route.get(...)
+resource.add_route!(my_route) # adds a route to the service
+# => true
+
+resource.save
+
+# These attributes are read-only
+resource.id
+# => "1cad3055-1027-459d-b76e-f590dc5f0071"
+resource.created_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+resource.updated_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+resource.routes
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3f...
+resource.plugins
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3e...
 ```
 
 ## License

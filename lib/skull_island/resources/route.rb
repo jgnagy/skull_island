@@ -15,9 +15,10 @@ module SkullIsland
       property :regex_priority, validate: true
       property :strip_path,     type: :boolean
       property :preserve_host,  type: :boolean
-      property :snis
-      property :sources
-      property :destinations
+      # The following are 1.0.x only
+      # property :snis
+      # property :sources
+      # property :destinations
       property :service, validate: true, preprocess: true, postprocess: true
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
