@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skull_island (0.1.0)
+    skull_island (0.1.1)
       json (~> 2.0)
       linguistics (~> 2.1)
       rest-client (~> 2.0)
