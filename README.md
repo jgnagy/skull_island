@@ -252,12 +252,12 @@ resource.retries         = 10
 resource.read_timeout    = 60000
 resource.write_timeout   = 60000
 
-# Either reference related resources by ID
+resource.save
+
+# Add a related route
 my_route = Resources::Route.get(...)
 resource.add_route!(my_route) # adds a route to the service
 # => true
-
-resource.save
 
 # These attributes are read-only
 resource.id
@@ -270,6 +270,58 @@ resource.routes
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3f...
 resource.plugins
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3e...
+```
+
+#### Upstream
+
+```ruby
+resource = Resources::Upstream.new
+
+# These attributes can be set and read
+resource.name          = 'service.v1.xyz'
+resource.hash_on       = 'none'
+resource.hash_fallback = 'none'
+resource.slots         = 1000
+resource.healthchecks  = {
+  'active' => {
+    'concurrency' => 5,
+    'healthy' => {
+      'http_statuses' => [200, 302],
+      'interval' => 0,
+      'successes' => 0
+    },
+    'http_path' => '/',
+    'timeout' => 1,
+    'unhealthy' => {
+      'http_failures' => 0,
+      'http_statuses' => [
+        429, 404, 500, 501, 502, 503, 504, 505
+      ],
+      'interval' => 0,
+      'tcp_failures' => 0,
+      'timeouts' => 0
+    }
+  }
+}
+
+resource.save
+
+my_upstream_node = Resources::UpstreamTarget.new
+my_upstream_node.target = '4.5.6.7:80'
+my_upstream_node.weight = 15
+resource.add_target!(my_upstream_node) # adds a target to the upstream
+# => true
+
+# These attributes are read-only
+resource.id
+# => "1cad3055-1027-459d-b76e-f590dc5f0071"
+resource.created_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+resource.health # returns a Hash of all upstream targets and their health statuses
+# => #<Hash...
+resource.targets
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3f...
+resource.target('1bef3055-1027-459d-b76e-f590dc5f0071') # get an Upstream Target by id
 ```
 
 ## License
