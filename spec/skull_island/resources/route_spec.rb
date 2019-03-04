@@ -103,11 +103,13 @@ RSpec.describe SkullIsland::Resources::Route do
         data: updated_resource_post,
         response: updated_resource_raw
       )
+      expect(resource.updated_at).to eq(Time.at(14888869056483).utc.to_datetime)
       expect(resource.hosts).to eq(['example.com'])
       resource.hosts = ['example.com', 'example.org']
       expect(resource.save).to be true
       expect(resource.id).to eq('22108377-8f26-4c0e-bd9e-2962c1d6b0e6')
       expect(resource.hosts).to eq(['example.com', 'example.org'])
+      expect(resource.updated_at).to eq(Time.at(14888869056499).utc.to_datetime)
     end
   end
 end

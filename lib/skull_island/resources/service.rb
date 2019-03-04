@@ -13,7 +13,7 @@ module SkullIsland
       property :host,               validate: true, required: true
       property :port,               validate: true, required: true
       property :path
-      property :connection_timeout, validate: true
+      property :connect_timeout,    validate: true
       property :write_timeout,      validate: true
       property :read_timeout,       validate: true
       property :created_at, read_only: true, postprocess: true
@@ -72,8 +72,8 @@ module SkullIsland
         value.is_a?(Integer) && value.positive? && (1...65_535).cover?(value)
       end
 
-      # Used to validate {#connection_timeout} on set
-      def validate_connection_timeout(value)
+      # Used to validate {#connect_timeout} on set
+      def validate_connect_timeout(value)
         # only positive Integers are allowed
         value.is_a?(Integer) && value.positive?
       end
