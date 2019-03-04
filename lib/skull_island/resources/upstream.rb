@@ -68,9 +68,43 @@ module SkullIsland
         )
       end
 
-      # TODO: Add method for adding targets
-
       private
+
+      # Used to validate {#hash_on} on set
+      def validate_hash_on(value)
+        # only String of an acceptable value are allowed
+        %w[none consumer ip header cookie].include?(value)
+      end
+
+      # Used to validate {#hash_fallback} on set
+      def validate_hash_fallback(value)
+        # only String of an acceptable value are allowed
+        %w[none consumer ip header cookie].include?(value)
+      end
+
+      # Used to validate {#hash_on_header} on set
+      def validate_hash_on_header(value)
+        # only String is allowed and only when {#hash_on} is set to 'header'
+        value.is_a?(String) && hash_on == 'header'
+      end
+
+      # Used to validate {#hash_fallback_header} on set
+      def validate_hash_fallback_header(value)
+        # only String is allowed and only when {#hash_fallback} is set to 'header'
+        value.is_a?(String) && hash_fallback == 'header'
+      end
+
+      # Used to validate {#hash_on_cookie} on set
+      def validate_hash_on_cookie(value)
+        # only String is allowed and only when {#hash_on} or {#hash_fallback} is set to 'cookie'
+        value.is_a?(String) && [hash_on, hash_fallback].include?('cookie')
+      end
+
+      # Used to validate {#hash_cookie_path} on set
+      def validate_hash_cookie_path(value)
+        # only String is allowed and only when {#hash_on} or {#hash_fallback} is set to 'cookie'
+        value.is_a?(String) && [hash_on, hash_fallback].include?('cookie')
+      end
 
       # Used to validate {#name} on set
       def validate_name(value)
