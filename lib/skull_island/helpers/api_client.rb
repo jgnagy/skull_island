@@ -8,6 +8,10 @@ module SkullIsland
         get '/'
       end
 
+      def server_status
+        get '/status'
+      end
+
       def cache(key)
         symbolized_key = key.to_sym
         if !@cache.has?(symbolized_key) && block_given?

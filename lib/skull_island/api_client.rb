@@ -17,6 +17,10 @@ module SkullIsland
       instance.lru_cache
     end
 
+    def self.server_status
+      instance.server_status
+    end
+
     def configure(opts = {})
       # validations
       validate_opts(opts)
