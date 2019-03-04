@@ -26,7 +26,7 @@ module SkullIsland
 
       def hash(data)
         if data
-          Digest::MD5.hexdigest(data.to_s)
+          Digest::MD5.hexdigest(data.sort.to_s)
         else
           ''
         end

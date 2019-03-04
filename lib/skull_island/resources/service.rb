@@ -29,12 +29,12 @@ module SkullIsland
 
       # Provides a collection of related {Route} instances
       def routes
-        Route.where(:service, self)
+        Route.where(:service, self, api_client: api_client)
       end
 
       # Provides a collection of related {Plugin} instances
       def plugins
-        Plugin.where(:service, self)
+        Plugin.where(:service, self, api_client: api_client)
       end
 
       def url=(uri_or_string)

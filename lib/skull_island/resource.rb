@@ -37,19 +37,6 @@ module SkullIsland
       @properties[name.to_sym] = options
     end
 
-    # Set the URI path for a resource method
-    # @param kind [Symbol] how to refer to the URI
-    # @param uri [String] an API URI to refer to later
-    def self.path(kind, uri)
-      paths[kind.to_sym] = uri
-    end
-
-    # Create or set a class-level location to store URI paths for methods
-    # @return [Hash{Symbol => String}]
-    def self.paths
-      @paths ||= {}
-    end
-
     def self.gen_getter_method(name, opts)
       determine_getter_names(name, opts).each do |method_name|
         define_method(method_name) do

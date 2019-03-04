@@ -13,7 +13,7 @@ module SkullIsland
 
       # Provides a collection of related {Plugin} instances
       def plugins
-        Plugin.where(:consumer, self)
+        Plugin.where(:consumer, self, api_client: api_client)
       end
     end
   end

@@ -23,13 +23,13 @@ module SkullIsland
           # No health status for new Upstreams
           nil
         else
-          health_json = @api_client.get("#{relative_uri}/health")
+          health_json = api_client.get("#{relative_uri}/health")
           health_json['data']
         end
       end
 
       def targets
-        target_list_data = @api_client.get("#{relative_uri}/targets")
+        target_list_data = api_client.get("#{relative_uri}/targets")
         root = 'data' # root for API JSON response data
         # TODO: do something with lazy requests...
 
@@ -46,6 +46,8 @@ module SkullIsland
           api_client: api_client
         )
       end
+
+      # TODO: Add method for adding targets
 
       private
 

@@ -8,7 +8,7 @@ module SkullIsland
     # @see https://docs.konghq.com/0.14.x/admin-api/#target-object Target API definition
     class UpstreamTarget < Resource
       property :target, required: true, validate: true, preprocess: true
-      property :upstream_id, validate: true, preprocess: true, postprocess: true, as: :upstream
+      property :upstream_id, read_only: true, postprocess: true, as: :upstream
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
 
@@ -19,14 +19,6 @@ module SkullIsland
       def preprocess_target(input)
         if input.is_a?(URI)
           "#{input.host}:#{input.port || 8000}"
-        else
-          input
-        end
-      end
-
-      def preprocess_upstream_id(input)
-        if input.is_a?(Upstream)
-          input.id
         else
           input
         end
@@ -53,7 +45,7 @@ module SkullIsland
       end
 
       # Used to validate #upstream on set
-      def validate_upstream(value)
+      def validate_upstream_id(value)
         # allow either a Upstream object or a String
         value.is_a?(Upstream) || value.is_a?(String)
       end

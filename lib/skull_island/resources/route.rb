@@ -24,7 +24,7 @@ module SkullIsland
 
       # Provides a collection of related {Plugin} instances
       def plugins
-        Plugin.where(:route, self)
+        Plugin.where(:route, self, api_client: api_client)
       end
 
       private
@@ -61,7 +61,7 @@ module SkullIsland
       def validate_hosts(value)
         # allow only valid hostnames
         value.each do |host|
-          return false unless host.match?(host_regex) && !value.match?(/_/)
+          return false unless host.match?(host_regex) && !host.match?(/_/)
         end
         true
       end
@@ -69,7 +69,7 @@ module SkullIsland
       # Used to validate {#regex_priority} on set
       def validate_regex_priority(value)
         # only positive Integers are allowed
-        value.is_a?(Integer) && value.positive?
+        value.is_a?(Integer) && (value.positive? || value.zero?)
       end
 
       # Used to validate {#service} on set

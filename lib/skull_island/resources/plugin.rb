@@ -17,12 +17,12 @@ module SkullIsland
       property :service_id, validate: true, preprocess: true, postprocess: true, as: :service
       property :created_at, read_only: true, postprocess: true
 
-      def self.enabled_names
-        APIClient.instance.get("#{relative_uri}/enabled")['enabled_plugins']
+      def self.enabled_names(api_client: APIClient.instance)
+        api_client.get("#{relative_uri}/enabled")['enabled_plugins']
       end
 
-      def self.schema(name)
-        APIClient.instance.get("#{relative_uri}/schema/#{name}")
+      def self.schema(name, api_client: APIClient.instance)
+        api_client.get("#{relative_uri}/schema/#{name}")
       end
 
       private
@@ -124,19 +124,19 @@ module SkullIsland
       end
 
       # Used to validate {#consumer} on set
-      def validate_consumer(value)
+      def validate_consumer_id(value)
         # allow either a Consumer object or a Hash of a specific structure
         value.is_a?(Consumer) || (value.is_a?(Hash) && value['id'].is_a?(String))
       end
 
       # Used to validate {#route} on set
-      def validate_route(value)
+      def validate_route_id(value)
         # allow either a Route object or a Hash of a specific structure
         value.is_a?(Route) || (value.is_a?(Hash) && value['id'].is_a?(String))
       end
 
       # Used to validate {#service} on set
-      def validate_service(value)
+      def validate_service_id(value)
         # allow either a Service object or a Hash of a specific structure
         value.is_a?(Service) || (value.is_a?(Hash) && value['id'].is_a?(String))
       end
