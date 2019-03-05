@@ -10,7 +10,8 @@ module SkullIsland
       # @return [Array<Symbol>] the list of names
       def determine_getter_names(original_name, opts)
         names = []
-        names << (opts[:type] == :boolean ? "#{original_name}?" : original_name)
+        names << original_name
+        names << "#{original_name}?" if opts[:type] == :boolean
         if opts[:as]
           Array(opts[:as]).each do |new_name|
             names << (opts[:type] == :boolean ? "#{new_name}?" : new_name)

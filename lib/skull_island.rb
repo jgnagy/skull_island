@@ -2,9 +2,11 @@
 
 # Standard Library Requirements
 require 'date'
+require 'digest'
 require 'json'
 require 'singleton'
 require 'uri'
+require 'yaml'
 
 # External Library Requirements
 require 'linguistics'

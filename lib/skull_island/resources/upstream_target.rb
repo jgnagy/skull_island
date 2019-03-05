@@ -15,6 +15,25 @@ module SkullIsland
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
 
+      # rubocop:disable Metrics/PerceivedComplexity
+      def self.batch_import(data, verbose: false)
+        raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        data.each_with_index do |resource_data, index|
+          resource = new
+          resource.target = resource_data['target']
+          resource.weight = resource_data['weight'] if resource_data['weight']
+          if resource.find_by_digest
+            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
+          elsif resource.save
+            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
+          else
+            puts "[ERR] Failed to save #{resource.class} index #{index}"
+          end
+        end
+      end
+      # rubocop:enable Metrics/PerceivedComplexity
+
       def self.get(id, options = {})
         if options[:upstream]&.is_a?(Upstream)
           options[:upstream].target(id)
@@ -31,6 +50,20 @@ module SkullIsland
       def save_uri
         upstream ? "#{upstream.relative_uri}/targets" : nil
       end
+
+      def to_hash(options = {})
+        hash = { 'target' => target, 'weight' => weight }
+        hash['upstream_id'] = upstream.id if upstream
+        [*options[:exclude]].each do |exclude|
+          hash.delete(exclude.to_s)
+        end
+        [*options[:include]].each do |inc|
+          hash[inc.to_s] = send(:inc)
+        end
+        hash.reject { |_, value| value.nil? }
+      end
+
+      private
 
       def preprocess_target(input)
         if input.is_a?(URI)

@@ -14,6 +14,36 @@ module SkullIsland
         )
       end
 
+      def delayed_set(property, data, key)
+        send("#{property}=".to_sym, data[key].is_a?(Proc) ? data[key].call : data[key]) if data[key]
+      end
+
+      def digest
+        Digest::MD5.hexdigest(
+          digest_properties.sort.map { |prop| send(prop.to_sym) }.compact.join(':')
+        )
+      end
+
+      def digest_properties
+        properties.keys.reject { |k| %i[created_at updated_at].include? k }
+      end
+
+      # Tests for an existing version of this resource based on its properties rather than its `id`
+      def find_by_digest
+        result = self.class.where(:digest, digest) # matching digest means the equivalent resource
+        if result.size == 1
+          entity_data = @api_client.cache(result.first.relative_uri.to_s) do |client|
+            client.get(result.first.relative_uri.to_s)
+          end
+          @entity  = entity_data
+          @lazy    = false
+          @tainted = false
+          true
+        else
+          false
+        end
+      end
+
       def fresh?
         !tainted?
       end
@@ -81,6 +111,10 @@ module SkullIsland
       # ActiveRecord ActiveModel::Conversion compatibility method
       def to_param
         new? ? nil : id.to_s
+      end
+
+      def to_s
+        to_param.to_s
       end
 
       def destroy

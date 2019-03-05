@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler/setup'
+require 'skull_island/cli'
+
+configuration = {
+  server: ENV['KONG_ADMIN_URL']
+}
+configuration[:username] = ENV['KONG_ADMIN_USERNAME'] if ENV['KONG_ADMIN_USERNAME']
+configuration[:password] = ENV['KONG_ADMIN_PASSWORD'] if ENV['KONG_ADMIN_PASSWORD']
+
+SkullIsland::APIClient.configure(configuration)
+
+SkullIsland::CLI.start(ARGV)

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'digest'
-
 module SkullIsland
   module RSpec
     # A Fake API Client for RSpec testing

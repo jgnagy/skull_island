@@ -23,9 +23,60 @@ module SkullIsland
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/AbcSize
+      def self.batch_import(data, verbose: false)
+        raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        data.each_with_index do |rdata, index|
+          resource = new
+          resource.name = rdata['name']
+          resource.methods = rdata['methods'] if rdata['methods']
+          resource.paths = rdata['paths'] if rdata['paths']
+          resource.protocols = rdata['protocols'] if rdata['protocols']
+          resource.hosts = rdata['hosts'] if rdata['hosts']
+          resource.regex_priority = rdata['regex_priority'] if rdata['regex_priority']
+          resource.strip_path = rdata['strip_path'] if rdata['strip_path']
+          resource.preserve_host = rdata['preserve_host'] if rdata['preserve_host']
+          resource.delayed_set(:service, rdata, 'service_id')
+          if resource.find_by_digest
+            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
+          elsif resource.save
+            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
+          else
+            puts "[ERR] Failed to save #{resource.class} index #{index}"
+          end
+        end
+      end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/AbcSize
+
       # Provides a collection of related {Plugin} instances
       def plugins
         Plugin.where(:route, self, api_client: api_client)
+      end
+
+      def to_hash(options = {})
+        hash = {
+          'name' => name,
+          'methods' => methods,
+          'paths' => paths,
+          'protocols' => protocols,
+          'hosts' => hosts,
+          'regex_priority' => regex_priority,
+          'strip_path' => strip_path?,
+          'preserve_host' => preserve_host?
+        }
+        hash['service'] = { 'id' => service.id } if service
+        [*options[:exclude]].each do |exclude|
+          hash.delete(exclude.to_s)
+        end
+        [*options[:include]].each do |inc|
+          hash[inc.to_s] = send(:inc)
+        end
+        hash.reject { |_, value| value.nil? }
       end
 
       private

@@ -32,7 +32,7 @@ Layout/IndentHeredoc:
 
 Security/Eval:
   Exclude:
-    - Gemfile
+    - 'lib/skull_island/cli.rb'
 
 Style/NumericLiterals:
   Exclude:

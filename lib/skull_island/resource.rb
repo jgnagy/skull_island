@@ -131,6 +131,12 @@ module SkullIsland
       )
     end
 
+    # Returns the first (and hopefully only) resource given some criteria
+    # This is a very crude helper and could be made much better
+    def self.find(attribute, value, options = {})
+      where(attribute, value, options).first
+    end
+
     def self.get(id, options = {})
       # TODO: Add validations for options
 

@@ -18,6 +18,46 @@ module SkullIsland
       property :healthchecks, validate: true
       property :created_at, read_only: true, postprocess: true
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/AbcSize
+      def self.batch_import(data, verbose: false)
+        raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        data.each_with_index do |rdata, index|
+          resource = new
+          resource.name = rdata['name']
+          resource.slots = rdata['slots'] if rdata['slots']
+          resource.hash_on = rdata['hash_on']
+          resource.hash_fallback = rdata['hash_fallback']
+          resource.hash_on_header = rdata['hash_on_header']
+          if rdata['hash_fallback_header']
+            resource.hash_fallback_header = rdata['hash_fallback_header']
+          end
+          resource.hash_on_cookie = rdata['hash_on_cookie'] if rdata['hash_on_cookie']
+          if rdata['hash_on_cookie_path']
+            resource.hash_on_cookie_path = rdata['hash_on_cookie_path']
+          end
+          resource.healthchecks = rdata['healthchecks'] if rdata['healthchecks']
+          if resource.find_by_digest
+            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
+          elsif resource.save
+            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
+          else
+            puts "[ERR] Failed to save #{resource.class} index #{index}"
+          end
+          puts '[INFO] Processing UpstreamTarget entries...' if verbose
+
+          UpstreamTarget.batch_import(
+            rdata['targets'].map { |t| t.merge('upstream_id' => resource.id) },
+            verbose: verbose
+          )
+        end
+      end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/AbcSize
+
       def health
         if new?
           # No health status for new Upstreams
@@ -66,6 +106,28 @@ module SkullIsland
           type: UpstreamTarget,
           api_client: api_client
         )
+      end
+
+      def to_hash(options = {})
+        hash = {
+          'name' => name,
+          'slots' => slots,
+          'hash_on' => hash_on,
+          'hash_fallback' => hash_fallback,
+          'hash_on_header' => hash_on_header,
+          'hash_fallback_header' => hash_fallback_header,
+          'hash_on_cookie' => hash_on_cookie,
+          'hash_on_cookie_path' => hash_on_cookie_path,
+          'healthchecks' => healthchecks
+        }
+        hash['targets'] = targets.collect { |route| route.to_hash(exclude: 'upstream_id') }
+        [*options[:exclude]].each do |exclude|
+          hash.delete(exclude.to_s)
+        end
+        [*options[:include]].each do |inc|
+          hash[inc.to_s] = send(:inc)
+        end
+        hash.reject { |_, value| value.nil? }
       end
 
       private

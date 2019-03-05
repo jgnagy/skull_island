@@ -16,12 +16,53 @@ module SkullIsland
       property :service_id, validate: true, preprocess: true, postprocess: true, as: :service
       property :created_at, read_only: true, postprocess: true
 
+      # rubocop:disable Metrics/PerceivedComplexity
+      def self.batch_import(data, verbose: false)
+        raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        data.each_with_index do |resource_data, index|
+          resource = new
+          resource.name = resource_data['name']
+          resource.enabled = resource_data['enabled']
+          resource.config = resource_data['config'] if resource_data['config']
+          resource.delayed_set(:consumer, resource_data, 'consumer_id')
+          resource.delayed_set(:route, resource_data, 'route_id')
+          resource.delayed_set(:service, resource_data, 'service_id')
+          if resource.find_by_digest
+            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
+          elsif resource.save
+            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
+          else
+            puts "[ERR] Failed to save #{resource.class} index #{index}"
+          end
+        end
+      end
+      # rubocop:enable Metrics/PerceivedComplexity
+
       def self.enabled_names(api_client: APIClient.instance)
         api_client.get("#{relative_uri}/enabled")['enabled_plugins']
       end
 
       def self.schema(name, api_client: APIClient.instance)
         api_client.get("#{relative_uri}/schema/#{name}")
+      end
+
+      def to_hash(options = {})
+        hash = {
+          'name' => name,
+          'enabled' => enabled?,
+          'config' => config
+        }
+        hash['consumer_id'] = consumer.id if consumer
+        hash['route_id'] = route.id if route
+        hash['service_id'] = service.id if service
+        [*options[:exclude]].each do |exclude|
+          hash.delete(exclude.to_s)
+        end
+        [*options[:include]].each do |inc|
+          hash[inc.to_s] = send(:inc)
+        end
+        hash.reject { |_, value| value.nil? }
       end
 
       private

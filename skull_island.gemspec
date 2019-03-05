@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['jonathan.gnagy@gmail.com']
 
   spec.summary       = 'Ruby SDK for Kong'
-  spec.description   = 'A Ruby SDK for Kong 1.0.x'
+  spec.description   = 'A Ruby SDK for Kong 0.14.x'
   spec.homepage      = 'https://github.com/jgnagy/skull_island'
   spec.license       = 'MIT'
 
@@ -26,9 +26,11 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '~> 2.5'
 
-  spec.add_runtime_dependency 'json', '~> 2.0'
+  spec.add_runtime_dependency 'erubi', '~> 1.8'
+  spec.add_runtime_dependency 'json', '~> 2.1'
   spec.add_runtime_dependency 'linguistics', '~> 2.1'
   spec.add_runtime_dependency 'rest-client', '~> 2.0'
+  spec.add_runtime_dependency 'thor', '~> 0.20'
   spec.add_runtime_dependency 'will_paginate', '~> 3.1'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
