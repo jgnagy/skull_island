@@ -99,7 +99,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
     it 'allows updating a resource' do
       resource = existing_resource
       resource.api_client.response_for(
-        :put,
+        :patch,
         "#{SkullIsland::Resources::Upstream.relative_uri}/ee3310c1-6789-40ac-9386-f79c0cb58432" \
           '/targets/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         data: updated_resource_post,

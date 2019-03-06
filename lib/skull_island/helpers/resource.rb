@@ -79,11 +79,11 @@ module SkullIsland
         if find_by_digest
           puts "[INFO] Skipping #{self.class} index #{index} (#{id})" if verbose
         elsif test
-          puts "[INFO] Would have saved #{sef.class} index #{index}"
+          puts "[INFO] Would have saved #{self.class} index #{index}"
         elsif modified_existing?
           puts "[INFO] Modified #{self.class} index #{index} (#{id})" if verbose
         elsif save
-          puts "[INFO] Saved #{self.class} index #{index} (#{id})" if verbose
+          puts "[INFO] Created #{self.class} index #{index} (#{id})" if verbose
         else
           puts "[ERR] Failed to save #{self.class} index #{index}"
         end
@@ -187,7 +187,7 @@ module SkullIsland
           @lazy    = true
         else
           @api_client.invalidate_cache_for(relative_uri.to_s)
-          @entity = @api_client.put(relative_uri, saveable_data)
+          @entity = @api_client.patch(relative_uri, saveable_data)
         end
         @api_client.invalidate_cache_for(self.class.relative_uri.to_s) # clear any collection class
         @tainted = false

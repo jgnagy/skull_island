@@ -10,7 +10,7 @@ module SkullIsland
       property :name
       property :enabled, type: :boolean
       # property :run_on  # 1.0.x only
-      property :config, validate: true
+      property :config, validate: true, preprocess: true, postprocess: true
       property :consumer_id, validate: true, preprocess: true, postprocess: true, as: :consumer
       property :route_id, validate: true, preprocess: true, postprocess: true, as: :route
       property :service_id, validate: true, preprocess: true, postprocess: true, as: :service
@@ -23,7 +23,7 @@ module SkullIsland
           resource = new
           resource.name = resource_data['name']
           resource.enabled = resource_data['enabled']
-          resource.config = resource_data['config'] if resource_data['config']
+          resource.config = resource_data['config'].deep_sort if resource_data['config']
           resource.delayed_set(:consumer, resource_data, 'consumer_id')
           resource.delayed_set(:route, resource_data, 'route_id')
           resource.delayed_set(:service, resource_data, 'service_id')
@@ -43,7 +43,7 @@ module SkullIsland
         hash = {
           'name' => name,
           'enabled' => enabled?,
-          'config' => config
+          'config' => config.deep_sort
         }
         hash['consumer_id'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
         hash['route_id'] = "<%= lookup :route, '#{route.name}' %>" if route
@@ -85,6 +85,14 @@ module SkullIsland
       # rubocop:enable Metrics/PerceivedComplexity
 
       private
+
+      def preprocess_config(input)
+        input.deep_sort
+      end
+
+      def postprocess_config(value)
+        value.deep_sort
+      end
 
       # TODO: 1.0.x requires refactoring as `consumer_id` becomes `consumer`
       def postprocess_consumer_id(value)

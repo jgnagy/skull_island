@@ -66,7 +66,7 @@ RSpec.describe SkullIsland::Resources::Consumer do
     it 'allows updating a resource' do
       resource = existing_resource
       resource.api_client.response_for(
-        :put,
+        :patch,
         "#{subject.class.relative_uri}/4d924084-1adb-40a5-c042-63b19db421d1",
         data: updated_resource_post,
         response: updated_resource_raw

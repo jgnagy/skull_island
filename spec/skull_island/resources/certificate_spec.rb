@@ -82,7 +82,7 @@ RSpec.describe SkullIsland::Resources::Certificate do
     it 'allows updating a resource' do
       resource = existing_resource
       resource.api_client.response_for(
-        :put,
+        :patch,
         "#{subject.class.relative_uri}/21b69eab-09d9-40f9-a55e-c4ee47fada68",
         data: updated_resource_post,
         response: updated_resource_raw
