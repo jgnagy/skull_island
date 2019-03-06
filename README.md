@@ -26,7 +26,82 @@ Gem::Specification.new do |spec|
 end
 ```
 
-## Usage
+## CLI Usage
+
+Skull Island comes with an executable called `skull_island` that leverages the SDK under the hood. Learn about what is can do via `help`:
+
+```
+$ skull_island help
+Commands:
+  skull_island export [OPTIONS] OUTPUT_FILE  # Export the current configuration to OUTPUT_FILE
+  skull_island help [COMMAND]                # Describe available commands or one specific command
+  skull_island import [OPTIONS] INPUT_FILE   # Import a configuration from INPUT_FILE
+
+Options:
+  [--verbose], [--no-verbose]
+```
+
+To use the commands that interact with the Kong API, set environment variables for the required parameters:
+
+```
+KONG_ADMIN_URL='https://api-admin.mydomain.com' \
+KONG_ADMIN_USERNAME='my-basicauth-user' \
+KONG_ADMIN_PASSWORD='my-basicauth-password' \
+skull_island ...
+```
+
+Note that you can skip `KONG_ADMIN_USERNAME` and `KONG_ADMIN_PASSWORD` if you aren't using a basic-auth reverse-proxy in front of the Admin API.
+
+### Exporting
+
+The CLI allows you to export an existing configuration to a YAML + ERB document (a YAML document with embedded Ruby). This format is helpful because it doesn't require you to know the IDs of resources, making your configuration portable.
+
+The `export` command will default to outputting to STDOUT if you don't provide an output file location. Otherwise, simply specify the filename you'd like to export to:
+
+```
+KONG_ADMIN_URL='https://api-admin.mydomain.com' \
+skull_island export /path/to/export.yml
+```
+
+You can also get a little more information by turning on `--verbose`:
+
+```
+KONG_ADMIN_URL='https://api-admin.mydomain.com' \
+skull_island export --verbose /path/to/export.yml
+```
+
+### Importing
+
+Skull Island also supports importing configurations (both partial and full) from a YAML + ERB document:
+
+```
+KONG_ADMIN_URL='https://api-admin.mydomain.com' \
+skull_island import /path/to/export.yml
+```
+
+It'll also read from STDIN if you don't specify a file path (or if you specify `-` as the path):
+
+```
+cat /path/to/export.yml | KONG_ADMIN_URL='https://api-admin.mydomain.com' skull_island import
+# OR
+KONG_ADMIN_URL='https://api-admin.mydomain.com' skull_island import < /path/to/export.yml
+```
+
+You can also get a little more information by turning on `--verbose`:
+
+```
+KONG_ADMIN_URL='https://api-admin.mydomain.com' \
+skull_island import --verbose /path/to/export.yml
+```
+
+Importing also supports a "dry run" functionality that shows you what it would do (but makes no changes) using `--test`:
+
+```
+KONG_ADMIN_URL='https://api-admin.mydomain.com' \
+skull_island import --verbose --test /path/to/export.yml
+```
+
+## SDK Usage
 
 The API Client requires configuration before it can be used. For now, this is a matter of calling `APIClient.configure()`, passing a Hash, with Symbols for keys:
 
@@ -59,7 +134,7 @@ APIClient.server_status
 # => {"database"=>{"reachable"=>true...
 ```
 
-This SDK also makes automatic (and mostly unobtrusive) caching behind the scenes. As long as this tool is the only tool making changes to the Admin API (at least while it is being used), this should be fine. Eventually, there will be an option to disable this cache (at the cost of poor performance). For now, it is possible to query this cache and even flushed it manually when required:
+This SDK also makes use of automatic (and mostly unobtrusive) caching behind the scenes. As long as this tool is the only tool making changes to the Admin API (at least while it is being used), this should be fine. Eventually, there will be an option to disable this cache (at the cost of poor performance). For now, it is possible to query this cache and even flushed it manually when required:
 
 ```ruby
 APIClient.lru_cache
@@ -194,7 +269,7 @@ resource.enabled  = true            # A Boolean
 resource.config   = { 'minute' => 50, 'hour' => 1000 } # A Hash of config keys and values
 
 # Either reference related resources by ID
-resource.service  = { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' }
+resource.service  = '5fd1z584-1adb-40a5-c042-63b19db49x21'
 resource.service
 # => #<SkullIsland::Resources::Services:0x00007f9f201f6f44...
 

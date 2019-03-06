@@ -77,15 +77,15 @@ module SkullIsland
       # rubocop:disable Metrics/PerceivedComplexity
       def import_update_or_skip(verbose: false, test: false, index:)
         if find_by_digest
-          puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
+          puts "[INFO] Skipping #{self.class} index #{index} (#{id})" if verbose
         elsif test
-          puts "[INFO] Would have saved #{resource.class} index #{index}"
+          puts "[INFO] Would have saved #{sef.class} index #{index}"
         elsif modified_existing?
-          puts "[INFO] Modified #{resource.class} index #{index} (#{resource.id})" if verbose
+          puts "[INFO] Modified #{self.class} index #{index} (#{id})" if verbose
         elsif save
-          puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
+          puts "[INFO] Saved #{self.class} index #{index} (#{id})" if verbose
         else
-          puts "[ERR] Failed to save #{resource.class} index #{index}"
+          puts "[ERR] Failed to save #{self.class} index #{index}"
         end
       end
       # rubocop:enable Metrics/CyclomaticComplexity

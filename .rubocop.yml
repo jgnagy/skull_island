@@ -18,6 +18,10 @@ Metrics/ModuleLength:
 Metrics/CyclomaticComplexity:
   Max: 7
 
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'lib/skull_island/cli.rb'
+
 Metrics/AbcSize:
   Max: 25
 
