@@ -13,7 +13,7 @@ gem install skull_island
 Or add this to your Gemfile:
 
 ```ruby
-gem 'skull_island',  '~>0.1'
+gem 'skull_island',  '~>0.2'
 ```
 
 Or add this to your .gemspec:
@@ -21,7 +21,7 @@ Or add this to your .gemspec:
 ```ruby
 Gem::Specification.new do |spec|
  # ...
- spec.add_runtime_dependency 'skull_island', '~> 0.1'
+ spec.add_runtime_dependency 'skull_island', '~> 0.2'
  # ...
 end
 ```
