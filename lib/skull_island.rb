@@ -9,6 +9,7 @@ require 'uri'
 require 'yaml'
 
 # External Library Requirements
+require 'erubi'
 require 'linguistics'
 Linguistics.use(:en)
 require 'rest-client'

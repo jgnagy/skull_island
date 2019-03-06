@@ -97,8 +97,12 @@ module SkullIsland
       root = 'data' # root for API JSON response data
       # TODO: do something with lazy requests...
 
+      collection_entity = api_client.cache(relative_uri) do |client|
+        client.get(relative_uri)[root]
+      end
+
       ResourceCollection.new(
-        api_client.get(relative_uri)[root].collect do |record|
+        collection_entity.collect do |record|
           unless options[:lazy]
             api_client.invalidate_cache_for "#{relative_uri}/#{record['id']}"
             api_client.cache("#{relative_uri}/#{record['id']}") do

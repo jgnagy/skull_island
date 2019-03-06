@@ -12,8 +12,7 @@ module SkullIsland
       property :snis, validate: true
       property :created_at, read_only: true, postprocess: true
 
-      # rubocop:disable Metrics/PerceivedComplexity
-      def self.batch_import(data, verbose: false)
+      def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |resource_data, index|
@@ -21,18 +20,11 @@ module SkullIsland
           resource.cert = resource_data['cert']
           resource.key = resource_data['key']
           resource.snis = resource_data['snis'] if resource_data['snis']
-          if resource.find_by_digest
-            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
-          elsif resource.save
-            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
-          else
-            puts "[ERR] Failed to save #{resource.class} index #{index}"
-          end
+          resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
-      # rubocop:enable Metrics/PerceivedComplexity
 
-      def to_hash(options = {})
+      def export(options = {})
         hash = { 'cert' => cert, 'key' => key, 'snis' => snis }
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
@@ -41,6 +33,22 @@ module SkullIsland
           hash[inc.to_s] = send(:inc)
         end
         hash.reject { |_, value| value.nil? }
+      end
+
+      def modified_existing?
+        return false unless new?
+
+        # Find certs of the same cert and key
+        same_key = self.class.where(:key, key)
+
+        existing = same_key.size == 1 ? same_key.first : nil
+
+        if existing
+          @entity['id'] = existing.id
+          save
+        else
+          false
+        end
       end
 
       private

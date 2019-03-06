@@ -16,8 +16,7 @@ module SkullIsland
       property :service_id, validate: true, preprocess: true, postprocess: true, as: :service
       property :created_at, read_only: true, postprocess: true
 
-      # rubocop:disable Metrics/PerceivedComplexity
-      def self.batch_import(data, verbose: false)
+      def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |resource_data, index|
@@ -28,16 +27,9 @@ module SkullIsland
           resource.delayed_set(:consumer, resource_data, 'consumer_id')
           resource.delayed_set(:route, resource_data, 'route_id')
           resource.delayed_set(:service, resource_data, 'service_id')
-          if resource.find_by_digest
-            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
-          elsif resource.save
-            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
-          else
-            puts "[ERR] Failed to save #{resource.class} index #{index}"
-          end
+          resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
-      # rubocop:enable Metrics/PerceivedComplexity
 
       def self.enabled_names(api_client: APIClient.instance)
         api_client.get("#{relative_uri}/enabled")['enabled_plugins']
@@ -47,15 +39,15 @@ module SkullIsland
         api_client.get("#{relative_uri}/schema/#{name}")
       end
 
-      def to_hash(options = {})
+      def export(options = {})
         hash = {
           'name' => name,
           'enabled' => enabled?,
           'config' => config
         }
-        hash['consumer_id'] = consumer.id if consumer
-        hash['route_id'] = route.id if route
-        hash['service_id'] = service.id if service
+        hash['consumer_id'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
+        hash['route_id'] = "<%= lookup :route, '#{route.name}' %>" if route
+        hash['service_id'] = "<%= lookup :service, '#{service.name}' %>" if service
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -64,6 +56,33 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+
+      # rubocop:disable Metrics/PerceivedComplexity
+      def modified_existing?
+        return false unless new?
+
+        # Find plugins of the same name
+        same_name = self.class.where(:name, name)
+        return false if same_name.size.zero?
+
+        same_name_and_consumer = same_name.where(:consumer, consumer)
+        same_name_and_route = same_name.where(:route, route)
+        same_name_and_service = same_name.where(:service, service)
+        existing = if same_name_and_consumer.size == 1
+                     same_name_and_consumer.first
+                   elsif same_name_and_route.size == 1
+                     same_name_and_route.first
+                   elsif same_name_and_service.size == 1
+                     same_name_and_service.first
+                   end
+        if existing
+          @entity['id'] = existing.id
+          save
+        else
+          false
+        end
+      end
+      # rubocop:enable Metrics/PerceivedComplexity
 
       private
 
@@ -166,19 +185,19 @@ module SkullIsland
       # Used to validate {#consumer} on set
       def validate_consumer_id(value)
         # allow either a Consumer object or a Hash of a specific structure
-        value.is_a?(Consumer) || (value.is_a?(Hash) && value['id'].is_a?(String))
+        value.is_a?(Consumer) || value.is_a?(String)
       end
 
       # Used to validate {#route} on set
       def validate_route_id(value)
         # allow either a Route object or a Hash of a specific structure
-        value.is_a?(Route) || (value.is_a?(Hash) && value['id'].is_a?(String))
+        value.is_a?(Route) || value.is_a?(String)
       end
 
       # Used to validate {#service} on set
       def validate_service_id(value)
         # allow either a Service object or a Hash of a specific structure
-        value.is_a?(Service) || (value.is_a?(Hash) && value['id'].is_a?(String))
+        value.is_a?(Service) || value.is_a?(String)
       end
     end
   end

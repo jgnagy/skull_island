@@ -14,13 +14,22 @@ module SkullIsland
         )
       end
 
+      # rubocop:disable Style/GuardClause
       def delayed_set(property, data, key)
-        send("#{property}=".to_sym, data[key].is_a?(Proc) ? data[key].call : data[key]) if data[key]
+        # rubocop:disable Security/Eval
+        if data[key]
+          send(
+            "#{property}=".to_sym,
+            data[key].is_a?(String) ? eval(Erubi::Engine.new(data[key]).src) : data[key]
+          )
+        end
+        # rubocop:enable Security/Eval
       end
+      # rubocop:enable Style/GuardClause
 
       def digest
         Digest::MD5.hexdigest(
-          digest_properties.sort.map { |prop| send(prop.to_sym) }.compact.join(':')
+          digest_properties.sort.map { |prop| "#{prop}=#{send(prop.to_sym)}" }.compact.join(':')
         )
       end
 
@@ -64,6 +73,39 @@ module SkullIsland
         self.class.immutable?
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
+      def import_update_or_skip(verbose: false, test: false, index:)
+        if find_by_digest
+          puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
+        elsif test
+          puts "[INFO] Would have saved #{resource.class} index #{index}"
+        elsif modified_existing?
+          puts "[INFO] Modified #{resource.class} index #{index} (#{resource.id})" if verbose
+        elsif save
+          puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
+        else
+          puts "[ERR] Failed to save #{resource.class} index #{index}"
+        end
+      end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
+
+      def lookup(type, value)
+        case type
+        when :consumer
+          Resources::Consumer.find(:username, value).id
+        when :route
+          Resources::Route.find(:name, value).id
+        when :service
+          Resources::Service.find(:name, value).id
+        when :upstream
+          Resources::Upstream.find(:name, value).id
+        else
+          raise Exceptions::InvalidArguments, "#{type} is not a valid lookup type"
+        end
+      end
+
       # ActiveRecord ActiveModel::Name compatibility method
       def model_name
         self.class
@@ -96,16 +138,6 @@ module SkullIsland
 
       def tainted?
         @tainted ? true : false
-      end
-
-      # ActiveRecord ActiveModel::Conversion compatibility method
-      def to_key
-        new? ? [] : [id]
-      end
-
-      # ActiveRecord ActiveModel::Conversion compatibility method
-      def to_model
-        self
       end
 
       # ActiveRecord ActiveModel::Conversion compatibility method
@@ -157,6 +189,7 @@ module SkullIsland
           @api_client.invalidate_cache_for(relative_uri.to_s)
           @entity = @api_client.put(relative_uri, saveable_data)
         end
+        @api_client.invalidate_cache_for(self.class.relative_uri.to_s) # clear any collection class
         @tainted = false
         true
       end

@@ -26,7 +26,7 @@ module SkullIsland
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
-      def self.batch_import(data, verbose: false)
+      def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |rdata, index|
@@ -37,16 +37,10 @@ module SkullIsland
           resource.protocols = rdata['protocols'] if rdata['protocols']
           resource.hosts = rdata['hosts'] if rdata['hosts']
           resource.regex_priority = rdata['regex_priority'] if rdata['regex_priority']
-          resource.strip_path = rdata['strip_path'] if rdata['strip_path']
-          resource.preserve_host = rdata['preserve_host'] if rdata['preserve_host']
-          resource.delayed_set(:service, rdata, 'service_id')
-          if resource.find_by_digest
-            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
-          elsif resource.save
-            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
-          else
-            puts "[ERR] Failed to save #{resource.class} index #{index}"
-          end
+          resource.strip_path = rdata['strip_path'] unless rdata['strip_path'].nil?
+          resource.preserve_host = rdata['preserve_host'] unless rdata['preserve_host'].nil?
+          resource.delayed_set(:service, rdata, 'service')
+          resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
       # rubocop:enable Metrics/CyclomaticComplexity
@@ -58,7 +52,7 @@ module SkullIsland
         Plugin.where(:route, self, api_client: api_client)
       end
 
-      def to_hash(options = {})
+      def export(options = {})
         hash = {
           'name' => name,
           'methods' => methods,
@@ -69,7 +63,7 @@ module SkullIsland
           'strip_path' => strip_path?,
           'preserve_host' => preserve_host?
         }
-        hash['service'] = { 'id' => service.id } if service
+        hash['service'] = { 'id' => "<%= lookup :service, '#{service.name}' %>" } if service
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -77,6 +71,22 @@ module SkullIsland
           hash[inc.to_s] = send(:inc)
         end
         hash.reject { |_, value| value.nil? }
+      end
+
+      def modified_existing?
+        return false unless new?
+
+        # Find routes of the same name and service
+        same_name_and_service = self.class.where(:name, name).and(:service, service)
+
+        existing = same_name_and_service.size == 1 ? same_name_and_service.first : nil
+
+        if existing
+          @entity['id'] = existing.id
+          save
+        else
+          false
+        end
       end
 
       private

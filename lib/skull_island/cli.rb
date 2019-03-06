@@ -5,7 +5,6 @@ require 'skull_island'
 
 # External requirements
 require 'yaml'
-require 'erubi'
 require 'thor'
 
 module SkullIsland
@@ -35,6 +34,7 @@ module SkullIsland
 
     desc 'import [OPTIONS] INPUT_FILE', 'Import a configuration from INPUT_FILE'
     option :exclusive, type: :boolean, desc: 'Remove ALL other configuration (default false)'
+    option :test, type: :boolean, desc: "Don't do anything, just show what would happen"
     def import(input_file)
       full_filename = File.expand_path(input_file)
       unless File.exist?(full_filename) && File.ftype(full_filename) == 'file'
@@ -46,28 +46,34 @@ module SkullIsland
               rescue StandardError => e
                 raise "Unable to process #{relative_path}: #{e.message}"
           end
-      unrubied_yaml = eval(Erubi::Engine.new(raw).src)
+      # unrubied_yaml = eval(Erubi::Engine.new(raw).src)
 
-      input = YAML.load_file(unrubied_yaml)
+      # rubocop:disable Security/YAMLLoad
+      input = YAML.load(raw)
+      # rubocop:enable Security/YAMLLoad
 
       [
         Resources::Consumer,
         Resources::Service,
         Resources::Upstream,
         Resources::Plugin
-      ].each { |clname| input_class(clname, input) }
+      ].each { |clname| import_class(clname, input) }
     end
 
     private
 
     def export_class(class_name, output_data)
       STDERR.puts "[INFO] Processing #{class_name.route_key}" if options['verbose']
-      output_data[class_name.route_key] = class_name.all.collect(&:to_hash)
+      output_data[class_name.route_key] = class_name.all.collect(&:export)
     end
 
     def import_class(class_name, import_data)
       STDERR.puts "[INFO] Processing #{class_name.route_key}" if options['verbose']
-      class_name.batch_import(import_data[class_name.route_key], verbose: options['verbose'])
+      class_name.batch_import(
+        import_data[class_name.route_key],
+        verbose: options['verbose'],
+        test: options['test']
+      )
     end
   end
 end

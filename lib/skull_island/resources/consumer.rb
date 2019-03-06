@@ -11,20 +11,14 @@ module SkullIsland
       property :custom_id
       property :created_at, read_only: true, postprocess: true
 
-      def self.batch_import(data, verbose: false)
+      def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |resource_data, index|
           resource = new
           resource.username = resource_data['username']
           resource.custom_id = resource_data['custom_id']
-          if resource.find_by_digest
-            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
-          elsif resource.save
-            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
-          else
-            puts "[ERR] Failed to save #{resource.class} index #{index}"
-          end
+          resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
 
@@ -33,7 +27,7 @@ module SkullIsland
         Plugin.where(:consumer, self, api_client: api_client)
       end
 
-      def to_hash(options = {})
+      def export(options = {})
         hash = { 'username' => username, 'custom_id' => custom_id }
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
@@ -42,6 +36,22 @@ module SkullIsland
           hash[inc.to_s] = send(:inc)
         end
         hash.reject { |_, value| value.nil? }
+      end
+
+      def modified_existing?
+        return false unless new?
+
+        # Find consumers of the same username
+        same_username = self.class.where(:username, username)
+
+        existing = same_username.size == 1 ? same_username.first : nil
+
+        if existing
+          @entity['id'] = existing.id
+          save
+        else
+          false
+        end
       end
     end
   end

@@ -19,10 +19,8 @@ module SkullIsland
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
 
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
-      def self.batch_import(data, verbose: false)
+      def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |rdata, index|
@@ -36,23 +34,15 @@ module SkullIsland
           resource.connect_timeout = rdata['connect_timeout'] if rdata['connect_timeout']
           resource.write_timeout = rdata['write_timeout'] if rdata['write_timeout']
           resource.read_timeout = rdata['read_timeout'] if rdata['read_timeout']
-          if resource.find_by_digest
-            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
-          elsif resource.save
-            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
-          else
-            puts "[ERR] Failed to save #{resource.class} index #{index}"
-          end
-          puts '[INFO] Processing Route entries...' if verbose
+          resource.import_update_or_skip(index: index, verbose: verbose, test: test)
 
           Route.batch_import(
-            rdata['routes'].map { |r| r.merge('service_id' => resource.id) },
-            verbose: verbose
+            rdata['routes'].map { |r| r.merge('service' => { 'id' => resource.id }) },
+            verbose: verbose,
+            test: test
           )
         end
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
-      # rubocop:enable Metrics/PerceivedComplexity
       # rubocop:enable Metrics/AbcSize
 
       # Convenience method to add routes
@@ -73,7 +63,7 @@ module SkullIsland
         Plugin.where(:service, self, api_client: api_client)
       end
 
-      def to_hash(options = {})
+      def export(options = {})
         hash = {
           'name' => name,
           'retries' => retries,
@@ -85,7 +75,7 @@ module SkullIsland
           'write_timeout' => write_timeout,
           'read_timeout' => read_timeout
         }
-        hash['routes'] = routes.collect { |route| route.to_hash(exclude: 'service') }
+        hash['routes'] = routes.collect { |route| route.export(exclude: 'service') }
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -93,6 +83,22 @@ module SkullIsland
           hash[inc.to_s] = send(:inc)
         end
         hash.reject { |_, value| value.nil? }
+      end
+
+      def modified_existing?
+        return false unless new?
+
+        # Find routes of the same name
+        same_name = self.class.where(:name, name)
+
+        existing = same_name.size == 1 ? same_name.first : nil
+
+        if existing
+          @entity['id'] = existing.id
+          save
+        else
+          false
+        end
       end
 
       def url=(uri_or_string)

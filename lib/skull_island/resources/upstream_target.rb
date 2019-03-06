@@ -15,24 +15,17 @@ module SkullIsland
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
 
-      # rubocop:disable Metrics/PerceivedComplexity
-      def self.batch_import(data, verbose: false)
+      def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |resource_data, index|
           resource = new
           resource.target = resource_data['target']
+          resource.delayed_set(:upstream, resource_data, 'upstream_id')
           resource.weight = resource_data['weight'] if resource_data['weight']
-          if resource.find_by_digest
-            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
-          elsif resource.save
-            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
-          else
-            puts "[ERR] Failed to save #{resource.class} index #{index}"
-          end
+          resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
-      # rubocop:enable Metrics/PerceivedComplexity
 
       def self.get(id, options = {})
         if options[:upstream]&.is_a?(Upstream)
@@ -51,9 +44,9 @@ module SkullIsland
         upstream ? "#{upstream.relative_uri}/targets" : nil
       end
 
-      def to_hash(options = {})
+      def export(options = {})
         hash = { 'target' => target, 'weight' => weight }
-        hash['upstream_id'] = upstream.id if upstream
+        hash['upstream_id'] = "<%= lookup :upstream, '#{upstream.name}' %>" if upstream
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -61,6 +54,22 @@ module SkullIsland
           hash[inc.to_s] = send(:inc)
         end
         hash.reject { |_, value| value.nil? }
+      end
+
+      def modified_existing?
+        return false unless new?
+
+        # Find routes of the same name
+        same_target_and_upstream = self.class.where(:target, target).and(:upstream, upstream)
+
+        existing = same_target_and_upstream.size == 1 ? same_target_and_upstream.first : nil
+
+        if existing
+          @entity['id'] = existing.id
+          save
+        else
+          false
+        end
       end
 
       private

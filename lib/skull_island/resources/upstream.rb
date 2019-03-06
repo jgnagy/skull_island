@@ -21,7 +21,7 @@ module SkullIsland
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
-      def self.batch_import(data, verbose: false)
+      def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |rdata, index|
@@ -39,18 +39,13 @@ module SkullIsland
             resource.hash_on_cookie_path = rdata['hash_on_cookie_path']
           end
           resource.healthchecks = rdata['healthchecks'] if rdata['healthchecks']
-          if resource.find_by_digest
-            puts "[INFO] Skipping #{resource.class} index #{index} (#{resource.id})" if verbose
-          elsif resource.save
-            puts "[INFO] Saved #{resource.class} index #{index} (#{resource.id})" if verbose
-          else
-            puts "[ERR] Failed to save #{resource.class} index #{index}"
-          end
+          resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           puts '[INFO] Processing UpstreamTarget entries...' if verbose
 
           UpstreamTarget.batch_import(
             rdata['targets'].map { |t| t.merge('upstream_id' => resource.id) },
-            verbose: verbose
+            verbose: verbose,
+            test: test
           )
         end
       end
@@ -108,7 +103,7 @@ module SkullIsland
         )
       end
 
-      def to_hash(options = {})
+      def export(options = {})
         hash = {
           'name' => name,
           'slots' => slots,
@@ -120,7 +115,7 @@ module SkullIsland
           'hash_on_cookie_path' => hash_on_cookie_path,
           'healthchecks' => healthchecks
         }
-        hash['targets'] = targets.collect { |route| route.to_hash(exclude: 'upstream_id') }
+        hash['targets'] = targets.collect { |route| route.export(exclude: 'upstream_id') }
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -128,6 +123,22 @@ module SkullIsland
           hash[inc.to_s] = send(:inc)
         end
         hash.reject { |_, value| value.nil? }
+      end
+
+      def modified_existing?
+        return false unless new?
+
+        # Find routes of the same name
+        same_name = self.class.where(:name, name)
+
+        existing = same_name.size == 1 ? same_name.first : nil
+
+        if existing
+          @entity['id'] = existing.id
+          save
+        else
+          false
+        end
       end
 
       private

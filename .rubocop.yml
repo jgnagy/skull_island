@@ -12,6 +12,8 @@ Metrics/ClassLength:
 
 Metrics/ModuleLength:
   Max: 165
+  Exclude:
+    - 'lib/skull_island/helpers/resource.rb'
 
 Metrics/CyclomaticComplexity:
   Max: 7

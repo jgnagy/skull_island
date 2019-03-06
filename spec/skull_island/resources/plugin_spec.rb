@@ -79,8 +79,8 @@ RSpec.describe SkullIsland::Resources::Plugin do
       )
       expect(resource.name).to be nil
       resource.name = 'rate-limiting'
-      resource.service = { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' }
-      resource.consumer = { 'id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4' }
+      resource.service = '5fd1z584-1adb-40a5-c042-63b19db49x21'
+      resource.consumer = 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4'
       resource.enabled = true
       resource.config = { 'minute' => 50, 'hour' => 1000 }
       expect(resource.save).to be true
