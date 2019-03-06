@@ -52,6 +52,16 @@ skull_island ...
 
 Note that you can skip `KONG_ADMIN_USERNAME` and `KONG_ADMIN_PASSWORD` if you aren't using a basic-auth reverse-proxy in front of the Admin API.
 
+Also note that if you're having SSL issues (such as with a private CA), you can have Ruby make use of a custom CA public key using `SSL_CERT_FILE`:
+
+```
+SSL_CERT_FILE=/path/to/cabundle.pem \
+KONG_ADMIN_URL='https://api-admin.mydomain.com' \
+KONG_ADMIN_USERNAME='my-basicauth-user' \
+KONG_ADMIN_PASSWORD='my-basicauth-password' \
+skull_island ...
+```
+
 ### Exporting
 
 The CLI allows you to export an existing configuration to a YAML + ERB document (a YAML document with embedded Ruby). This format is helpful because it doesn't require you to know the IDs of resources, making your configuration portable.
