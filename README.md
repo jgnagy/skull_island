@@ -28,7 +28,7 @@ end
 
 ## CLI Usage
 
-Skull Island comes with an executable called `skull_island` that leverages the SDK under the hood. Learn about what is can do via `help`:
+Skull Island comes with an executable called `skull_island` that leverages the SDK under the hood. Learn about what it can do via `help`:
 
 ```
 $ skull_island help
