@@ -38,6 +38,25 @@ module SkullIsland
         end
       end
 
+      # Convenience method to add upstream targets
+      def add_credential!(details)
+        r = if [BasicauthCredential, KeyauthCredential].include? details.class
+              details
+            elsif details.is_a?(Hash) && details.key?(:key)
+              cred = KeyauthCredential.new(api_client: api_client)
+              cred.key = details[:key]
+              cred
+            elsif details.is_a?(Hash) && details.key?(:username)
+              cred = BasicauthCredential.new(api_client: api_client)
+              cred.username = details[:username]
+              cred.password = details[:password]
+              cred
+            end
+
+        r.consumer = self
+        r.save
+      end
+
       def credentials
         creds = {}
         keyauth_creds = KeyauthCredential.where(:consumer, self, api_client: api_client)

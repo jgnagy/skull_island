@@ -25,15 +25,6 @@ module SkullIsland
         end
       end
 
-      def self.get(id, options = {})
-        if options[:consumer]&.is_a?(Consumer)
-          options[:consumer].target(id)
-        elsif options[:consumer]
-          consumer_opts = options.merge(lazy: true)
-          Consumer.get(options[:consumer], consumer_opts).target(id)
-        end
-      end
-
       def self.relative_uri
         'key-auths'
       end

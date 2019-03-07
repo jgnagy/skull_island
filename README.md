@@ -246,7 +246,7 @@ resource.created_at
 # => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
 ```
 
-#### Consumers
+#### Consumers (and their Credentials)
 
 ```ruby
 resource = Resources::Consumer.new
@@ -264,6 +264,20 @@ resource.created_at
 # => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
 resource.plugins
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3e...
+resource.credentials
+# => {}
+resource.add_credential!(key: '932948e89e09e2989d8092') # adds a KeyauthCredential
+# => true
+resource.credentials['key-auth']
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3f...
+resource.credentials['key-auth'].first.key
+# => "932948e89e09e2989d8092"
+resource.add_credential!(username: 'test', password: 'passw0rd') # adds a BasicauthCredential
+# => true
+resource.credentials['basic-auth']
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3f...
+resource.credentials['basic-auth'].first.username
+# => "test"
 ```
 
 #### Plugins
