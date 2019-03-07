@@ -68,7 +68,7 @@ RSpec.describe SkullIsland::Resources::KeyauthCredential do
       expect(resource.key).to eq('234562345623456')
     end
 
-    it 'creates new resources via upstreams' do
+    it 'creates new resources via consumers' do
       resource = subject
       resource.api_client.response_for(
         :post,

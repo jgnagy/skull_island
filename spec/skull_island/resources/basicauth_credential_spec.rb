@@ -72,7 +72,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       expect(resource.password).to eq('234562345623456')
     end
 
-    it 'creates new resources via upstreams' do
+    it 'creates new resources via consumers' do
       resource = subject
       resource.api_client.response_for(
         :post,
