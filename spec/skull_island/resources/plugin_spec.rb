@@ -15,8 +15,8 @@ RSpec.describe SkullIsland::Resources::Plugin do
         'consumer_id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4',
         'name' => 'rate-limiting',
         'config' => {
-          'minute' => 20,
-          'hour' => 500
+          'hour' => 500,
+          'minute' => 20
         },
         'enabled' => true,
         'created_at' => 1422386534
@@ -29,8 +29,8 @@ RSpec.describe SkullIsland::Resources::Plugin do
         'consumer_id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4',
         'name' => 'rate-limiting',
         'config' => {
-          'minute' => 50,
-          'hour' => 1000
+          'hour' => 1000,
+          'minute' => 50
         },
         'enabled' => true
       }

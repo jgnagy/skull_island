@@ -51,7 +51,7 @@ module SkullIsland
           hash.delete(exclude.to_s)
         end
         [*options[:include]].each do |inc|
-          hash[inc.to_s] = send(:inc)
+          hash[inc.to_s] = send(inc.to_sym)
         end
         hash.reject { |_, value| value.nil? }
       end

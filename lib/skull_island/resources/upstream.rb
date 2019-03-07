@@ -43,7 +43,7 @@ module SkullIsland
           puts '[INFO] Processing UpstreamTarget entries...' if verbose
 
           UpstreamTarget.batch_import(
-            rdata['targets'].map { |t| t.merge('upstream_id' => resource.id) },
+            (rdata['targets'] || []).map { |t| t.merge('upstream_id' => resource.id) },
             verbose: verbose,
             test: test
           )
@@ -120,7 +120,7 @@ module SkullIsland
           hash.delete(exclude.to_s)
         end
         [*options[:include]].each do |inc|
-          hash[inc.to_s] = send(:inc)
+          hash[inc.to_s] = send(inc.to_sym)
         end
         hash.reject { |_, value| value.nil? }
       end

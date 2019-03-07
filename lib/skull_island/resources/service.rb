@@ -19,6 +19,8 @@ module SkullIsland
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
       def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
@@ -37,12 +39,14 @@ module SkullIsland
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
 
           Route.batch_import(
-            rdata['routes'].map { |r| r.merge('service' => { 'id' => resource.id }) },
+            (rdata['routes'] || []).map { |r| r.merge('service' => { 'id' => resource.id }) },
             verbose: verbose,
             test: test
           )
         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
       # rubocop:enable Metrics/AbcSize
 
       # Convenience method to add routes
@@ -80,7 +84,7 @@ module SkullIsland
           hash.delete(exclude.to_s)
         end
         [*options[:include]].each do |inc|
-          hash[inc.to_s] = send(:inc)
+          hash[inc.to_s] = send(inc.to_sym)
         end
         hash.reject { |_, value| value.nil? }
       end

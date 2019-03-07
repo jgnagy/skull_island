@@ -58,7 +58,7 @@ module SkullIsland
           raise Exceptions::ImmutableModification if immutable?
 
           if opts[:validate]
-            raise Exceptions::InvalidArguments unless send("validate_#{name}".to_sym, value)
+            raise Exceptions::InvalidArguments, name unless send("validate_#{name}".to_sym, value)
           end
           @entity[name.to_s] = if opts[:preprocess]
                                  send("preprocess_#{name}".to_sym, value)

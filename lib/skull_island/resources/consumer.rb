@@ -19,7 +19,32 @@ module SkullIsland
           resource.username = resource_data['username']
           resource.custom_id = resource_data['custom_id']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
+
+          BasicauthCredential.batch_import(
+            (
+              resource_data.dig('credentials', 'basic-auth') || []
+            ).map { |t| t.merge('consumer_id' => resource.id) },
+            verbose: verbose,
+            test: test
+          )
+
+          KeyauthCredential.batch_import(
+            (
+              resource_data.dig('credentials', 'key-auth') || []
+            ).map { |t| t.merge('consumer_id' => resource.id) },
+            verbose: verbose,
+            test: test
+          )
         end
+      end
+
+      def credentials
+        creds = {}
+        keyauth_creds = KeyauthCredential.where(:consumer, self, api_client: api_client)
+        creds['key-auth'] = keyauth_creds if keyauth_creds
+        basicauth_creds = BasicauthCredential.where(:consumer, self, api_client: api_client)
+        creds['basic-auth'] = basicauth_creds if basicauth_creds
+        creds
       end
 
       # Provides a collection of related {Plugin} instances
@@ -29,11 +54,13 @@ module SkullIsland
 
       def export(options = {})
         hash = { 'username' => username, 'custom_id' => custom_id }
+        creds = credentials_for_export
+        hash['credentials'] = creds unless creds.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
         [*options[:include]].each do |inc|
-          hash[inc.to_s] = send(:inc)
+          hash[inc.to_s] = send(inc.to_sym)
         end
         hash.reject { |_, value| value.nil? }
       end
@@ -52,6 +79,23 @@ module SkullIsland
         else
           false
         end
+      end
+
+      private
+
+      def credentials_for_export
+        creds = {}
+        unless credentials['key-auth'].empty?
+          creds['key-auth'] = credentials['key-auth'].collect do |cred|
+            cred.export(exclude: 'consumer_id')
+          end
+        end
+        unless credentials['basic-auth'].empty?
+          creds['basic-auth'] = credentials['basic-auth'].collect do |cred|
+            cred.export(exclude: 'consumer_id')
+          end
+        end
+        creds
       end
     end
   end
