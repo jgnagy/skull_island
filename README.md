@@ -144,7 +144,7 @@ APIClient.server_status
 # => {"database"=>{"reachable"=>true...
 ```
 
-This SDK also makes use of automatic (and mostly unobtrusive) caching behind the scenes. As long as this tool is the only tool making changes to the Admin API (at least while it is being used), this should be fine. Eventually, there will be an option to disable this cache (at the cost of poor performance). For now, it is possible to query this cache and even flushed it manually when required:
+This SDK also makes use of automatic (and mostly unobtrusive) caching behind the scenes. As long as this tool is the only tool making changes to the Admin API (at least while it is being used), this should be fine. Eventually, there will be an option to disable this cache (at the cost of poor performance). For now, it is possible to query this cache and even flush it manually when required:
 
 ```ruby
 APIClient.lru_cache

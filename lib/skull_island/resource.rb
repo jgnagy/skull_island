@@ -138,7 +138,10 @@ module SkullIsland
     # Returns the first (and hopefully only) resource given some criteria
     # This is a very crude helper and could be made much better
     def self.find(attribute, value, options = {})
-      where(attribute, value, options).first
+      results = where(attribute, value, options)
+      raise Exceptions::AmbiguousFind, 'Found more than one result' if results.size > 1
+
+      results.first
     end
 
     def self.get(id, options = {})

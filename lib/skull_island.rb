@@ -23,6 +23,7 @@ String.include CoreExtensions::String::Transformations
 
 require 'skull_island/version'
 require 'skull_island/api_exception'
+require 'skull_island/exceptions/ambiguous_find'
 require 'skull_island/exceptions/api_client_not_configured'
 require 'skull_island/exceptions/immutable_modification'
 require 'skull_island/exceptions/invalid_arguments'
