@@ -111,6 +111,73 @@ KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island import --verbose --test /path/to/export.yml
 ```
 
+### File Format
+
+The import/export CLI functions produce YAML with support for embedded Ruby ([ERB](https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html)). The file is structured like this (as an example):
+
+```yaml
+---
+version: '0.14'
+consumers:
+- username: foo
+  custom_id: foo
+  credentials:
+    key-auth:
+    - key: q90r8908w09rqw9jfj09jq0f8y389
+    basic-auth:
+    - username: foo
+      password: bar
+services:
+- name: apidocs
+  protocol: https
+  host: api.example.com
+  port: 443
+  path: "/v2/api-docs"
+  routes:
+  - paths:
+    - "/api-docs"
+    protocols:
+    - http
+    - https
+    strip_path: true
+    preserve_host: false
+- name: search_api
+  retries: 5
+  protocol: https
+  host: api.example.com
+  port: 3737
+  connect_timeout: 30000
+  write_timeout: 30000
+  read_timeout: 30000
+  routes:
+  - methods:
+    - POST
+    paths:
+    - "/v2/search"
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    strip_path: true
+    preserve_host: false
+upstreams: []
+plugins:
+- name: key-auth
+  enabled: true
+  config:
+    anonymous: ''
+    hide_credentials: false
+    key_in_body: false
+    key_names:
+    - x-api-key
+    run_on_preflight: true
+  service_id: "<%= lookup :service, 'search_api' %>"
+```
+
+All top-level keys (other than `version`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
+
+
+
 ## SDK Usage
 
 The API Client requires configuration before it can be used. For now, this is a matter of calling `APIClient.configure()`, passing a Hash, with Symbols for keys:
