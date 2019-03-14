@@ -176,7 +176,9 @@ plugins:
 
 All top-level keys (other than `version`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
 
+While technically _any_ Ruby is valid, the following are pretty helpful for templating your YAML files:
 
+* `ENV.fetch('VARIABLE_NAME', 'default value')` - This allows looking up the environment variable `VARIABLE_NAME` and using its value, or, if it isn't defined, it uses `default value` as the value. With this we could change `host: api.example.com` to `host: <%= ENV.fetch('API_HOST', 'api.example.com') %>`. With this, if `API_HOST` is provided, it'll use that, otherwise it will default to `api.example.com`.
 
 ## SDK Usage
 
