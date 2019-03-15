@@ -90,7 +90,7 @@ module SkullIsland
         # TODO: do something with lazy requests...
 
         ResourceCollection.new(
-          target_list_data[root].each do |record|
+          target_list_data[root].map do |record|
             UpstreamTarget.new(
               entity: record,
               lazy: false,

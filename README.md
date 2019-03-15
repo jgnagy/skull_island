@@ -118,6 +118,7 @@ The import/export CLI functions produce YAML with support for embedded Ruby ([ER
 ```yaml
 ---
 version: '0.14'
+certificates: []
 consumers:
 - username: foo
   custom_id: foo
@@ -127,6 +128,7 @@ consumers:
     basic-auth:
     - username: foo
       password: bar
+upstreams: []
 services:
 - name: apidocs
   protocol: https
@@ -160,7 +162,6 @@ services:
     regex_priority: 0
     strip_path: true
     preserve_host: false
-upstreams: []
 plugins:
 - name: key-auth
   enabled: true
@@ -277,7 +278,7 @@ my_consumer.username
 Some resource types are related to others, such as `Routes` and `Services`:
 
 ```ruby
-service = Resources::Services.all.first
+service = Resources::Service.all.first
 # => #<SkullIsland::Resources::Services:0x00007f9f201f6f44...
 service.routes
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e569e1d...

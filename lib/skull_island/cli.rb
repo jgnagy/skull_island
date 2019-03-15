@@ -27,9 +27,10 @@ module SkullIsland
       output = { 'version' => '0.14' }
 
       [
+        Resources::Certificate,
         Resources::Consumer,
-        Resources::Service,
         Resources::Upstream,
+        Resources::Service,
         Resources::Plugin
       ].each { |clname| export_class(clname, output) }
 
@@ -64,9 +65,10 @@ module SkullIsland
       # rubocop:enable Security/YAMLLoad
 
       [
+        Resources::Certificate,
         Resources::Consumer,
-        Resources::Service,
         Resources::Upstream,
+        Resources::Service,
         Resources::Plugin
       ].each { |clname| import_class(clname, input) }
     end
