@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skull_island (0.2.5)
+    skull_island (0.14.0)
       deepsort (~> 0.4)
       erubi (~> 1.8)
       json (~> 2.1)
@@ -48,7 +48,7 @@ GEM
     loggability (0.14.0)
     mime-types (3.2.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2018.0812)
+    mime-types-data (3.2019.0331)
     multi_json (1.13.1)
     multipart-post (2.0.0)
     net-http-persistent (2.9.4)
@@ -113,7 +113,7 @@ GEM
     unf_ext (0.0.7.5)
     unicode-display_width (1.4.1)
     websocket (1.2.8)
-    will_paginate (3.1.6)
+    will_paginate (3.1.7)
     yard (0.9.18)
 
 PLATFORMS
