@@ -5,11 +5,12 @@ module SkullIsland
   module Resources
     # The Certificate resource class
     #
-    # @see https://docs.konghq.com/0.14.x/admin-api/#certificate-object Certificate API definition
+    # @see https://docs.konghq.com/1.1.x/admin-api/#certificate-object Certificate API definition
     class Certificate < Resource
+      include Helpers::Taggable
       property :cert, required: true, validate: true
       property :key, required: true, validate: true
-      property :snis, validate: true
+      property :snis, validate: true # Moves to new model class
       property :created_at, read_only: true, postprocess: true
 
       def self.batch_import(data, verbose: false, test: false)

@@ -24,7 +24,7 @@ module SkullIsland
         end
       end
 
-      output = { 'version' => '0.14' }
+      output = { 'version' => '1.1' }
 
       [
         Resources::Certificate,

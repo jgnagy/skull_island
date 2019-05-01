@@ -7,6 +7,7 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/0.14.x/admin-api/#consumer-object Consumer API definition
     class Consumer < Resource
+      include Helpers::Taggable
       property :username
       property :custom_id
       property :created_at, read_only: true, postprocess: true
