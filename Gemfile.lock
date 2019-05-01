@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skull_island (0.14.0)
+    skull_island (0.14.1)
       deepsort (~> 0.4)
       erubi (~> 1.8)
       json (~> 2.1)

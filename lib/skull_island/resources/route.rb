@@ -7,7 +7,6 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/0.14.x/admin-api/#route-object Route API definition
     class Route < Resource
-      property :name
       property :methods
       property :paths
       property :protocols,      validate: true
@@ -15,7 +14,8 @@ module SkullIsland
       property :regex_priority, validate: true
       property :strip_path,     type: :boolean
       property :preserve_host,  type: :boolean
-      # The following are 1.0.x only
+      # The following are 1.0+ only
+      # property :name
       # property :snis
       # property :sources
       # property :destinations
@@ -25,13 +25,12 @@ module SkullIsland
 
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
-      # rubocop:disable Metrics/AbcSize
       def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         data.each_with_index do |rdata, index|
           resource = new
-          resource.name = rdata['name']
+          # resource.name = rdata['name'] # 1.0+ only
           resource.methods = rdata['methods'] if rdata['methods']
           resource.paths = rdata['paths'] if rdata['paths']
           resource.protocols = rdata['protocols'] if rdata['protocols']
@@ -45,7 +44,6 @@ module SkullIsland
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
-      # rubocop:enable Metrics/AbcSize
 
       # Provides a collection of related {Plugin} instances
       def plugins
@@ -54,7 +52,7 @@ module SkullIsland
 
       def export(options = {})
         hash = {
-          'name' => name,
+          # 'name' => name, # 1.0+ only
           'methods' => methods,
           'paths' => paths,
           'protocols' => protocols,
@@ -76,8 +74,11 @@ module SkullIsland
       def modified_existing?
         return false unless new?
 
-        # Find routes of the same name and service
-        same_name_and_service = self.class.where(:name, name).and(:service, service)
+        # Find routes of the same host, path, protocol, and service
+        same_name_and_service = self.class.where(:protocols, protocols)
+                                    .and(:hosts, hosts)
+                                    .and(:paths, paths)
+                                    .and(:service, service)
 
         existing = same_name_and_service.size == 1 ? same_name_and_service.first : nil
 
