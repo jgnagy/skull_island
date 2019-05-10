@@ -31,6 +31,7 @@ module SkullIsland
 
     def get(uri, data = nil)
       client_action do |client|
+        # TODO: Support the API's pagination through the "next" top-level key
         if data
           JSON.parse client[uri].get(json_headers.merge(params: data))
         else

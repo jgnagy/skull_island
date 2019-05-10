@@ -5,12 +5,12 @@ module SkullIsland
   module Resources
     # The Consumer resource class
     #
-    # @see https://docs.konghq.com/0.14.x/admin-api/#consumer-object Consumer API definition
+    # @see https://docs.konghq.com/1.1.x/admin-api/#consumer-object Consumer API definition
     class Consumer < Resource
-      include Helpers::Taggable
       property :username
       property :custom_id
       property :created_at, read_only: true, postprocess: true
+      property :tags, validate: true
 
       def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
@@ -19,12 +19,13 @@ module SkullIsland
           resource = new
           resource.username = resource_data['username']
           resource.custom_id = resource_data['custom_id']
+          resource.tags = resource_data['tags'] if resource_data['tags']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
 
           BasicauthCredential.batch_import(
             (
               resource_data.dig('credentials', 'basic-auth') || []
-            ).map { |t| t.merge('consumer_id' => resource.id) },
+            ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
             verbose: verbose,
             test: test
           )
@@ -32,7 +33,7 @@ module SkullIsland
           KeyauthCredential.batch_import(
             (
               resource_data.dig('credentials', 'key-auth') || []
-            ).map { |t| t.merge('consumer_id' => resource.id) },
+            ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
             verbose: verbose,
             test: test
           )
@@ -76,6 +77,7 @@ module SkullIsland
         hash = { 'username' => username, 'custom_id' => custom_id }
         creds = credentials_for_export
         hash['credentials'] = creds unless creds.empty?
+        hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -107,12 +109,12 @@ module SkullIsland
         creds = {}
         unless credentials['key-auth'].empty?
           creds['key-auth'] = credentials['key-auth'].collect do |cred|
-            cred.export(exclude: 'consumer_id')
+            cred.export(exclude: 'consumer')
           end
         end
         unless credentials['basic-auth'].empty?
           creds['basic-auth'] = credentials['basic-auth'].collect do |cred|
-            cred.export(exclude: 'consumer_id')
+            cred.export(exclude: 'consumer')
           end
         end
         creds

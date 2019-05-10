@@ -24,6 +24,8 @@ module SkullIsland
         end
       end
 
+      validate_server_version
+
       output = { 'version' => '1.1' }
 
       [
@@ -64,6 +66,8 @@ module SkullIsland
       input = YAML.load(raw)
       # rubocop:enable Security/YAMLLoad
 
+      validate_config_version input['version']
+
       [
         Resources::Certificate,
         Resources::Consumer,
@@ -87,6 +91,27 @@ module SkullIsland
         verbose: options['verbose'],
         test: options['test']
       )
+    end
+
+    def validate_config_version(version)
+      if version && version == '1.1'
+        validate_server_version
+      elsif version && ['0.14', '1.0'].include?(version)
+        STDERR.puts '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
+        exit 2
+      else
+        STDERR.puts '[CRITICAL] Config version is unknown or not supported.'
+        exit 3
+      end
+    end
+
+    def validate_server_version
+      if SkullIsland::APIClient.about_service['version'].starts_with? '1.1'
+        true
+      else
+        STDERR.puts '[CRITICAL] Server version mismatch!'
+        exit 1
+      end
     end
   end
 end

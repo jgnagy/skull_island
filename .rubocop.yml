@@ -23,7 +23,7 @@ Metrics/PerceivedComplexity:
     - 'lib/skull_island/cli.rb'
 
 Metrics/AbcSize:
-  Max: 25
+  Max: 27
 
 Metrics/BlockLength:
   Max: 35

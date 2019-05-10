@@ -17,6 +17,7 @@ module SkullIsland
       property :hash_on_cookie_path, validate: true
       property :healthchecks, validate: true
       property :created_at, read_only: true, postprocess: true
+      property :tags, validate: true
 
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
@@ -39,11 +40,12 @@ module SkullIsland
             resource.hash_on_cookie_path = rdata['hash_on_cookie_path']
           end
           resource.healthchecks = rdata['healthchecks'] if rdata['healthchecks']
+          resource.tags = resource_data['tags'] if resource_data['tags']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           puts '[INFO] Processing UpstreamTarget entries...' if verbose
 
           UpstreamTarget.batch_import(
-            (rdata['targets'] || []).map { |t| t.merge('upstream_id' => resource.id) },
+            (rdata['targets'] || []).map { |t| t.merge('upstream' => { 'id' => resource.id }) },
             verbose: verbose,
             test: test
           )
@@ -77,7 +79,7 @@ module SkullIsland
 
       def target(target_id)
         UpstreamTarget.new(
-          entity: { 'id' => target_id, 'upstream_id' => id },
+          entity: { 'id' => target_id, 'upstream' => { 'id' => id } },
           lazy: true,
           tainted: false,
           api_client: api_client
@@ -116,6 +118,7 @@ module SkullIsland
           'healthchecks' => healthchecks
         }
         hash['targets'] = targets.collect { |route| route.export(exclude: 'upstream_id') }
+        hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end

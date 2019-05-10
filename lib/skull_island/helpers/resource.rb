@@ -94,13 +94,13 @@ module SkullIsland
       def lookup(type, value)
         case type
         when :consumer
-          Resources::Consumer.find(:username, value).id
+          { 'id' => Resources::Consumer.find(:username, value).id }
         when :route
-          Resources::Route.find(:name, value).id
+          { 'id' => Resources::Route.find(:name, value).id }
         when :service
-          Resources::Service.find(:name, value).id
+          { 'id' => Resources::Service.find(:name, value).id }
         when :upstream
-          Resources::Upstream.find(:name, value).id
+          { 'id' => Resources::Upstream.find(:name, value).id }
         else
           raise Exceptions::InvalidArguments, "#{type} is not a valid lookup type"
         end

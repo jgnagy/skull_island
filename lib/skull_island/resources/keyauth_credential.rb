@@ -9,8 +9,8 @@ module SkullIsland
     class KeyauthCredential < Resource
       property :key, validate: true
       property(
-        :consumer_id,
-        required: true, validate: true, preprocess: true, postprocess: true, as: :consumer
+        :consumer,
+        required: true, validate: true, preprocess: true, postprocess: true
       )
       property :created_at, read_only: true, postprocess: true
 
@@ -20,7 +20,7 @@ module SkullIsland
         data.each_with_index do |resource_data, index|
           resource = new
           resource.key = resource_data['key']
-          resource.delayed_set(:consumer, resource_data, 'consumer_id')
+          resource.delayed_set(:consumer, resource_data, 'consumer')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
@@ -39,7 +39,7 @@ module SkullIsland
 
       def export(options = {})
         hash = { 'key' => key }
-        hash['consumer_id'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
+        hash['consumer'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -56,10 +56,10 @@ module SkullIsland
 
       private
 
-      def postprocess_consumer_id(value)
-        if value.is_a?(String)
+      def postprocess_consumer(value)
+        if value.is_a?(Hash)
           Consumer.new(
-            entity: { 'id' => value },
+            entity: value,
             lazy: true,
             tainted: false
           )
@@ -68,18 +68,18 @@ module SkullIsland
         end
       end
 
-      def preprocess_consumer_id(input)
-        if input.is_a?(String)
+      def preprocess_consumer(input)
+        if input.is_a?(Hash)
           input
         else
-          input.id
+          { 'id' => input.id }
         end
       end
 
       # Used to validate {#consumer} on set
-      def validate_consumer_id(value)
-        # allow either a Consumer object or a String
-        value.is_a?(Consumer) || value.is_a?(String)
+      def validate_consumer(value)
+        # allow either a Consumer object or a Hash
+        value.is_a?(Consumer) || value.is_a?(Hash)
       end
 
       # Used to validate {#key} on set

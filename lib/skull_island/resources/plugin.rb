@@ -11,10 +11,11 @@ module SkullIsland
       property :enabled, type: :boolean
       # property :run_on  # 1.0.x only
       property :config, validate: true, preprocess: true, postprocess: true
-      property :consumer_id, validate: true, preprocess: true, postprocess: true, as: :consumer
-      property :route_id, validate: true, preprocess: true, postprocess: true, as: :route
-      property :service_id, validate: true, preprocess: true, postprocess: true, as: :service
+      property :consumer, validate: true, preprocess: true, postprocess: true
+      property :route, validate: true, preprocess: true, postprocess: true
+      property :service, validate: true, preprocess: true, postprocess: true
       property :created_at, read_only: true, postprocess: true
+      property :tags, validate: true
 
       def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
@@ -24,9 +25,10 @@ module SkullIsland
           resource.name = resource_data['name']
           resource.enabled = resource_data['enabled']
           resource.config = resource_data['config'].deep_sort if resource_data['config']
-          resource.delayed_set(:consumer, resource_data, 'consumer_id')
-          resource.delayed_set(:route, resource_data, 'route_id')
-          resource.delayed_set(:service, resource_data, 'service_id')
+          resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.delayed_set(:consumer, resource_data, 'consumer')
+          resource.delayed_set(:route, resource_data, 'route')
+          resource.delayed_set(:service, resource_data, 'service')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
@@ -45,9 +47,10 @@ module SkullIsland
           'enabled' => enabled?,
           'config' => config.deep_sort
         }
-        hash['consumer_id'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
-        hash['route_id'] = "<%= lookup :route, '#{route.name}' %>" if route
-        hash['service_id'] = "<%= lookup :service, '#{service.name}' %>" if service
+        hash['consumer'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
+        hash['route'] = "<%= lookup :route, '#{route.name}' %>" if route
+        hash['service'] = "<%= lookup :service, '#{service.name}' %>" if service
+        hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -95,7 +98,7 @@ module SkullIsland
       end
 
       # TODO: 1.0.x requires refactoring as `consumer_id` becomes `consumer`
-      def postprocess_consumer_id(value)
+      def postprocess_consumer(value)
         if value.is_a?(Hash)
           Consumer.new(
             entity: value,
@@ -113,19 +116,17 @@ module SkullIsland
         end
       end
 
-      # TODO: 1.0.x requires refactoring as `consumer_id` becomes `consumer`
-      def preprocess_consumer_id(input)
+      def preprocess_consumer(input)
         if input.is_a?(Hash)
-          input['id']
+          input
         elsif input.is_a?(Consumer)
-          input.id
+          { 'id' => input.id }
         else
           input
         end
       end
 
-      # TODO: 1.0.x requires refactoring as `route_id` becomes `route`
-      def postprocess_route_id(value)
+      def postprocess_route(value)
         if value.is_a?(Hash)
           Route.new(
             entity: value,
@@ -143,19 +144,17 @@ module SkullIsland
         end
       end
 
-      # TODO: 1.0.x requires refactoring as `route_id` becomes `route`
-      def preprocess_route_id(input)
+      def preprocess_route(input)
         if input.is_a?(Hash)
-          input['id']
+          input
         elsif input.is_a?(Route)
-          input.id
+          { 'id' => input.id }
         else
           input
         end
       end
 
-      # TODO: 1.0.x requires refactoring as `service_id` becomes `service`
-      def postprocess_service_id(value)
+      def postprocess_service(value)
         if value.is_a?(Hash)
           Service.new(
             entity: value,
@@ -173,12 +172,11 @@ module SkullIsland
         end
       end
 
-      # TODO: 1.0.x requires refactoring as `service_id` becomes `service`
-      def preprocess_service_id(input)
+      def preprocess_service(input)
         if input.is_a?(Hash)
-          input['id']
+          input
         elsif input.is_a?(Service)
-          input.id
+          { 'id' => input.id }
         else
           input
         end
@@ -191,21 +189,21 @@ module SkullIsland
       end
 
       # Used to validate {#consumer} on set
-      def validate_consumer_id(value)
+      def validate_consumer(value)
         # allow either a Consumer object or a Hash of a specific structure
-        value.is_a?(Consumer) || value.is_a?(String)
+        value.is_a?(Consumer) || value.is_a?(Hash)
       end
 
       # Used to validate {#route} on set
-      def validate_route_id(value)
+      def validate_route(value)
         # allow either a Route object or a Hash of a specific structure
-        value.is_a?(Route) || value.is_a?(String)
+        value.is_a?(Route) || value.is_a?(Hash)
       end
 
       # Used to validate {#service} on set
-      def validate_service_id(value)
+      def validate_service(value)
         # allow either a Service object or a Hash of a specific structure
-        value.is_a?(Service) || value.is_a?(String)
+        value.is_a?(Service) || value.is_a?(Hash)
       end
     end
   end

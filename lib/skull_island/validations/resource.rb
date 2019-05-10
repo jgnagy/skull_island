@@ -19,6 +19,15 @@ module SkullIsland
           raise Exceptions::InvalidArguments if data[name.to_s].nil?
         end
       end
+
+      # Used to validate #tags on set
+      def validate_tags(value)
+        # allow only valid hostnames
+        value.each do |tag|
+          return false unless tag.is_a?(String) && tag.match?(/\w_-\.~/)
+        end
+        true
+      end
     end
   end
 end

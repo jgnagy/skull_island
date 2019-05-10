@@ -5,7 +5,7 @@ module SkullIsland
   module Resources
     # The Service resource class
     #
-    # @see https://docs.konghq.com/0.14.x/admin-api/#service-object Service API definition
+    # @see https://docs.konghq.com/1.1.x/admin-api/#service-object Service API definition
     class Service < Resource
       property :name
       property :retries
@@ -18,6 +18,7 @@ module SkullIsland
       property :read_timeout,       validate: true
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
+      property :tags, validate: true
 
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
@@ -36,6 +37,7 @@ module SkullIsland
           resource.connect_timeout = rdata['connect_timeout'] if rdata['connect_timeout']
           resource.write_timeout = rdata['write_timeout'] if rdata['write_timeout']
           resource.read_timeout = rdata['read_timeout'] if rdata['read_timeout']
+          resource.tags = resource_data['tags'] if resource_data['tags']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
 
           Route.batch_import(
@@ -80,6 +82,7 @@ module SkullIsland
           'read_timeout' => read_timeout
         }
         hash['routes'] = routes.collect { |route| route.export(exclude: 'service') }
+        hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end

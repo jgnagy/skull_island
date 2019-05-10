@@ -13,7 +13,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         'target' => '1.2.3.4:80',
         'weight' => 15,
-        'upstream_id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432',
+        'upstream' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' },
         'created_at' => 1485523507446
       }
     end
@@ -22,7 +22,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
       {
         'target' => '4.5.6.7:80',
         'weight' => 15,
-        'upstream_id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432'
+        'upstream' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
       }
     end
 
@@ -31,7 +31,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         'target' => '4.5.6.7:80',
         'weight' => 15,
-        'upstream_id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432',
+        'upstream' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' },
         'created_at' => 1485523507446
       }
     end
@@ -68,7 +68,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
       expect(resource.weight).to be nil
       resource.target = '4.5.6.7:80'
       resource.weight = 15
-      resource.upstream = 'ee3310c1-6789-40ac-9386-f79c0cb58432'
+      resource.upstream = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
       expect(resource.save).to be true
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       expect(resource.weight).to eq(15)

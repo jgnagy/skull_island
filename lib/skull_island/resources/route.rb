@@ -5,7 +5,7 @@ module SkullIsland
   module Resources
     # The Route resource class
     #
-    # @see https://docs.konghq.com/0.14.x/admin-api/#route-object Route API definition
+    # @see https://docs.konghq.com/1.1.x/admin-api/#route-object Route API definition
     class Route < Resource
       property :name
       property :methods
@@ -15,13 +15,13 @@ module SkullIsland
       property :regex_priority, validate: true
       property :strip_path,     type: :boolean
       property :preserve_host,  type: :boolean
-      # The following are 1.0.x only
-      # property :snis
-      # property :sources
-      # property :destinations
+      property :snis,           validate: true
+      property :sources
+      property :destinations
       property :service, validate: true, preprocess: true, postprocess: true
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
+      property :tags, validate: true
 
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
@@ -39,6 +39,8 @@ module SkullIsland
           resource.regex_priority = rdata['regex_priority'] if rdata['regex_priority']
           resource.strip_path = rdata['strip_path'] unless rdata['strip_path'].nil?
           resource.preserve_host = rdata['preserve_host'] unless rdata['preserve_host'].nil?
+          resource.snis = rdata['snis'] if rdata['snis']
+          resource.tags = resource_data['tags'] if resource_data['tags']
           resource.delayed_set(:service, rdata, 'service')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
@@ -52,6 +54,7 @@ module SkullIsland
         Plugin.where(:route, self, api_client: api_client)
       end
 
+      # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = {
           'name' => name,
@@ -63,7 +66,9 @@ module SkullIsland
           'strip_path' => strip_path?,
           'preserve_host' => preserve_host?
         }
-        hash['service'] = { 'id' => "<%= lookup :service, '#{service.name}' %>" } if service
+        hash['service'] = "<%= lookup :service, '#{service.name}' %>" if service
+        hash['snis'] = snis if snis && !snis.empty?
+        hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -72,6 +77,7 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+      # rubocop:enable Metrics/AbcSize
 
       def modified_existing?
         return false unless new?
@@ -138,6 +144,17 @@ module SkullIsland
       def validate_service(value)
         # allow either a Service object or a Hash of a specific structure
         value.is_a?(Service) || (value.is_a?(Hash) && value['id'].is_a?(String))
+      end
+
+      # Used to validate {#snis} on set
+      def validate_snis(value)
+        return false unless value.is_a?(Array)
+
+        # allow only valid hostnames
+        value.each do |sni|
+          return false unless sni.match?(host_regex) && !sni.match?(/_/)
+        end
+        true
       end
     end
   end

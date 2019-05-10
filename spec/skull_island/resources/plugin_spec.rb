@@ -11,8 +11,8 @@ RSpec.describe SkullIsland::Resources::Plugin do
       # Taken straight from https://docs.konghq.com/0.14.x/admin-api/#plugin-object
       {
         'id' => '4d924084-1adb-40a5-c042-63b19db421d1',
-        'service_id' => '5fd1z584-1adb-40a5-c042-63b19db49x21',
-        'consumer_id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4',
+        'service' => { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' },
+        'consumer' => { 'id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4' },
         'name' => 'rate-limiting',
         'config' => {
           'hour' => 500,
@@ -25,8 +25,8 @@ RSpec.describe SkullIsland::Resources::Plugin do
 
     let(:updated_resource_post) do
       {
-        'service_id' => '5fd1z584-1adb-40a5-c042-63b19db49x21',
-        'consumer_id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4',
+        'service' => { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' },
+        'consumer' => { 'id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4' },
         'name' => 'rate-limiting',
         'config' => {
           'hour' => 1000,
@@ -39,8 +39,8 @@ RSpec.describe SkullIsland::Resources::Plugin do
     let(:updated_resource_raw) do
       {
         'id' => '4d924084-1adb-40a5-c042-63b19db421d1',
-        'service_id' => '5fd1z584-1adb-40a5-c042-63b19db49x21',
-        'consumer_id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4',
+        'service' => { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' },
+        'consumer' => { 'id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4' },
         'name' => 'rate-limiting',
         'config' => {
           'minute' => 50,
@@ -79,8 +79,8 @@ RSpec.describe SkullIsland::Resources::Plugin do
       )
       expect(resource.name).to be nil
       resource.name = 'rate-limiting'
-      resource.service = '5fd1z584-1adb-40a5-c042-63b19db49x21'
-      resource.consumer = 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4'
+      resource.service = { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' }
+      resource.consumer = { 'id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4' }
       resource.enabled = true
       resource.config = { 'minute' => 50, 'hour' => 1000 }
       expect(resource.save).to be true

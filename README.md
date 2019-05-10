@@ -1,6 +1,6 @@
 # Skull Island
 
-Work In Progress for a full-featured SDK for Kong 0.14.x (with 1.0.x details added for future development).
+A full-featured SDK for Kong 1.1.x (with support for migrating from 0.14.x).
 
 ## Installation
 
@@ -13,7 +13,7 @@ gem install skull_island
 Or add this to your Gemfile:
 
 ```ruby
-gem 'skull_island',  '~>0.2'
+gem 'skull_island',  '~> 1.1'
 ```
 
 Or add this to your .gemspec:
@@ -21,7 +21,7 @@ Or add this to your .gemspec:
 ```ruby
 Gem::Specification.new do |spec|
  # ...
- spec.add_runtime_dependency 'skull_island', '~> 0.2'
+ spec.add_runtime_dependency 'skull_island', '~> 1.1'
  # ...
 end
 ```
@@ -117,7 +117,7 @@ The import/export CLI functions produce YAML with support for embedded Ruby ([ER
 
 ```yaml
 ---
-version: '0.14'
+version: '1.1'
 certificates: []
 consumers:
 - username: foo
@@ -172,7 +172,7 @@ plugins:
     key_names:
     - x-api-key
     run_on_preflight: true
-  service_id: "<%= lookup :service, 'search_api' %>"
+  service: "<%= lookup :service, 'search_api' %>"
 ```
 
 All top-level keys (other than `version`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
@@ -295,7 +295,7 @@ service.routes.size
 # => 4
 ```
 
-From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/0.14.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
+From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/1.1.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
 
 #### Certificates
 
@@ -365,7 +365,7 @@ resource.enabled  = true            # A Boolean
 resource.config   = { 'minute' => 50, 'hour' => 1000 } # A Hash of config keys and values
 
 # Either reference related resources by ID
-resource.service  = '5fd1z584-1adb-40a5-c042-63b19db49x21'
+resource.service  = { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' }
 resource.service
 # => #<SkullIsland::Resources::Services:0x00007f9f201f6f44...
 

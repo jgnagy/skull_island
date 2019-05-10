@@ -5,15 +5,16 @@ module SkullIsland
   module Resources
     # The Upstream Target resource class
     #
-    # @see https://docs.konghq.com/0.14.x/admin-api/#target-object Target API definition
+    # @see https://docs.konghq.com/1.1.x/admin-api/#target-object Target API definition
     class UpstreamTarget < Resource
       property :target, required: true, validate: true, preprocess: true
       property(
-        :upstream_id,
-        required: true, validate: true, preprocess: true, postprocess: true, as: :upstream
+        :upstream,
+        required: true, validate: true, preprocess: true, postprocess: true
       )
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
+      property :tags, validate: true
 
       def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
@@ -21,8 +22,9 @@ module SkullIsland
         data.each_with_index do |resource_data, index|
           resource = new
           resource.target = resource_data['target']
-          resource.delayed_set(:upstream, resource_data, 'upstream_id')
+          resource.delayed_set(:upstream, resource_data, 'upstream')
           resource.weight = resource_data['weight'] if resource_data['weight']
+          resource.tags = resource_data['tags'] if resource_data['tags']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
@@ -46,7 +48,8 @@ module SkullIsland
 
       def export(options = {})
         hash = { 'target' => target, 'weight' => weight }
-        hash['upstream_id'] = "<%= lookup :upstream, '#{upstream.name}' %>" if upstream
+        hash['upstream'] = "<%= lookup :upstream, '#{upstream.name}' %>" if upstream
+        hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -82,20 +85,20 @@ module SkullIsland
         end
       end
 
-      def preprocess_upstream_id(input)
+      def preprocess_upstream(input)
         if input.is_a?(Hash)
-          input['id']
-        elsif input.is_a?(String)
           input
+        elsif input.is_a?(String)
+          { 'id' => input }
         else
-          input.id
+          { 'id' => input.id }
         end
       end
 
-      def postprocess_upstream_id(value)
-        if value.is_a?(String)
+      def postprocess_upstream(value)
+        if value.is_a?(Hash)
           Upstream.new(
-            entity: { 'id' => value },
+            entity: value,
             lazy: true,
             tainted: false
           )
@@ -113,9 +116,9 @@ module SkullIsland
       end
 
       # Used to validate #upstream on set
-      def validate_upstream_id(value)
-        # allow either a Upstream object or a String
-        value.is_a?(Upstream) || value.is_a?(String)
+      def validate_upstream(value)
+        # allow either a Upstream object or a Hash
+        value.is_a?(Upstream) || value.is_a?(Hash) || value.is_a?(String)
       end
 
       # Used to validate {#weight} on set

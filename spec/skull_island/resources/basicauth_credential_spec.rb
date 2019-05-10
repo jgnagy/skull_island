@@ -12,7 +12,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         'username' => 'test',
         'password' => '123451234512345',
-        'consumer_id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432',
+        'consumer' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' },
         'created_at' => 1485523507446
       }
     end
@@ -21,7 +21,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       {
         'username' => 'test2',
         'password' => '234562345623456',
-        'consumer_id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432'
+        'consumer' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
       }
     end
 
@@ -30,7 +30,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         'username' => 'test2',
         'password' => '234562345623456',
-        'consumer_id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432',
+        'consumer' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' },
         'created_at' => 1485523507446
       }
     end
@@ -66,7 +66,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       expect(resource.password).to be nil
       resource.username = 'test2'
       resource.password = '234562345623456'
-      resource.consumer = 'ee3310c1-6789-40ac-9386-f79c0cb58432'
+      resource.consumer = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
       expect(resource.save).to be true
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       expect(resource.password).to eq('234562345623456')

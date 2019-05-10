@@ -7,11 +7,11 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/1.1.x/admin-api/#certificate-object Certificate API definition
     class Certificate < Resource
-      include Helpers::Taggable
       property :cert, required: true, validate: true
       property :key, required: true, validate: true
-      property :snis, validate: true # Moves to new model class
+      property :snis, validate: true
       property :created_at, read_only: true, postprocess: true
+      property :tags, validate: true
 
       def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
@@ -21,12 +21,15 @@ module SkullIsland
           resource.cert = resource_data['cert']
           resource.key = resource_data['key']
           resource.snis = resource_data['snis'] if resource_data['snis']
+          resource.tags = resource_data['tags'] if resource_data['tags']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end
       end
 
       def export(options = {})
-        hash = { 'cert' => cert, 'key' => key, 'snis' => snis }
+        hash = { 'cert' => cert, 'key' => key }
+        hash['snis'] = snis if snis && !snis.empty?
+        hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -68,8 +71,13 @@ module SkullIsland
 
       # Used to validate {#snis} on set
       def validate_snis(value)
-        # only Array is allowed
-        value.is_a?(Array)
+        return false unless value.is_a?(Array)
+
+        # allow only valid hostnames
+        value.each do |sni|
+          return false unless sni.match?(host_regex) && !sni.match?(/_/)
+        end
+        true
       end
     end
   end
