@@ -18,9 +18,10 @@ module SkullIsland
       def delayed_set(property, data, key)
         # rubocop:disable Security/Eval
         if data[key]
+          value = data[key].is_a?(String) ? eval(Erubi::Engine.new(data[key]).src) : data[key]
           send(
             "#{property}=".to_sym,
-            data[key].is_a?(String) ? eval(Erubi::Engine.new(data[key]).src) : data[key]
+            value.is_a?(String) && value.start_with?('{"') ? eval(value) : value
           )
         end
         # rubocop:enable Security/Eval

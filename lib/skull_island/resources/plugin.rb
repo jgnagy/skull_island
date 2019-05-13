@@ -5,11 +5,11 @@ module SkullIsland
   module Resources
     # The Plugin resource class
     #
-    # @see https://docs.konghq.com/0.14.x/admin-api/#plugin-object Plugin API definition
+    # @see https://docs.konghq.com/1.1.x/admin-api/#plugin-object Plugin API definition
     class Plugin < Resource
       property :name
       property :enabled, type: :boolean
-      # property :run_on  # 1.0.x only
+      property :run_on, validate: true
       property :config, validate: true, preprocess: true, postprocess: true
       property :consumer, validate: true, preprocess: true, postprocess: true
       property :route, validate: true, preprocess: true, postprocess: true
@@ -24,6 +24,7 @@ module SkullIsland
           resource = new
           resource.name = resource_data['name']
           resource.enabled = resource_data['enabled']
+          resource.run_on = resource_data['run_on'] if resource_data['run_on']
           resource.config = resource_data['config'].deep_sort if resource_data['config']
           resource.tags = resource_data['tags'] if resource_data['tags']
           resource.delayed_set(:consumer, resource_data, 'consumer')
@@ -97,7 +98,6 @@ module SkullIsland
         value.deep_sort
       end
 
-      # TODO: 1.0.x requires refactoring as `consumer_id` becomes `consumer`
       def postprocess_consumer(value)
         if value.is_a?(Hash)
           Consumer.new(
@@ -198,6 +198,12 @@ module SkullIsland
       def validate_route(value)
         # allow either a Route object or a Hash of a specific structure
         value.is_a?(Route) || value.is_a?(Hash)
+      end
+
+      # Used to validate {#run_on} on set
+      def validate_run_on(value)
+        # allow either a Route object or a Hash of a specific structure
+        %w[first second all].include?(value)
       end
 
       # Used to validate {#service} on set

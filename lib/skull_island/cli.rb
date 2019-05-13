@@ -151,7 +151,7 @@ module SkullIsland
     end
 
     def validate_server_version
-      if SkullIsland::APIClient.about_service['version'].starts_with? '1.1'
+      if SkullIsland::APIClient.about_service['version'].start_with? '1.1'
         true
       else
         STDERR.puts '[CRITICAL] Server version mismatch!'

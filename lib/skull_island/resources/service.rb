@@ -37,7 +37,7 @@ module SkullIsland
           resource.connect_timeout = rdata['connect_timeout'] if rdata['connect_timeout']
           resource.write_timeout = rdata['write_timeout'] if rdata['write_timeout']
           resource.read_timeout = rdata['read_timeout'] if rdata['read_timeout']
-          resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.tags = rdata['tags'] if rdata['tags']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
 
           Route.batch_import(

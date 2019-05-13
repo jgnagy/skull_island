@@ -40,7 +40,7 @@ module SkullIsland
           resource.strip_path = rdata['strip_path'] unless rdata['strip_path'].nil?
           resource.preserve_host = rdata['preserve_host'] unless rdata['preserve_host'].nil?
           resource.snis = rdata['snis'] if rdata['snis']
-          resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.tags = rdata['tags'] if rdata['tags']
           resource.delayed_set(:service, rdata, 'service')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
         end

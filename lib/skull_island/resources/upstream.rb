@@ -5,7 +5,7 @@ module SkullIsland
   module Resources
     # The Upstream resource class
     #
-    # @see https://docs.konghq.com/0.14.x/admin-api/#upstream-objects Upstream API definition
+    # @see https://docs.konghq.com/1.1.x/admin-api/#upstream-objects Upstream API definition
     class Upstream < Resource
       property :name, required: true, validate: true
       property :slots, validate: true
@@ -40,7 +40,7 @@ module SkullIsland
             resource.hash_on_cookie_path = rdata['hash_on_cookie_path']
           end
           resource.healthchecks = rdata['healthchecks'] if rdata['healthchecks']
-          resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.tags = rdata['tags'] if rdata['tags']
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           puts '[INFO] Processing UpstreamTarget entries...' if verbose
 
