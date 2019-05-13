@@ -1,6 +1,6 @@
 # Skull Island
 
-A full-featured SDK for Kong 1.1.x (with support for migrating from 0.14.x).
+A full-featured SDK for [Kong](https://konghq.com/kong/) 1.1.x (with support for migrating from 0.14.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
 
 ## Installation
 
@@ -33,9 +33,10 @@ Skull Island comes with an executable called `skull_island` that leverages the S
 ```
 $ skull_island help
 Commands:
-  skull_island export [OPTIONS] OUTPUT_FILE  # Export the current configuration to OUTPUT_FILE
-  skull_island help [COMMAND]                # Describe available commands or one specific command
-  skull_island import [OPTIONS] INPUT_FILE   # Import a configuration from INPUT_FILE
+  skull_island export [OPTIONS] [OUTPUT|-]             # Export the current configuration to OUTPUT
+  skull_island help [COMMAND]                          # Describe available commands or one specific command
+  skull_island import [OPTIONS] [INPUT|-]              # Import a configuration from INPUT
+  skull_island migrate [OPTIONS] [INPUT|-] [OUTPUT|-]  # Migrate an older config from INPUT to OUTPUT
 
 Options:
   [--verbose], [--no-verbose]
@@ -111,9 +112,23 @@ KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island import --verbose --test /path/to/export.yml
 ```
 
+### Migrating
+
+With Skull Island, it is possible to migrate a configuration from a 0.14.x gateway to one compatible with a 1.1.x gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.1 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
+
+```
+skull_island migrate /path/to/export.yml /output/location/migrated.yml
+```
+
+While this hasn't been heavily tested for all possible use-cases, any configuration generated or usable by the `'~> 0.14'` version of this gem should safely convert using the migration command. It should go without saying that you should **test and confirm** that all of your functionality was successfully migrated.
+
+If you don't have a previous export, you'll need to install an older version of this gem using `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
+
+While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that will likely be used heavily. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1+.
+
 ### File Format
 
-The import/export CLI functions produce YAML with support for embedded Ruby ([ERB](https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html)). The file is structured like this (as an example):
+The import/export/migrate CLI functions produce YAML with support for embedded Ruby ([ERB](https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html)). The file is structured like this (as an example):
 
 ```yaml
 ---

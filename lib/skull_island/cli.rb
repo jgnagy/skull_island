@@ -10,9 +10,11 @@ require 'thor'
 module SkullIsland
   # Base CLI for SkullIsland
   class CLI < Thor
+    include Helpers::Migration
+
     class_option :verbose, type: :boolean
 
-    desc 'export [OPTIONS] OUTPUT_FILE', 'Export the current configuration to OUTPUT_FILE'
+    desc 'export [OPTIONS] [OUTPUT|-]', 'Export the current configuration to OUTPUT'
     def export(output_file = '-')
       if output_file == '-'
         STDERR.puts '[INFO] Outputting to STDOUT' if options['verbose']
@@ -43,24 +45,10 @@ module SkullIsland
       end
     end
 
-    desc 'import [OPTIONS] INPUT_FILE', 'Import a configuration from INPUT_FILE'
+    desc 'import [OPTIONS] [INPUT|-]', 'Import a configuration from INPUT'
     option :test, type: :boolean, desc: "Don't do anything, just show what would happen"
     def import(input_file = '-')
-      raw ||= if input_file == '-'
-                STDERR.puts '[INFO] Reading from STDOUT' if options['verbose']
-                STDIN.read
-              else
-                full_filename = File.expand_path(input_file)
-                unless File.exist?(full_filename) && File.ftype(full_filename) == 'file'
-                  raise Exceptions::InvalidArguments, "#{full_filename} is invalid"
-                end
-
-                begin
-                  File.read(full_filename)
-                rescue StandardError => e
-                  raise "Unable to process #{relative_path}: #{e.message}"
-                end
-              end
+      raw ||= acquire_input(input_file, options['verbose'])
 
       # rubocop:disable Security/YAMLLoad
       input = YAML.load(raw)
@@ -75,6 +63,29 @@ module SkullIsland
         Resources::Service,
         Resources::Plugin
       ].each { |clname| import_class(clname, input) }
+    end
+
+    desc(
+      'migrate [OPTIONS] [INPUT|-] [OUTPUT|-]',
+      'Migrate an older config from INPUT to OUTPUT'
+    )
+    def migrate(input_file = '-', output_file = '-')
+      raw ||= acquire_input(input_file, options['verbose'])
+
+      # rubocop:disable Security/YAMLLoad
+      input = YAML.load(raw)
+      # rubocop:enable Security/YAMLLoad
+
+      validate_migrate_version input['version']
+
+      output = migrate_config(input)
+
+      if output_file == '-'
+        STDERR.puts '[INFO] Outputting to STDOUT' if options['verbose']
+        STDOUT.puts output.to_yaml
+      else
+        File.write(full_filename, output.to_yaml)
+      end
     end
 
     private
@@ -93,6 +104,25 @@ module SkullIsland
       )
     end
 
+    # Used to pull input from either STDIN or the specified file
+    def acquire_input(input_file, verbose = false)
+      if input_file == '-'
+        STDERR.puts '[INFO] Reading from STDIN' if verbose
+        STDIN.read
+      else
+        full_filename = File.expand_path(input_file)
+        unless File.exist?(full_filename) && File.ftype(full_filename) == 'file'
+          raise Exceptions::InvalidArguments, "#{full_filename} is invalid"
+        end
+
+        begin
+          File.read(full_filename)
+        rescue StandardError => e
+          raise "Unable to process #{relative_path}: #{e.message}"
+        end
+      end
+    end
+
     def validate_config_version(version)
       if version && version == '1.1'
         validate_server_version
@@ -102,6 +132,15 @@ module SkullIsland
       else
         STDERR.puts '[CRITICAL] Config version is unknown or not supported.'
         exit 3
+      end
+    end
+
+    def validate_migrate_version(version)
+      if version && version == '0.14'
+        true
+      else
+        STDERR.puts '[CRITICAL] Config version must be 0.14 for migration.'
+        exit 4
       end
     end
 
