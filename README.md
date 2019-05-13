@@ -120,7 +120,7 @@ With Skull Island, it is possible to migrate a configuration from a 0.14.x gatew
 skull_island migrate /path/to/export.yml /output/location/migrated.yml
 ```
 
-While this hasn't been heavily tested for all possible use-cases, any configuration generated or usable by the `'~> 0.14'` version of this gem should safely convert using the migration command. It should go without saying that you should **test and confirm** that all of your functionality was successfully migrated.
+While this hasn't been heavily tested for all possible use-cases, any configuration generated or usable by the `'~> 0.14'` version of this gem should safely convert using the migration command. This tool also makes no guarantees about plugin functionality, configuration compatibility across versions, or that the same plugins are installed and available in your newer gateway. It should go without saying that you should **test and confirm** that all of your functionality was successfully migrated.
 
 If you don't have a previous export, you'll need to install an older version of this gem using `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
 

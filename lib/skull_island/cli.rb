@@ -84,6 +84,12 @@ module SkullIsland
         STDERR.puts '[INFO] Outputting to STDOUT' if options['verbose']
         STDOUT.puts output.to_yaml
       else
+        full_filename = File.expand_path(output_file)
+        dirname = File.dirname(full_filename)
+        unless File.exist?(dirname) && File.ftype(dirname) == 'directory'
+          raise Exceptions::InvalidArguments, "#{full_filename} is invalid"
+        end
+
         File.write(full_filename, output.to_yaml)
       end
     end

@@ -26,6 +26,7 @@ module SkullIsland
             end
           end
         end
+        new_config['version'] = '1.1'
         new_config
       end
     end
