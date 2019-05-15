@@ -318,10 +318,10 @@ From here, the SDK mostly wraps the attributes described in the [Kong API Docs](
 resource = Resources::Certificate.new
 
 # These attributes can be set and read
-resource.cert = '-----BEGIN CERTIFICATE-----...'    # PEM-encoded public key
+resource.cert = '-----BEGIN CERTIFICATE-----...'     # PEM-encoded public key
 resource.key  = '-----BEGIN RSA PRIVATE KEY-----...' # PEM-encoded private key
-resource.snis = ['example.com', 'example.org']      # Array of names for which this cert is valid
-
+resource.snis = ['example.com', 'example.org']       # Array of names for which this cert is valid
+resource.tags = ['production', 'example']            # Array of tags
 resource.save
 
 # These attributes are read-only
@@ -339,8 +339,9 @@ Note that for Consumer credentials, only [`key-auth`](https://docs.konghq.com/hu
 resource = Resources::Consumer.new
 
 # These attributes can be set and read
-resource.custom_id = 'user1' # A string
-resource.username  = 'user1' # A string
+resource.custom_id = 'user1'              # A string
+resource.username  = 'user1'              # A string
+resource.tags = ['production', 'example'] # Array of tags
 
 resource.save
 
@@ -375,9 +376,10 @@ Note that this doesn't _install_ plugins; it only allows using them.
 resource = Resources::Plugin.new
 
 # These attributes can be set and read
-resource.name     = 'rate-limiting' # The name of the plugin
-resource.enabled  = true            # A Boolean
+resource.name     = 'rate-limiting'                    # The name of the plugin
+resource.enabled  = true                               # A Boolean
 resource.config   = { 'minute' => 50, 'hour' => 1000 } # A Hash of config keys and values
+resource.tags = ['production', 'example']              # Array of tags
 
 # Either reference related resources by ID
 resource.service  = { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' }
@@ -418,6 +420,7 @@ Resources::Plugin.schema('acl')
 resource = Resources::Route.new
 
 # These attributes can be set and read
+resource.name           = 'example_route'
 resource.hosts          = ['example.com', 'example.org']
 resource.protocols      = ['https']
 resource.methods        = ['GET', 'POST']
@@ -425,6 +428,19 @@ resource.paths          = ['/some/path']
 resource.regex_priority = 10
 resource.strip_path     = false
 resource.preserve_host  = true
+resource.tags = ['production', 'example']
+
+# Or, for TCP/TLS routes
+resource.protocols    = ['tcp', 'tls']
+resource.sources      = [
+  { "ip" => "10.1.0.0/16", "port" => 1234 }
+]
+resource.destinations = [
+  { "ip" => "10.1.0.0/16", "port" => 1234 },
+  { "ip" => "10.2.2.2" },
+  { "port" => 9123 }
+]
+resource.snis         = ['example.com', 'example.org']
 
 # Either reference related resources by ID
 resource.service = { 'id' => '4e13f54a-bbf1-47a8-8777-255fed7116f2' }
@@ -461,6 +477,7 @@ resource.name            = 'example-service'
 resource.retries         = 10
 resource.read_timeout    = 60000
 resource.write_timeout   = 60000
+resource.tags = ['production', 'example']
 
 resource.save
 
@@ -513,6 +530,7 @@ resource.healthchecks  = {
     }
   }
 }
+resource.tags = ['production', 'example']
 
 resource.save
 
