@@ -333,7 +333,7 @@ resource.created_at
 
 #### Consumers (and their Credentials)
 
-Note that for Consumer credentials, only [`key-auth`](https://docs.konghq.com/hub/kong-inc/key-auth/) and [`basic-auth`](https://docs.konghq.com/hub/kong-inc/basic-auth/) are currently supported.
+Note that for Consumer credentials, only [`key-auth`](https://docs.konghq.com/hub/kong-inc/key-auth/), [`jwt`](https://docs.konghq.com/hub/kong-inc/jwt/), and [`basic-auth`](https://docs.konghq.com/hub/kong-inc/basic-auth/) are currently supported.
 
 ```ruby
 resource = Resources::Consumer.new
