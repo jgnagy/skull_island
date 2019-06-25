@@ -112,7 +112,7 @@ module SkullIsland
           'hash_on_cookie_path' => hash_on_cookie_path,
           'healthchecks' => healthchecks
         }
-        hash['targets'] = targets.collect { |route| route.export(exclude: 'upstream_id') }
+        hash['targets'] = targets.collect { |target| target.export(exclude: 'upstream') }
         hash['tags'] = tags if tags
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
