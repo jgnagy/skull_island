@@ -29,12 +29,31 @@ module SkullIsland
         end
       end
 
+      def self.all(options = {})
+        api_client = options[:api_client] || APIClient.instance
+
+        Upstream.all(api_client: api_client).map(&:targets).reduce(&:merge)
+      end
+
       def self.get(id, options = {})
         if options[:upstream]&.is_a?(Upstream)
           options[:upstream].target(id)
         elsif options[:upstream]
           upstream_opts = options.merge(lazy: true)
           Upstream.get(options[:upstream], upstream_opts).target(id)
+        end
+      end
+
+      # Tests for an existing version of this resource based on its properties rather than its `id`
+      def find_by_digest
+        result = self.class.where(:digest, digest) # matching digest means the equivalent resource
+        if result.size == 1
+          @entity  = result.first.entity
+          @lazy    = false
+          @tainted = false
+          true
+        else
+          false
         end
       end
 
@@ -111,7 +130,7 @@ module SkullIsland
       def validate_target(value)
         # only URIs or specific strings
         value.is_a?(URI) || (
-          value.is_a?(String) && value.match?(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}/)
+          value.is_a?(String) && value.match?(/[\w\d.-]+:\d{1,5}/)
         )
       end
 

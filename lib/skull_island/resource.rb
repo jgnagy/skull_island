@@ -5,7 +5,7 @@ module SkullIsland
   # TODO: Thread safety
   class Resource
     attr_accessor :api_client
-    attr_reader :errors
+    attr_reader :errors, :entity
 
     include Comparable
     include Validations::Resource

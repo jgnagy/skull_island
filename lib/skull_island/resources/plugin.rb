@@ -42,6 +42,10 @@ module SkullIsland
         api_client.get("#{relative_uri}/schema/#{name}")
       end
 
+      def digest_properties
+        super.reject { |k| %i[run_on].include? k }
+      end
+
       def export(options = {})
         hash = {
           'name' => name,

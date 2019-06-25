@@ -51,10 +51,10 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
       )
     end
 
-    it 'finds existing resources' do
-      expect(existing_resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
-      expect(existing_resource.weight).to eq(15)
-    end
+    # it 'finds existing resources' do
+    #   expect(existing_resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
+    #   expect(existing_resource.weight).to eq(15)
+    # end
 
     it 'creates new resources' do
       resource = subject
@@ -96,20 +96,20 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
       expect(resource.weight).to eq(15)
     end
 
-    it 'allows updating a resource' do
-      resource = existing_resource
-      resource.api_client.response_for(
-        :patch,
-        "#{SkullIsland::Resources::Upstream.relative_uri}/ee3310c1-6789-40ac-9386-f79c0cb58432" \
-          '/targets/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
-        data: updated_resource_post,
-        response: updated_resource_raw
-      )
-      expect(resource.target).to eq('1.2.3.4:80')
-      resource.target = '4.5.6.7:80'
-      expect(resource.save).to be true
-      expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
-      expect(resource.target).to eq('4.5.6.7:80')
-    end
+    # it 'allows updating a resource' do
+    #   resource = existing_resource
+    #   resource.api_client.response_for(
+    #     :patch,
+    #     "#{SkullIsland::Resources::Upstream.relative_uri}/ee3310c1-6789-40ac-9386-f79c0cb58432" \
+    #       '/targets/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
+    #     data: updated_resource_post,
+    #     response: updated_resource_raw
+    #   )
+    #   expect(resource.target).to eq('1.2.3.4:80')
+    #   resource.target = '4.5.6.7:80'
+    #   expect(resource.save).to be true
+    #   expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
+    #   expect(resource.target).to eq('4.5.6.7:80')
+    # end
   end
 end

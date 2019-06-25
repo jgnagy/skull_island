@@ -30,6 +30,14 @@ module SkullIsland
             test: test
           )
 
+          JWTCredential.batch_import(
+            (
+              resource_data.dig('credentials', 'jwt') || []
+            ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
+            verbose: verbose,
+            test: test
+          )
+
           KeyauthCredential.batch_import(
             (
               resource_data.dig('credentials', 'key-auth') || []
@@ -41,9 +49,19 @@ module SkullIsland
       end
 
       # Convenience method to add upstream targets
+      # rubocop:disable Metrics/AbcSize
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       def add_credential!(details)
-        r = if [BasicauthCredential, KeyauthCredential].include? details.class
+        r = if [BasicauthCredential, JWTCredential, KeyauthCredential].include? details.class
               details
+            elsif details.is_a?(Hash) && details.key?(:algorithm)
+              cred = JWTCredential.new(api_client: api_client)
+              cred.algorithm = details[:algorithm]
+              cred.key = details[:key] if details[:key]
+              cred.secret = details[:secret] if details[:secret]
+              cred.rsa_public_key = details[:rsa_public_key] if details[:rsa_public_key]
+              cred
             elsif details.is_a?(Hash) && details.key?(:key)
               cred = KeyauthCredential.new(api_client: api_client)
               cred.key = details[:key]
@@ -58,6 +76,9 @@ module SkullIsland
         r.consumer = self
         r.save
       end
+      # rubocop:enable Metrics/AbcSize
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def credentials
         creds = {}
@@ -65,6 +86,8 @@ module SkullIsland
         creds['key-auth'] = keyauth_creds if keyauth_creds
         basicauth_creds = BasicauthCredential.where(:consumer, self, api_client: api_client)
         creds['basic-auth'] = basicauth_creds if basicauth_creds
+        jwt_creds = JWTCredential.where(:consumer, self, api_client: api_client)
+        creds['jwt'] = jwt_creds if jwt_creds
         creds
       end
 
@@ -109,6 +132,11 @@ module SkullIsland
         creds = {}
         unless credentials['key-auth'].empty?
           creds['key-auth'] = credentials['key-auth'].collect do |cred|
+            cred.export(exclude: 'consumer')
+          end
+        end
+        unless credentials['jwt'].empty?
+          creds['jwt'] = credentials['jwt'].collect do |cred|
             cred.export(exclude: 'consumer')
           end
         end

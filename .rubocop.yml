@@ -8,10 +8,10 @@ Metrics/LineLength:
   Max: 100
 
 Metrics/ClassLength:
-  Max: 170
+  Max: 175
 
 Metrics/ModuleLength:
-  Max: 170
+  Max: 175
   Exclude:
     - 'lib/skull_island/helpers/resource.rb'
 

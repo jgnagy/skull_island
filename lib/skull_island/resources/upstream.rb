@@ -30,8 +30,8 @@ module SkullIsland
           resource.name = rdata['name']
           resource.slots = rdata['slots'] if rdata['slots']
           resource.hash_on = rdata['hash_on']
-          resource.hash_fallback = rdata['hash_fallback']
-          resource.hash_on_header = rdata['hash_on_header']
+          resource.hash_fallback = rdata['hash_fallback'] if rdata['hash_fallback']
+          resource.hash_on_header = rdata['hash_on_header'] if rdata['hash_on_header']
           if rdata['hash_fallback_header']
             resource.hash_fallback_header = rdata['hash_fallback_header']
           end
@@ -78,12 +78,7 @@ module SkullIsland
       end
 
       def target(target_id)
-        UpstreamTarget.new(
-          entity: { 'id' => target_id, 'upstream' => { 'id' => id } },
-          lazy: true,
-          tainted: false,
-          api_client: api_client
-        )
+        targets.where(id: target_id).first
       end
 
       def targets
@@ -176,10 +171,10 @@ module SkullIsland
         value.is_a?(String) && [hash_on, hash_fallback].include?('cookie')
       end
 
-      # Used to validate {#hash_cookie_path} on set
-      def validate_hash_cookie_path(value)
-        # only String is allowed and only when {#hash_on} or {#hash_fallback} is set to 'cookie'
-        value.is_a?(String) && [hash_on, hash_fallback].include?('cookie')
+      # Used to validate {#hash_on_cookie_path} on set
+      def validate_hash_on_cookie_path(value)
+        # only String is allowed
+        value.is_a?(String)
       end
 
       # Used to validate {#name} on set
