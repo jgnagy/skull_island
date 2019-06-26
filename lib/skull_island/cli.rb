@@ -28,7 +28,7 @@ module SkullIsland
 
       validate_server_version
 
-      output = { 'version' => '1.1' }
+      output = { 'version' => '1.2' }
 
       [
         Resources::Certificate,
@@ -130,7 +130,7 @@ module SkullIsland
     end
 
     def validate_config_version(version)
-      if version && version == '1.1'
+      if version && ['1.1', '1.2'].include?(version)
         validate_server_version
       elsif version && ['0.14', '1.0'].include?(version)
         STDERR.puts '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
@@ -151,7 +151,8 @@ module SkullIsland
     end
 
     def validate_server_version
-      if SkullIsland::APIClient.about_service['version'].start_with? '1.1'
+      server_version = SkullIsland::APIClient.about_service['version']
+      if server_version.match?(/^1.[12]/)
         true
       else
         STDERR.puts '[CRITICAL] Server version mismatch!'
