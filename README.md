@@ -1,6 +1,6 @@
 # Skull Island
 
-A full-featured SDK for [Kong](https://konghq.com/kong/) 1.1.x (with support for migrating from 0.14.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
+A full-featured SDK for [Kong](https://konghq.com/kong/) 1.1.x/1.2.x (with support for migrating from 0.14.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
 
 ## Installation
 
@@ -13,7 +13,7 @@ gem install skull_island
 Or add this to your Gemfile:
 
 ```ruby
-gem 'skull_island',  '~> 1.1'
+gem 'skull_island',  '~> 1.2'
 ```
 
 Or add this to your .gemspec:
@@ -21,7 +21,7 @@ Or add this to your .gemspec:
 ```ruby
 Gem::Specification.new do |spec|
  # ...
- spec.add_runtime_dependency 'skull_island', '~> 1.1'
+ spec.add_runtime_dependency 'skull_island', '~> 1.2'
  # ...
 end
 ```
@@ -114,7 +114,7 @@ skull_island import --verbose --test /path/to/export.yml
 
 ### Migrating
 
-With Skull Island, it is possible to migrate a configuration from a 0.14.x gateway to one compatible with a 1.1.x gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.1 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
+With Skull Island, it is possible to migrate a configuration from a 0.14.x gateway to one compatible with a 1.2.x gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.2 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
 
 ```
 skull_island migrate /path/to/export.yml /output/location/migrated.yml
@@ -132,7 +132,7 @@ The import/export/migrate CLI functions produce YAML with support for embedded R
 
 ```yaml
 ---
-version: '1.1'
+version: '1.2'
 certificates: []
 consumers:
 - username: foo
@@ -310,7 +310,7 @@ service.routes.size
 # => 4
 ```
 
-From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/1.1.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
+From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/1.2.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
 
 #### Certificates
 
