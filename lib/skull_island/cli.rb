@@ -29,7 +29,8 @@ module SkullIsland
 
       validate_server_version
 
-      output = { 'version' => '1.2', 'project' => options['project'] }
+      output = { 'version' => '1.2' }
+      output['project'] = options['project'] if options['project']
 
       [
         Resources::Certificate,
@@ -105,7 +106,12 @@ module SkullIsland
 
     def export_class(class_name, output_data)
       warn "[INFO] Processing #{class_name.route_key}" if options['verbose']
-      output_data[class_name.route_key] = class_name.all.collect(&:export)
+      output_data[class_name.route_key] = if options['project']
+                                            class_name.where(:project, options['project'])
+                                                      .collect(&:export)
+                                          else
+                                            class_name.all.collect(&:export)
+                                          end
     end
 
     def import_class(class_name, import_data, import_time)
