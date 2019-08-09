@@ -24,8 +24,8 @@ module SkullIsland
 
         data.each_with_index do |resource_data, index|
           resource = new
-          resource.cert = resource_data['cert']
-          resource.key = resource_data['key']
+          resource.delayed_set(:cert, resource_data, 'cert')
+          resource.delayed_set(:key, resource_data, 'key')
           resource.snis = resource_data['snis'] if resource_data['snis']
           resource.tags = resource_data['tags'] if resource_data['tags']
           resource.project = project if project

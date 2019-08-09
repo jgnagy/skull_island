@@ -17,17 +17,12 @@ module SkullIsland
       def self.batch_import(data, verbose: false, test: false)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
-        known_ids = []
-
         data.each_with_index do |resource_data, index|
           resource = new
-          resource.key = resource_data['key']
+          resource.delayed_set(:key, resource_data, 'key')
           resource.delayed_set(:consumer, resource_data, 'consumer')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
-          known_ids << resource.id
         end
-
-        known_ids
       end
 
       def self.relative_uri
@@ -57,10 +52,6 @@ module SkullIsland
       # Keys can't be updated, only created or deleted
       def modified_existing?
         false
-      end
-
-      def project
-        consumer ? consumer.project : nil
       end
 
       private

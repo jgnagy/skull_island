@@ -22,8 +22,8 @@ module SkullIsland
 
         data.each_with_index do |resource_data, index|
           resource = new
-          resource.username = resource_data['username']
-          resource.password = resource_data['password'] if resource_data['password']
+          resource.delayed_set(:username, resource_data, 'username')
+          resource.delayed_set(:password, resource_data, 'password') if resource_data['password']
           resource.delayed_set(:consumer, resource_data, 'consumer')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           known_ids << resource.id
