@@ -7,6 +7,8 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/1.1.x/admin-api/#target-object Target API definition
     class UpstreamTarget < Resource
+      include Helpers::Meta
+
       property :target, required: true, validate: true, preprocess: true
       property(
         :upstream,
@@ -14,20 +16,31 @@ module SkullIsland
       )
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
-      property :tags, validate: true
+      property :tags, validate: true, preprocess: true, postprocess: true
 
-      def self.batch_import(data, verbose: false, test: false)
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
+      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        known_ids = []
 
         data.each_with_index do |resource_data, index|
           resource = new
-          resource.target = resource_data['target']
+          resource.delayed_set(:target, resource_data, 'target')
           resource.delayed_set(:upstream, resource_data, 'upstream')
           resource.weight = resource_data['weight'] if resource_data['weight']
           resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.project = project if project
+          resource.import_time = (time || Time.now.utc.to_i) if project
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
+          known_ids << resource.id
         end
+
+        cleanup_except(project, known_ids) if project
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def self.all(options = {})
         api_client = options[:api_client] || APIClient.instance
@@ -68,7 +81,7 @@ module SkullIsland
       def export(options = {})
         hash = { 'target' => target, 'weight' => weight }
         hash['upstream'] = "<%= lookup :upstream, '#{upstream.name}' %>" if upstream
-        hash['tags'] = tags if tags
+        hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -79,19 +92,7 @@ module SkullIsland
       end
 
       def modified_existing?
-        return false unless new?
-
-        # Find routes of the same name
-        same_target_and_upstream = self.class.where(:target, target).and(:upstream, upstream)
-
-        existing = same_target_and_upstream.size == 1 ? same_target_and_upstream.first : nil
-
-        if existing
-          @entity['id'] = existing.id
-          save
-        else
-          false
-        end
+        false # Upstream Targets can not be PATCHed, so can not be modified
       end
 
       private

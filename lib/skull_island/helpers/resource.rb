@@ -30,12 +30,13 @@ module SkullIsland
 
       def digest
         Digest::MD5.hexdigest(
-          digest_properties.sort.map { |prop| "#{prop}=#{send(prop.to_sym)}" }.compact.join(':')
+          digest_properties.sort.map { |prp| "#{prp}=#{send(prp.to_sym) || ''}" }.compact.join(':')
         )
       end
 
       def digest_properties
-        properties.keys.reject { |k| %i[created_at updated_at].include? k }
+        props = properties.keys.reject { |k| %i[created_at updated_at].include? k }
+        supports_meta? ? props + [:project] : props
       end
 
       # Tests for an existing version of this resource based on its properties rather than its `id`
@@ -197,6 +198,10 @@ module SkullIsland
 
       def save_uri
         self.class.relative_uri
+      end
+
+      def supports_meta?
+        false
       end
 
       # ActiveRecord ActiveModel compatibility method

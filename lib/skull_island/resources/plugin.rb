@@ -7,6 +7,8 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/1.1.x/admin-api/#plugin-object Plugin API definition
     class Plugin < Resource
+      include Helpers::Meta
+
       property :name
       property :enabled, type: :boolean
       property :run_on, validate: true
@@ -15,10 +17,14 @@ module SkullIsland
       property :route, validate: true, preprocess: true, postprocess: true
       property :service, validate: true, preprocess: true, postprocess: true
       property :created_at, read_only: true, postprocess: true
-      property :tags, validate: true
+      property :tags, validate: true, preprocess: true, postprocess: true
 
-      def self.batch_import(data, verbose: false, test: false)
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
+      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        known_ids = []
 
         data.each_with_index do |resource_data, index|
           resource = new
@@ -27,12 +33,19 @@ module SkullIsland
           resource.run_on = resource_data['run_on'] if resource_data['run_on']
           resource.config = resource_data['config'].deep_sort if resource_data['config']
           resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.project = project if project
+          resource.import_time = (time || Time.now.utc.to_i) if project
           resource.delayed_set(:consumer, resource_data, 'consumer')
           resource.delayed_set(:route, resource_data, 'route')
           resource.delayed_set(:service, resource_data, 'service')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
+          known_ids << resource.id
         end
+
+        cleanup_except(project, known_ids) if project
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def self.enabled_names(api_client: APIClient.instance)
         api_client.get("#{relative_uri}/enabled")['enabled_plugins']
@@ -55,7 +68,7 @@ module SkullIsland
         hash['consumer'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
         hash['route'] = "<%= lookup :route, '#{route.name}' %>" if route
         hash['service'] = "<%= lookup :service, '#{service.name}' %>" if service
-        hash['tags'] = tags if tags
+        hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end

@@ -8,7 +8,7 @@ Metrics/LineLength:
   Max: 100
 
 Metrics/ClassLength:
-  Max: 175
+  Max: 190
 
 Metrics/ModuleLength:
   Max: 175
@@ -23,7 +23,7 @@ Metrics/PerceivedComplexity:
     - 'lib/skull_island/cli.rb'
 
 Metrics/AbcSize:
-  Max: 27
+  Max: 28
 
 Metrics/BlockLength:
   Max: 35

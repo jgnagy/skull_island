@@ -7,6 +7,8 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/1.1.x/admin-api/#service-object Service API definition
     class Service < Resource
+      include Helpers::Meta
+
       property :name
       property :retries
       property :protocol,           validate: true, required: true
@@ -18,27 +20,32 @@ module SkullIsland
       property :read_timeout,       validate: true
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
-      property :tags, validate: true
+      property :tags, validate: true, preprocess: true, postprocess: true
 
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
-      def self.batch_import(data, verbose: false, test: false)
+      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        known_ids = []
 
         data.each_with_index do |rdata, index|
           resource = new
           resource.name = rdata['name']
           resource.retries = rdata['retries'] if rdata['retries']
           resource.protocol = rdata['protocol']
-          resource.host = rdata['host']
-          resource.port = rdata['port']
+          resource.delayed_set(:host, rdata, 'host')
+          resource.delayed_set(:port, rdata, 'port')
           resource.path = rdata['path'] if rdata['path']
           resource.connect_timeout = rdata['connect_timeout'] if rdata['connect_timeout']
           resource.write_timeout = rdata['write_timeout'] if rdata['write_timeout']
           resource.read_timeout = rdata['read_timeout'] if rdata['read_timeout']
           resource.tags = rdata['tags'] if rdata['tags']
+          resource.project = project if project
+          resource.import_time = (time || Time.now.utc.to_i) if project
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
+          known_ids << resource.id
 
           Route.batch_import(
             (rdata['routes'] || []).map { |r| r.merge('service' => { 'id' => resource.id }) },
@@ -46,6 +53,8 @@ module SkullIsland
             test: test
           )
         end
+
+        cleanup_except(project, known_ids) if project
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
@@ -57,6 +66,11 @@ module SkullIsland
 
         r.service = self
         r.save
+      end
+
+      def destroy
+        routes.each(&:destroy)
+        super
       end
 
       # Provides a collection of related {Route} instances
@@ -82,7 +96,7 @@ module SkullIsland
           'read_timeout' => read_timeout
         }
         hash['routes'] = routes.collect { |route| route.export(exclude: 'service') }
-        hash['tags'] = tags if tags
+        hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end

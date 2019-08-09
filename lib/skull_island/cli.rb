@@ -15,6 +15,7 @@ module SkullIsland
     class_option :verbose, type: :boolean
 
     desc 'export [OPTIONS] [OUTPUT|-]', 'Export the current configuration to OUTPUT'
+    option :project, desc: 'Project identifier for metadata'
     def export(output_file = '-')
       if output_file == '-'
         STDERR.puts '[INFO] Outputting to STDOUT' if options['verbose']
@@ -28,7 +29,7 @@ module SkullIsland
 
       validate_server_version
 
-      output = { 'version' => '1.2' }
+      output = { 'version' => '1.2', 'project' => options['project'] }
 
       [
         Resources::Certificate,
@@ -46,6 +47,7 @@ module SkullIsland
     end
 
     desc 'import [OPTIONS] [INPUT|-]', 'Import a configuration from INPUT'
+    option :project, desc: 'Project identifier for metadata'
     option :test, type: :boolean, desc: "Don't do anything, just show what would happen"
     def import(input_file = '-')
       raw ||= acquire_input(input_file, options['verbose'])
@@ -56,19 +58,23 @@ module SkullIsland
 
       validate_config_version input['version']
 
+      import_time = Time.now.utc.to_i
+      input['project'] = options['project'] if options['project']
+
       [
         Resources::Certificate,
         Resources::Consumer,
         Resources::Upstream,
         Resources::Service,
         Resources::Plugin
-      ].each { |clname| import_class(clname, input) }
+      ].each { |clname| import_class(clname, input, import_time) }
     end
 
     desc(
       'migrate [OPTIONS] [INPUT|-] [OUTPUT|-]',
       'Migrate an older config from INPUT to OUTPUT'
     )
+    option :project, desc: 'Project identifier for metadata'
     def migrate(input_file = '-', output_file = '-')
       raw ||= acquire_input(input_file, options['verbose'])
 
@@ -79,6 +85,7 @@ module SkullIsland
       validate_migrate_version input['version']
 
       output = migrate_config(input)
+      output['project'] = options['project'] if options['project']
 
       if output_file == '-'
         STDERR.puts '[INFO] Outputting to STDOUT' if options['verbose']
@@ -101,12 +108,14 @@ module SkullIsland
       output_data[class_name.route_key] = class_name.all.collect(&:export)
     end
 
-    def import_class(class_name, import_data)
+    def import_class(class_name, import_data, import_time)
       STDERR.puts "[INFO] Processing #{class_name.route_key}" if options['verbose']
       class_name.batch_import(
         import_data[class_name.route_key],
         verbose: options['verbose'],
-        test: options['test']
+        test: options['test'],
+        time: import_time,
+        project: import_data['project']
       )
     end
 
