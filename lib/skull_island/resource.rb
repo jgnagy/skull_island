@@ -179,6 +179,13 @@ module SkullIsland
       )
     end
 
+    def self.cleanup_except(project, keep_these)
+      where(:project, project).reject { |res| keep_these.include?(res.id) }.map do |res|
+        puts "[WARN] ! Removing #{name} (#{res.id})"
+        res.destroy
+      end
+    end
+
     def initialize(options = {})
       # TODO: better options validations
       raise Exceptions::InvalidOptions unless options.is_a?(Hash)
@@ -206,6 +213,18 @@ module SkullIsland
 
     def relative_uri
       "#{self.class.relative_uri}/#{id}"
+    end
+
+    private
+
+    # A way to add things _without_ preprocessing them
+    def raw_set(key, value)
+      raise Exceptions::ImmutableModification if immutable?
+
+      @entity[key.to_s] = value
+
+      @modified_properties << key.to_sym
+      @tainted = true
     end
   end
 end

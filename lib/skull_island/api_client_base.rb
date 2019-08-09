@@ -67,6 +67,12 @@ module SkullIsland
       end
     end
 
+    def delete(uri)
+      client_action do |client|
+        client[uri].delete(json_headers)
+      end
+    end
+
     private
 
     def client_action

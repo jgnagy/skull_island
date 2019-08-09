@@ -7,6 +7,8 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/1.1.x/admin-api/#upstream-objects Upstream API definition
     class Upstream < Resource
+      include Helpers::Meta
+
       property :name, required: true, validate: true
       property :slots, validate: true
       property :hash_on, validate: true
@@ -17,13 +19,15 @@ module SkullIsland
       property :hash_on_cookie_path, validate: true
       property :healthchecks, validate: true
       property :created_at, read_only: true, postprocess: true
-      property :tags, validate: true
+      property :tags, validate: true, preprocess: true, postprocess: true
 
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
-      def self.batch_import(data, verbose: false, test: false)
+      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        known_ids = []
 
         data.each_with_index do |rdata, index|
           resource = new
@@ -41,15 +45,22 @@ module SkullIsland
           end
           resource.healthchecks = rdata['healthchecks'] if rdata['healthchecks']
           resource.tags = rdata['tags'] if rdata['tags']
+          resource.project = project if project
+          resource.import_time = (time || Time.now.utc.to_i) if project
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
+          known_ids << resource.id
           puts '[INFO] Processing UpstreamTarget entries...' if verbose
 
           UpstreamTarget.batch_import(
             (rdata['targets'] || []).map { |t| t.merge('upstream' => { 'id' => resource.id }) },
             verbose: verbose,
-            test: test
+            test: test,
+            project: project,
+            time: time
           )
         end
+
+        cleanup_except(project, known_ids) if project
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
@@ -113,7 +124,7 @@ module SkullIsland
           'healthchecks' => healthchecks
         }
         hash['targets'] = targets.collect { |target| target.export(exclude: 'upstream') }
-        hash['tags'] = tags if tags
+        hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end

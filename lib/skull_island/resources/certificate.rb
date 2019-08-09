@@ -7,14 +7,20 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/1.1.x/admin-api/#certificate-object Certificate API definition
     class Certificate < Resource
+      include Helpers::Meta
+
       property :cert, required: true, validate: true
       property :key, required: true, validate: true
       property :snis, validate: true
       property :created_at, read_only: true, postprocess: true
-      property :tags, validate: true
+      property :tags, validate: true, preprocess: true, postprocess: true
 
-      def self.batch_import(data, verbose: false, test: false)
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
+      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
+
+        known_ids = []
 
         data.each_with_index do |resource_data, index|
           resource = new
@@ -22,14 +28,21 @@ module SkullIsland
           resource.key = resource_data['key']
           resource.snis = resource_data['snis'] if resource_data['snis']
           resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.project = project if project
+          resource.import_time = (time || Time.now.utc.to_i) if project
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
+          known_ids << resource.id
         end
+
+        cleanup_except(project, known_ids) if project
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def export(options = {})
         hash = { 'cert' => cert, 'key' => key }
         hash['snis'] = snis if snis && !snis.empty?
-        hash['tags'] = tags if tags
+        hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end

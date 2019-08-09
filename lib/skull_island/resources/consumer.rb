@@ -7,22 +7,33 @@ module SkullIsland
     #
     # @see https://docs.konghq.com/1.1.x/admin-api/#consumer-object Consumer API definition
     class Consumer < Resource
+      include Helpers::Meta
+
       property :username
       property :custom_id
       property :created_at, read_only: true, postprocess: true
-      property :tags, validate: true
+      property :tags, validate: true, preprocess: true, postprocess: true
 
-      def self.batch_import(data, verbose: false, test: false)
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/AbcSize
+      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
+        known_ids = []
+
+        # rubocop:disable Metrics/BlockLength
         data.each_with_index do |resource_data, index|
           resource = new
           resource.username = resource_data['username']
           resource.custom_id = resource_data['custom_id']
           resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.project = project if project
+          resource.import_time = (time || Time.now.utc.to_i) if project
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
+          known_ids << resource.id
 
-          BasicauthCredential.batch_import(
+          known_basic_auths = BasicauthCredential.batch_import(
             (
               resource_data.dig('credentials', 'basic-auth') || []
             ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
@@ -30,7 +41,7 @@ module SkullIsland
             test: test
           )
 
-          JWTCredential.batch_import(
+          known_jwt_auths = JWTCredential.batch_import(
             (
               resource_data.dig('credentials', 'jwt') || []
             ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
@@ -38,20 +49,36 @@ module SkullIsland
             test: test
           )
 
-          KeyauthCredential.batch_import(
+          known_key_auths = KeyauthCredential.batch_import(
             (
               resource_data.dig('credentials', 'key-auth') || []
             ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
             verbose: verbose,
             test: test
           )
+
+          next unless project
+
+          BasicauthCredential.all.reject { |res| known_basic_auths.include?(res.id) }.map do |res|
+            puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
+            res.destroy
+          end
+
+          JWTCredential.all.reject { |res| known_jwt_auths.include?(res.id) }.map do |res|
+            puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
+            res.destroy
+          end
+
+          KeyauthCredential.all.reject { |res| known_key_auths.include?(res.id) }.map do |res|
+            puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
+            res.destroy
+          end
         end
+        # rubocop:enable Metrics/BlockLength
+
+        cleanup_except(project, known_ids) if project
       end
 
-      # Convenience method to add upstream targets
-      # rubocop:disable Metrics/AbcSize
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # rubocop:disable Metrics/PerceivedComplexity
       def add_credential!(details)
         r = if [BasicauthCredential, JWTCredential, KeyauthCredential].include? details.class
               details
@@ -100,7 +127,7 @@ module SkullIsland
         hash = { 'username' => username, 'custom_id' => custom_id }
         creds = credentials_for_export
         hash['credentials'] = creds unless creds.empty?
-        hash['tags'] = tags if tags
+        hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end

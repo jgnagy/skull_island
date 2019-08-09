@@ -81,6 +81,8 @@ KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island export --verbose /path/to/export.yml
 ```
 
+Exporting, by default, exports the entire configuration of a Kong gateway, but will strip out special meta-data tags added by Skull Island to track projects. If, instead, you'd like to export **only** the configuration for a specific project, you can add `--project foo` (where `foo` is the name of your project) to export only those resources associated with it and maintain the special key in the exported YAML.
+
 ### Importing
 
 Skull Island also supports importing configurations (both partial and full) from a YAML + ERB document:
@@ -112,6 +114,16 @@ KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island import --verbose --test /path/to/export.yml
 ```
 
+Note that `--test` has a high likelihood of generating errors with a complicated import if required/dependent resources do not exist.
+
+#### Importing with Projects
+
+Skull Island 1.2.1 introduces the ability to use a special top-level key in the configuration called `project` that uses meta-data to track which resources belong to a project. This meta-data can safely be added at another time as this tool will "adopt" otherwise matching resources into a project.
+
+To use this functionality, either add the `project` key to your configuration file (usually directly below the `version` key) with some value that will be unique on your gateway, or use `--project foo` (where `foo` is the name of your project) as a CLI flag.
+
+When using the `project` feature of Skull Island, the CLI tool will automatically clean up old resources no longer found in your config file. This is, in fact, the _only_ circumstance under which this tool actually removes resources. Use this feature with care, as it can delete large swaths of your configuration if used incorrectly. It is **critical** that this value is unique since this project functionality is used to delete resources.
+
 ### Migrating
 
 With Skull Island, it is possible to migrate a configuration from a 0.14.x gateway to one compatible with a 1.2.x gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.2 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
@@ -133,6 +145,7 @@ The import/export/migrate CLI functions produce YAML with support for embedded R
 ```yaml
 ---
 version: '1.2'
+project: FooV2
 certificates: []
 consumers:
 - username: foo
@@ -190,7 +203,7 @@ plugins:
   service: "<%= lookup :service, 'search_api' %>"
 ```
 
-All top-level keys (other than `version`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
+All top-level keys (other than `version` and `project`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
 
 While technically _any_ Ruby is valid, the following are pretty helpful for templating your YAML files:
 
