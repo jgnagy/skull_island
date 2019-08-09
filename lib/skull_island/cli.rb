@@ -18,7 +18,7 @@ module SkullIsland
     option :project, desc: 'Project identifier for metadata'
     def export(output_file = '-')
       if output_file == '-'
-        STDERR.puts '[INFO] Outputting to STDOUT' if options['verbose']
+        warn '[INFO] Outputting to STDOUT' if options['verbose']
       else
         full_filename = File.expand_path(output_file)
         dirname = File.dirname(full_filename)
@@ -88,7 +88,7 @@ module SkullIsland
       output['project'] = options['project'] if options['project']
 
       if output_file == '-'
-        STDERR.puts '[INFO] Outputting to STDOUT' if options['verbose']
+        warn '[INFO] Outputting to STDOUT' if options['verbose']
         STDOUT.puts output.to_yaml
       else
         full_filename = File.expand_path(output_file)
@@ -104,12 +104,12 @@ module SkullIsland
     private
 
     def export_class(class_name, output_data)
-      STDERR.puts "[INFO] Processing #{class_name.route_key}" if options['verbose']
+      warn "[INFO] Processing #{class_name.route_key}" if options['verbose']
       output_data[class_name.route_key] = class_name.all.collect(&:export)
     end
 
     def import_class(class_name, import_data, import_time)
-      STDERR.puts "[INFO] Processing #{class_name.route_key}" if options['verbose']
+      warn "[INFO] Processing #{class_name.route_key}" if options['verbose']
       class_name.batch_import(
         import_data[class_name.route_key],
         verbose: options['verbose'],
@@ -122,7 +122,7 @@ module SkullIsland
     # Used to pull input from either STDIN or the specified file
     def acquire_input(input_file, verbose = false)
       if input_file == '-'
-        STDERR.puts '[INFO] Reading from STDIN' if verbose
+        warn '[INFO] Reading from STDIN' if verbose
         STDIN.read
       else
         full_filename = File.expand_path(input_file)
@@ -142,10 +142,10 @@ module SkullIsland
       if version && ['1.1', '1.2'].include?(version)
         validate_server_version
       elsif version && ['0.14', '1.0'].include?(version)
-        STDERR.puts '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
+        warn '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
         exit 2
       else
-        STDERR.puts '[CRITICAL] Config version is unknown or not supported.'
+        warn '[CRITICAL] Config version is unknown or not supported.'
         exit 3
       end
     end
@@ -154,7 +154,7 @@ module SkullIsland
       if version && version == '0.14'
         true
       else
-        STDERR.puts '[CRITICAL] Config version must be 0.14 for migration.'
+        warn '[CRITICAL] Config version must be 0.14 for migration.'
         exit 4
       end
     end
@@ -164,7 +164,7 @@ module SkullIsland
       if server_version.match?(/^1.[12]/)
         true
       else
-        STDERR.puts '[CRITICAL] Server version mismatch!'
+        warn '[CRITICAL] Server version mismatch!'
         exit 1
       end
     end

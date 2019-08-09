@@ -46,8 +46,8 @@ module SkullIsland
           entity_data = @api_client.cache(result.first.relative_uri.to_s) do |client|
             client.get(result.first.relative_uri.to_s)
           end
-          @entity  = entity_data
-          @lazy    = false
+          @entity = entity_data
+          @lazy = false
           @tainted = false
           true
         else
@@ -173,8 +173,8 @@ module SkullIsland
           entity_data = @api_client.cache(relative_uri.to_s) do |client|
             client.get(relative_uri.to_s)
           end
-          @entity  = entity_data
-          @lazy    = false
+          @entity = entity_data
+          @lazy = false
           @tainted = false
           true
         end
