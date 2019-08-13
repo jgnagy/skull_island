@@ -59,17 +59,20 @@ module SkullIsland
 
           next unless project
 
-          BasicauthCredential.all.reject { |res| known_basic_auths.include?(res.id) }.map do |res|
+          basic_creds = BasicauthCredential.all.select { |c| c.consumer == resource }
+          basic_creds.reject { |res| known_basic_auths.include?(res.id) }.map do |res|
             puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
             res.destroy
           end
 
-          JWTCredential.all.reject { |res| known_jwt_auths.include?(res.id) }.map do |res|
+          jwt_creds = JWTCredential.all.select { |c| c.consumer == resource }
+          jwt_creds.reject { |res| known_jwt_auths.include?(res.id) }.map do |res|
             puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
             res.destroy
           end
 
-          KeyauthCredential.all.reject { |res| known_key_auths.include?(res.id) }.map do |res|
+          key_creds = KeyauthCredential.all.select { |c| c.consumer == resource }
+          key_creds.reject { |res| known_key_auths.include?(res.id) }.map do |res|
             puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
             res.destroy
           end

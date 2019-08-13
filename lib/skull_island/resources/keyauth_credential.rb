@@ -59,6 +59,10 @@ module SkullIsland
         false
       end
 
+      def project
+        consumer ? consumer.project : nil
+      end
+
       private
 
       def postprocess_consumer(value)
