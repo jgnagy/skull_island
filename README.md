@@ -142,7 +142,7 @@ While it would be possible to make migration _automatic_ for the `import` comman
 
 ### Reset A Gateway
 
-Skull Island can completely clear the configuration from a Kong instance using the `reset` command. **THIS COMMAND WILL COMPLETELY CLEAR YOUR CONFIGURATION!**. Since this is a pretty serious command, it requires you to include `--force`, otherwise it simply exits with an error.
+Skull Island can completely clear the configuration from a Kong instance using the `reset` command. **THIS COMMAND WILL COMPLETELY CLEAR YOUR CONFIGURATION!** Since this is a pretty serious command, it requires you to include `--force`, otherwise it simply exits with an error.
 
 Fully resetting a gateway looks like this:
 
