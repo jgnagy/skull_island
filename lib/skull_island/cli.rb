@@ -102,6 +102,29 @@ module SkullIsland
       end
     end
 
+    desc('reset', 'Fully reset a gateway (removing all config)')
+    option :force, type: :boolean, desc: 'Force the reset (required)'
+    option :project, desc: 'Project identifier for metadata'
+    def reset
+      unless options['force']
+        puts '[ERR] Missing --force flag.'
+        exit 2
+      end
+
+      if options['project'] && options['verbose']
+        warn "[WARN] ! Resetting gateway for project '#{options['project']}'"
+      elsif options['verbose']
+        warn '[WARN] ! FULLY Resetting gateway'
+      end
+      [
+        Resources::Certificate,
+        Resources::Consumer,
+        Resources::Upstream,
+        Resources::Service,
+        Resources::Plugin
+      ].each { |clname| reset_class(clname, options['project']) }
+    end
+
     desc('version', 'Display the current installed version of skull_island')
     def version
       puts "SkullIsland Version: #{SkullIsland::VERSION}"
@@ -129,6 +152,16 @@ module SkullIsland
         time: import_time,
         project: import_data['project']
       )
+    end
+
+    def reset_class(class_name, project)
+      warn "[WARN] ! Resetting #{class_name.route_key}" if options['verbose']
+      resources = project ? class_name.all.select { |r| r.project == project } : class_name.all
+
+      resources.each do |resource|
+        puts "[WARN] ! Removing #{class_name.name} (#{resource.id})"
+        resource.destroy
+      end
     end
 
     # Used to pull input from either STDIN or the specified file

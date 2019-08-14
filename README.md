@@ -37,6 +37,8 @@ Commands:
   skull_island help [COMMAND]                          # Describe available commands or one specific command
   skull_island import [OPTIONS] [INPUT|-]              # Import a configuration from INPUT
   skull_island migrate [OPTIONS] [INPUT|-] [OUTPUT|-]  # Migrate an older config from INPUT to OUTPUT
+  skull_island reset                                   # Fully reset a gateway (removing all config)
+  skull_island version                                 # Display the current installed version of skull_island
 
 Options:
   [--verbose], [--no-verbose]
@@ -137,6 +139,26 @@ While this hasn't been heavily tested for all possible use-cases, any configurat
 If you don't have a previous export, you'll need to install an older version of this gem using `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
 
 While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that will likely be used heavily. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1+.
+
+### Reset A Gateway
+
+Skull Island can completely clear the configuration from a Kong instance using the `reset` command. **THIS COMMAND WILL COMPLETELY CLEAR YOUR CONFIGURATION!**. Since this is a pretty serious command, it requires you to include `--force`, otherwise it simply exits with an error.
+
+Fully resetting a gateway looks like this:
+
+```
+skull_island reset --force
+```
+
+You can, of course, include `--verbose` to see `skull_island` do its work, though the output may be slightly misleading because of the cascading nature of deletions (e.g., deleting a Service will delete all Routes associated with it automatically).
+
+You can also restrict the reset to just resources associated with a particular project using the `--project` flag:
+
+```
+skull_island reset --force --project foo
+```
+
+This assumes the project is called `foo`.
 
 ### Check Installed Version
 
