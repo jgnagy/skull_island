@@ -102,6 +102,12 @@ module SkullIsland
       end
     end
 
+    desc('version', 'Display the current installed version of skull_island')
+    def version
+      puts "SkullIsland Version: #{SkullIsland::VERSION}"
+      exit 1
+    end
+
     private
 
     def export_class(class_name, output_data)

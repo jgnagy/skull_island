@@ -138,6 +138,16 @@ If you don't have a previous export, you'll need to install an older version of 
 
 While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that will likely be used heavily. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1+.
 
+### Check Installed Version
+
+If you're wondering what version of `skull_island` is installed, use:
+
+```
+$ skull_island version
+
+SkullIsland Version: 1.2.5
+```
+
 ### File Format
 
 The import/export/migrate CLI functions produce YAML with support for embedded Ruby ([ERB](https://ruby-doc.org/stdlib-2.5.3/libdoc/erb/rdoc/ERB.html)). The file is structured like this (as an example):
