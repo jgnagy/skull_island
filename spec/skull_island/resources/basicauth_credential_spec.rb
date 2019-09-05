@@ -11,7 +11,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       {
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         'username' => 'test',
-        'password' => '123451234512345',
+        'password' => '346979e761a763f7fa3a755edf4815707924daea',
         'consumer' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' },
         'created_at' => 1485523507446
       }
@@ -29,7 +29,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       {
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         'username' => 'test2',
-        'password' => '234562345623456',
+        'password' => 'a334a91d7e11ca57c6a7695b08fff3ab8bea02d2',
         'consumer' => { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' },
         'created_at' => 1485523507446
       }
@@ -51,7 +51,10 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
 
     it 'finds existing resources' do
       expect(existing_resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
-      expect(existing_resource.password).to eq('123451234512345')
+      hashed_password = Digest::SHA1.hexdigest(
+        '123451234512345' + existing_resource_raw['consumer']['id']
+      )
+      expect(existing_resource.password).to eq("hash{#{hashed_password}}")
     end
 
     it 'creates new resources' do
@@ -68,8 +71,12 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       resource.password = '234562345623456'
       resource.consumer = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
       expect(resource.save).to be true
+
+      hashed_password = Digest::SHA1.hexdigest(
+        '234562345623456' + resource.consumer.id
+      )
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
-      expect(resource.password).to eq('234562345623456')
+      expect(resource.password).to eq("hash{#{hashed_password}}")
     end
 
     it 'creates new resources via consumers' do
@@ -90,8 +97,22 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
         api_client: subject.api_client
       )
       expect(consumer.add_credential!(resource)).to be true
+
+      hashed_password = Digest::SHA1.hexdigest(
+        '234562345623456' + consumer.id
+      )
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
-      expect(resource.password).to eq('234562345623456')
+      expect(resource.password).to eq("hash{#{hashed_password}}")
+    end
+
+    it 'properly compares credentials' do
+      resource = subject
+      expect(resource.password).to be nil
+      resource.username = 'test'
+      resource.password = '123451234512345'
+      resource.consumer = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
+
+      expect(resource == existing_resource).to be(true)
     end
   end
 end

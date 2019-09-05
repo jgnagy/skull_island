@@ -5,10 +5,12 @@ module SkullIsland
   module Resources
     # The BasicauthCredential resource class
     #
-    # @see https://docs.konghq.com/hub/kong-inc/key-auth/ Key-Auth API definition
+    # @see https://docs.konghq.com/hub/kong-inc/basic-auth/ Basic-Auth API definition
     class BasicauthCredential < Resource
+      attr_accessor :hashed_password
+
       property :username, required: true, validate: true
-      property :password, validated: true
+      property :password, validated: true, preprocess: true, postprocess: true
       property(
         :consumer,
         required: true, validate: true, preprocess: true, postprocess: true
@@ -44,6 +46,17 @@ module SkullIsland
         consumer ? "#{consumer.relative_uri}/basic-auth" : nil
       end
 
+      def digest
+        Digest::MD5.hexdigest(
+          if new? && !password.match?(/^hash{.+}$/)
+            hashed_pass = Digest::SHA1.hexdigest((password || '') + consumer.id)
+            "#{username}:hash{#{hashed_pass}}"
+          else
+            "#{username}:#{password}"
+          end
+        )
+      end
+
       def export(options = {})
         hash = { 'username' => username, 'password' => password }
         hash['consumer'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
@@ -56,13 +69,39 @@ module SkullIsland
         hash.reject { |_, value| value.nil? }
       end
 
-      # Keys can't be updated, only created or deleted
+      # Credentials can't be updated, only deleted then created
       def modified_existing?
-        false
+        return false unless new?
+
+        # Find credentials of the same username
+        basic_auths = consumer.credentials['basic-auth']
+        return false unless basic_auths
+
+        same_username = basic_auths.where(:username, username)
+
+        existing = same_username.size == 1 ? same_username.first : nil
+        # Need to destroy the old one then save the new one...
+        existing ? existing.destroy && save : false
       end
 
       def project
         consumer ? consumer.project : nil
+      end
+
+      def <=>(other)
+        if id
+          if id < other.id
+            -1
+          elsif id > other.id
+            1
+          elsif id == other.id
+            0
+          else
+            raise Exceptions::InvalidArguments
+          end
+        else
+          digest <=> other.digest
+        end
       end
 
       private
@@ -84,6 +123,19 @@ module SkullIsland
           input
         else
           { 'id' => input.id }
+        end
+      end
+
+      def postprocess_password(value)
+        hashed_password || !new? ? "hash{#{value}}" : value
+      end
+
+      def preprocess_password(input)
+        if input.match?(/^hash{.+}$/)
+          @hashed_password = true
+          input.match(/^hash{(.+)}$/)[1]
+        else
+          input
         end
       end
 
