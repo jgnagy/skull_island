@@ -69,7 +69,7 @@ module SkullIsland
         hash.reject { |_, value| value.nil? }
       end
 
-      # Keys can't be updated, only deleted then created
+      # Credentials can't be updated, only deleted then created
       def modified_existing?
         return false unless new?
 
