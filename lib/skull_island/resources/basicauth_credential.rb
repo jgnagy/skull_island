@@ -5,7 +5,7 @@ module SkullIsland
   module Resources
     # The BasicauthCredential resource class
     #
-    # @see https://docs.konghq.com/hub/kong-inc/key-auth/ Key-Auth API definition
+    # @see https://docs.konghq.com/hub/kong-inc/basic-auth/ Basic-Auth API definition
     class BasicauthCredential < Resource
       attr_accessor :hashed_password
 
