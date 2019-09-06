@@ -59,11 +59,12 @@ module SkullIsland
         super.reject { |k| %i[run_on].include? k }
       end
 
+      # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = {
           'name' => name,
           'enabled' => enabled?,
-          'config' => config.deep_sort
+          'config' => config.deep_sort.compact
         }
         hash['consumer'] = "<%= lookup :consumer, '#{consumer.username}' %>" if consumer
         hash['route'] = "<%= lookup :route, '#{route.name}' %>" if route
@@ -78,6 +79,7 @@ module SkullIsland
         hash.reject { |_, value| value.nil? }
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
       def modified_existing?
         return false unless new?
@@ -86,14 +88,15 @@ module SkullIsland
         same_name = self.class.where(:name, name)
         return false if same_name.size.zero?
 
-        same_name_and_consumer = same_name.where(:consumer, consumer)
-        same_name_and_route = same_name.where(:route, route)
-        same_name_and_service = same_name.where(:service, service)
-        existing = if same_name_and_consumer.size == 1
+        same_name_and_consumer = consumer ? same_name.where(:consumer, consumer) : nil
+        same_name_and_route = route ? same_name.where(:route, route) : nil
+        same_name_and_service = service ? same_name.where(:service, service) : nil
+
+        existing = if same_name_and_consumer && same_name_and_consumer.size == 1
                      same_name_and_consumer.first
-                   elsif same_name_and_route.size == 1
+                   elsif same_name_and_route && same_name_and_route.size == 1
                      same_name_and_route.first
-                   elsif same_name_and_service.size == 1
+                   elsif same_name_and_service && same_name_and_service.size == 1
                      same_name_and_service.first
                    end
         if existing
@@ -104,6 +107,8 @@ module SkullIsland
         end
       end
       # rubocop:enable Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/AbcSize
 
       private
 
@@ -112,7 +117,7 @@ module SkullIsland
       end
 
       def postprocess_config(value)
-        value.deep_sort
+        value.deep_sort.compact
       end
 
       def postprocess_consumer(value)

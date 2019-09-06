@@ -166,7 +166,7 @@ module SkullIsland
         hash = { 'username' => username, 'custom_id' => custom_id }
         creds = credentials_for_export
         hash['credentials'] = creds unless creds.empty?
-        hash['acls'] = acls unless acls.empty?
+        hash['acls'] = acls.map { |acl| acl.export(exclude: 'consumer') } unless acls.empty?
         hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
