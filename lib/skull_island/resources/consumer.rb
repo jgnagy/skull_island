@@ -17,6 +17,7 @@ module SkullIsland
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
+      # rubocop:disable Metrics/MethodLength
       def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
@@ -57,6 +58,14 @@ module SkullIsland
             test: test
           )
 
+          known_acls = AccessControlList.batch_import(
+            (
+              resource_data.dig('acls') || []
+            ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
+            verbose: verbose,
+            test: test
+          )
+
           next unless project
 
           basic_creds = BasicauthCredential.all.select { |c| c.consumer == resource }
@@ -76,10 +85,37 @@ module SkullIsland
             puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
             res.destroy
           end
+
+          acls = AccessControlList.all.select { |acl| acl.consumer == resource }
+          acls.reject { |res| known_acls.include?(res.id) }.map do |res|
+            puts "[WARN] ! Removing #{res.class.name} (#{res.id})"
+            res.destroy
+          end
         end
         # rubocop:enable Metrics/BlockLength
 
         cleanup_except(project, known_ids) if project
+      end
+      # rubocop:enable Metrics/MethodLength
+
+      def acls
+        AccessControlList.where(:consumer, self, api_client: api_client)
+      end
+
+      def add_acl!(details)
+        r = if details.is_a?(AccessControlList)
+              details
+            elsif details.is_a?(String)
+              resource = AccessControlList.new(api_client: api_client)
+              resource.group = details
+              resource
+            else
+              resource = AccessControlList.new(api_client: api_client)
+              resource.group = details[:group]
+              resource
+            end
+        r.consumer = self
+        r.save
       end
 
       def add_credential!(details)
@@ -130,6 +166,7 @@ module SkullIsland
         hash = { 'username' => username, 'custom_id' => custom_id }
         creds = credentials_for_export
         hash['credentials'] = creds unless creds.empty?
+        hash['acls'] = acls unless acls.empty?
         hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
