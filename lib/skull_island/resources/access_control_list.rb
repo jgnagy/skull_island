@@ -6,7 +6,7 @@ module SkullIsland
     # The ACL resource class
     #
     # @see https://docs.konghq.com/hub/kong-inc/acl/ ACL API definition
-    class ACL < Resource
+    class AccessControlList < Resource
       property :group, validate: true
       property(
         :consumer,
