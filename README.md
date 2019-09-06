@@ -85,6 +85,10 @@ skull_island export --verbose /path/to/export.yml
 
 Exporting, by default, exports the entire configuration of a Kong gateway, but will strip out special meta-data tags added by Skull Island to track projects. If, instead, you'd like to export **only** the configuration for a specific project, you can add `--project foo` (where `foo` is the name of your project) to export only those resources associated with it and maintain the special key in the exported YAML.
 
+#### Exporting Credentials
+
+For most credential types, exporting works as expected (you'll see the plaintext value in the exported YAML). With `BasicauthCredential`s, however, this is not the case. This isn't a limitation of `skull_island`; rather, it is the [expected behavior](https://github.com/Kong/kong/issues/4237) of the Admin API developers. This tool, when exporting these credentials, can only provide the salted-SHA1 hash of the password, and it does so by wrapping it in a special `hash{}` notation. This allows `skull_island` to distinguish between changing the value to the literal string and comparing the _hashed_ values. The import process is also smart enough to compare plaintext to hashed values returned from the API for existing values, so it won't recreate credentials every run.
+
 ### Importing
 
 Skull Island also supports importing configurations (both partial and full) from a YAML + ERB document:
@@ -182,6 +186,8 @@ certificates: []
 consumers:
 - username: foo
   custom_id: foo
+  acls:
+  - group: searchusers
   credentials:
     key-auth:
     - key: q90r8908w09rqw9jfj09jq0f8y389
@@ -232,6 +238,13 @@ plugins:
     key_names:
     - x-api-key
     run_on_preflight: true
+  service: "<%= lookup :service, 'search_api' %>"
+- name: acl
+  enabled: true
+  config:
+    hide_groups_header: false
+    whitelist:
+    - searchusers
   service: "<%= lookup :service, 'search_api' %>"
 ```
 
@@ -376,7 +389,7 @@ resource.created_at
 # => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
 ```
 
-#### Consumers (and their Credentials)
+#### Consumers (along with their Access Control Lists and Credentials)
 
 Note that for Consumer credentials, only [`key-auth`](https://docs.konghq.com/hub/kong-inc/key-auth/), [`jwt`](https://docs.konghq.com/hub/kong-inc/jwt/), and [`basic-auth`](https://docs.konghq.com/hub/kong-inc/basic-auth/) are currently supported.
 
@@ -397,6 +410,8 @@ resource.created_at
 # => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
 resource.plugins
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3e...
+resource.acls
+# => #<SkullIsland::ResourceCollection:0x00007f9f1e765b3c...
 resource.credentials
 # => {}
 resource.add_credential!(key: '932948e89e09e2989d8092') # adds a KeyauthCredential
@@ -411,6 +426,8 @@ resource.credentials['basic-auth']
 # => #<SkullIsland::ResourceCollection:0x00007f9f1e564f3f...
 resource.credentials['basic-auth'].first.username
 # => "test"
+resource.add_acl!(group: 'somegroup')
+# => true
 ```
 
 #### Plugins
