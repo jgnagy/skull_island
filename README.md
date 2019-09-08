@@ -4,6 +4,18 @@ A full-featured SDK for [Kong](https://konghq.com/kong/) 1.1.x/1.2.x (with suppo
 
 ## Installation
 
+### CLI Tool
+
+If you only plan on using the CLI tool, feel free to just use the Docker image:
+
+```sh
+docker pull jgnagy/skull_island
+alias skull_island='docker run -it --rm -e KONG_ADMIN_URL=${KONG_ADMIN_URL:-http://host.docker.internal:8001} -u $(id -u) -v ${PWD}:${PWD} -w ${PWD} jgnagy/skull_island'
+skull_island help
+```
+
+### Ruby Gem Install / SDK
+
 Either:
 
 ```sh
