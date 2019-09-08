@@ -3,7 +3,6 @@
 require 'bundler/setup'
 require 'simplecov'
 require 'coveralls'
-Coveralls.wear!
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
   [
@@ -15,6 +14,9 @@ SimpleCov.start do
   add_filter '/spec/'
   add_filter '/.bundle/'
 end
+
+Coveralls.wear!
+
 require 'skull_island'
 require 'skull_island/rspec'
 
