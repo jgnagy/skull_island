@@ -2,8 +2,10 @@
 
 A full-featured SDK for [Kong](https://konghq.com/kong/) 1.1.x/1.2.x (with support for migrating from 0.14.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
 
+![Gem](https://img.shields.io/gem/v/skull_island)
 ![Travis (.org)](https://img.shields.io/travis/jgnagy/skull_island)
 ![Depfu](https://img.shields.io/depfu/jgnagy/skull_island)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/jgnagy/skull_island)
 
 ## Installation
 
