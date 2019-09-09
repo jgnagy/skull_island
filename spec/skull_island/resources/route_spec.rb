@@ -7,6 +7,13 @@ RSpec.describe SkullIsland::Resources::Route do
       SkullIsland::Resources::Route.new(api_client: client)
     end
 
+    let(:service_raw) do
+      {
+        'id' => '4e13f54a-bbf1-47a8-8777-255fed7116f2',
+        'name' => 'a_service'
+      }
+    end
+
     let(:existing_resource_raw) do
       # Taken straight from https://docs.konghq.com/0.14.x/admin-api/#route-object
       {
@@ -64,10 +71,35 @@ RSpec.describe SkullIsland::Resources::Route do
         "#{subject.class.relative_uri}/22108377-8f26-4c0e-bd9e-2962c1d6b0e6",
         response: existing_resource_raw
       )
+      client.response_for(
+        :get,
+        "#{SkullIsland::Resources::Service.relative_uri}/4e13f54a-bbf1-47a8-8777-255fed7116f2",
+        response: service_raw
+      )
       SkullIsland::Resources::Route.get(
         '22108377-8f26-4c0e-bd9e-2962c1d6b0e6',
         api_client: client
       )
+    end
+
+    let(:exported_resource) do
+      {
+        'protocols' => %w[http https],
+        'hosts' => ['example.com'],
+        'regex_priority' => 0,
+        'strip_path' => true,
+        'preserve_host' => false,
+        'service' => "<%= lookup :service, 'a_service' %>"
+      }
+    end
+
+    let(:exported_resource_exclusions) do
+      exported_resource.reject { |k| k == 'regex_priority' }
+    end
+
+    let(:exported_resource_inclusions) do
+      r = 'routes/22108377-8f26-4c0e-bd9e-2962c1d6b0e6'
+      exported_resource.merge('relative_uri' => r)
     end
 
     it 'finds existing resources' do
@@ -110,6 +142,18 @@ RSpec.describe SkullIsland::Resources::Route do
       expect(resource.id).to eq('22108377-8f26-4c0e-bd9e-2962c1d6b0e6')
       expect(resource.hosts).to eq(['example.com', 'example.org'])
       expect(resource.updated_at).to eq(Time.at(14888869056499).utc.to_datetime)
+    end
+
+    it 'supports exporting resources' do
+      expect(existing_resource.export).to eq(exported_resource)
+    end
+
+    it 'supports exporting resources with exclusions' do
+      expect(existing_resource.export(exclude: :regex_priority)).to eq(exported_resource_exclusions)
+    end
+
+    it 'supports exporting resources with inclusions' do
+      expect(existing_resource.export(include: :relative_uri)).to eq(exported_resource_inclusions)
     end
   end
 end

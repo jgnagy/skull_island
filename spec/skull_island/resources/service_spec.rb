@@ -63,10 +63,39 @@ RSpec.describe SkullIsland::Resources::Service do
         "#{subject.class.relative_uri}/4e13f54a-bbf1-47a8-8777-255fed7116f2",
         response: existing_resource_raw
       )
+      client.response_for(
+        :get,
+        SkullIsland::Resources::Route.relative_uri,
+        response: { 'data' => [] }
+      )
       SkullIsland::Resources::Service.get(
         '4e13f54a-bbf1-47a8-8777-255fed7116f2',
         api_client: client
       )
+    end
+
+    let(:exported_resource) do
+      {
+        'connect_timeout' => 60000,
+        'protocol' => 'http',
+        'host' => 'example.org',
+        'port' => 80,
+        'path' => '/api',
+        'name' => 'example-service',
+        'retries' => 5,
+        'routes' => [],
+        'read_timeout' => 60000,
+        'write_timeout' => 60000
+      }
+    end
+
+    let(:exported_resource_exclusions) do
+      exported_resource.reject { |k| k == 'name' }
+    end
+
+    let(:exported_resource_inclusions) do
+      r = 'services/4e13f54a-bbf1-47a8-8777-255fed7116f2'
+      exported_resource.merge('relative_uri' => r)
     end
 
     it 'finds existing resources' do
@@ -111,6 +140,18 @@ RSpec.describe SkullIsland::Resources::Service do
       expect(resource.save).to be true
       expect(resource.id).to eq('4e13f54a-bbf1-47a8-8777-255fed7116f2')
       expect(resource.host).to eq('example.com')
+    end
+
+    it 'supports exporting resources' do
+      expect(existing_resource.export).to eq(exported_resource)
+    end
+
+    it 'supports exporting resources with exclusions' do
+      expect(existing_resource.export(exclude: :name)).to eq(exported_resource_exclusions)
+    end
+
+    it 'supports exporting resources with inclusions' do
+      expect(existing_resource.export(include: :relative_uri)).to eq(exported_resource_inclusions)
     end
   end
 end

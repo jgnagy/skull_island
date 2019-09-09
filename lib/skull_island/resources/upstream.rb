@@ -89,7 +89,7 @@ module SkullIsland
       end
 
       def target(target_id)
-        targets.where(id: target_id).first
+        targets.where(:id, target_id).first
       end
 
       def targets

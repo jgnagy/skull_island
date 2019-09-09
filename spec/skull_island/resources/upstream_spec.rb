@@ -157,10 +157,29 @@ RSpec.describe SkullIsland::Resources::Upstream do
         "#{subject.class.relative_uri}/13611da7-703f-44f8-b790-fc1e7bf51b3e",
         response: existing_resource_raw
       )
+      client.response_for(
+        :get,
+        "#{SkullIsland::Resources::Upstream.relative_uri}/" \
+            '13611da7-703f-44f8-b790-fc1e7bf51b3e/targets',
+        response: { 'data' => [] }
+      )
       SkullIsland::Resources::Upstream.get(
         '13611da7-703f-44f8-b790-fc1e7bf51b3e',
         api_client: client
       )
+    end
+
+    let(:exported_resource) do
+      existing_resource_raw.reject { |k| %w[id created_at].include?(k) }.merge('targets' => [])
+    end
+
+    let(:exported_resource_exclusions) do
+      exported_resource.reject { |k| k == 'healthchecks' }
+    end
+
+    let(:exported_resource_inclusions) do
+      r = 'upstreams/13611da7-703f-44f8-b790-fc1e7bf51b3e'
+      exported_resource.merge('relative_uri' => r)
     end
 
     it 'finds existing resources' do
@@ -239,6 +258,18 @@ RSpec.describe SkullIsland::Resources::Upstream do
       expect(resource.slots).to eq(10)
       expect(resource.healthchecks.dig('active', 'concurrency')).to eq(5)
       expect(resource.name).to eq('service.v1.xyz')
+    end
+
+    it 'supports exporting resources' do
+      expect(existing_resource.export).to eq(exported_resource)
+    end
+
+    it 'supports exporting resources with exclusions' do
+      expect(existing_resource.export(exclude: :healthchecks)).to eq(exported_resource_exclusions)
+    end
+
+    it 'supports exporting resources with inclusions' do
+      expect(existing_resource.export(include: :relative_uri)).to eq(exported_resource_inclusions)
     end
   end
 end
