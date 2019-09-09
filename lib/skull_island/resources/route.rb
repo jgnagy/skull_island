@@ -111,7 +111,8 @@ module SkullIsland
           Service.new(
             entity: value,
             lazy: true,
-            tainted: false
+            tainted: false,
+            api_client: api_client
           )
         else
           value

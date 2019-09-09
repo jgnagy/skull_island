@@ -125,13 +125,15 @@ module SkullIsland
           Consumer.new(
             entity: value,
             lazy: true,
-            tainted: false
+            tainted: false,
+            api_client: api_client
           )
         elsif value.is_a?(String)
           Consumer.new(
             entity: { 'id' => value },
             lazy: true,
-            tainted: false
+            tainted: false,
+            api_client: api_client
           )
         else
           value
@@ -153,13 +155,15 @@ module SkullIsland
           Route.new(
             entity: value,
             lazy: true,
-            tainted: false
+            tainted: false,
+            api_client: api_client
           )
         elsif value.is_a?(String)
           Route.new(
             entity: { 'id' => value },
             lazy: true,
-            tainted: false
+            tainted: false,
+            api_client: api_client
           )
         else
           value
@@ -181,13 +185,15 @@ module SkullIsland
           Service.new(
             entity: value,
             lazy: true,
-            tainted: false
+            tainted: false,
+            api_client: api_client
           )
         elsif value.is_a?(String)
           Service.new(
             entity: { 'id' => value },
             lazy: true,
-            tainted: false
+            tainted: false,
+            api_client: api_client
           )
         else
           value

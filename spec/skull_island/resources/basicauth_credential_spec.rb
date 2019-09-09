@@ -7,6 +7,13 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       SkullIsland::Resources::BasicauthCredential.new(api_client: client)
     end
 
+    let(:consumer_raw) do
+      {
+        'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432',
+        'username' => 'my_consumer'
+      }
+    end
+
     let(:existing_resource_raw) do
       {
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
@@ -43,10 +50,24 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
           '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         response: existing_resource_raw
       )
+      client.response_for(
+        :get,
+        "#{SkullIsland::Resources::Consumer.relative_uri}" \
+          '/ee3310c1-6789-40ac-9386-f79c0cb58432',
+        response: consumer_raw
+      )
       SkullIsland::Resources::BasicauthCredential.get(
         '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         api_client: client
       )
+    end
+
+    let(:exported_resource) do
+      {
+        'username' => 'test',
+        'password' => 'hash{346979e761a763f7fa3a755edf4815707924daea}',
+        'consumer' => "<%= lookup :consumer, 'my_consumer' %>"
+      }
     end
 
     it 'finds existing resources' do
@@ -113,6 +134,10 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       resource.consumer = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
 
       expect(resource == existing_resource).to be(true)
+    end
+
+    it 'supports exporting resources' do
+      expect(existing_resource.export).to eq(exported_resource)
     end
   end
 end

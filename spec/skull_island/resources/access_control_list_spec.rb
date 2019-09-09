@@ -7,6 +7,13 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
       SkullIsland::Resources::AccessControlList.new(api_client: client)
     end
 
+    let(:consumer_raw) do
+      {
+        'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432',
+        'username' => 'my_consumer'
+      }
+    end
+
     let(:existing_resource_raw) do
       {
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
@@ -40,10 +47,23 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
           '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         response: existing_resource_raw
       )
+      client.response_for(
+        :get,
+        "#{SkullIsland::Resources::Consumer.relative_uri}" \
+          '/ee3310c1-6789-40ac-9386-f79c0cb58432',
+        response: consumer_raw
+      )
       SkullIsland::Resources::AccessControlList.get(
         '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         api_client: client
       )
+    end
+
+    let(:exported_resource) do
+      {
+        'group' => 'testgroup',
+        'consumer' => "<%= lookup :consumer, 'my_consumer' %>"
+      }
     end
 
     it 'finds existing resources' do
@@ -87,6 +107,10 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
       expect(consumer.add_acl!(resource)).to be true
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       expect(resource.group).to eq('othergroup')
+    end
+
+    it 'supports exporting resources' do
+      expect(existing_resource.export).to eq(exported_resource)
     end
   end
 end
