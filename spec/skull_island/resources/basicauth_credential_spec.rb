@@ -70,6 +70,16 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       }
     end
 
+    let(:exported_resource_exclusions) do
+      exported_resource.reject { |k| k == 'consumer' }
+    end
+
+    let(:exported_resource_inclusions) do
+      r = 'consumers/ee3310c1-6789-40ac-9386-f79c0cb58432' \
+          '/basic-auth/4661f55e-95c2-4011-8fd6-c5c56df1c9db'
+      exported_resource.merge('relative_uri' => r)
+    end
+
     it 'finds existing resources' do
       expect(existing_resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       hashed_password = Digest::SHA1.hexdigest(
@@ -138,6 +148,14 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
 
     it 'supports exporting resources' do
       expect(existing_resource.export).to eq(exported_resource)
+    end
+
+    it 'supports exporting resources with exclusions' do
+      expect(existing_resource.export(exclude: :consumer)).to eq(exported_resource_exclusions)
+    end
+
+    it 'supports exporting resources with inclusions' do
+      expect(existing_resource.export(include: :relative_uri)).to eq(exported_resource_inclusions)
     end
   end
 end

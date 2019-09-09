@@ -43,6 +43,29 @@ RSpec.describe SkullIsland::Resources::Consumer do
       )
     end
 
+    let(:empty_creds_hash) do
+      {
+        'key-auth' => [],
+        'basic-auth' => [],
+        'jwt' => []
+      }
+    end
+
+    let(:exported_resource) do
+      {
+        'custom_id' => 'abc123'
+      }
+    end
+
+    let(:exported_resource_exclusions) do
+      exported_resource.reject { |k| k == 'custom_id' }
+    end
+
+    let(:exported_resource_inclusions) do
+      r = 'consumers/4d924084-1adb-40a5-c042-63b19db421d1'
+      exported_resource.merge('relative_uri' => r)
+    end
+
     it 'finds existing resources' do
       expect(existing_resource.id).to eq('4d924084-1adb-40a5-c042-63b19db421d1')
       expect(existing_resource.custom_id).to eq('abc123')
@@ -76,6 +99,24 @@ RSpec.describe SkullIsland::Resources::Consumer do
       expect(resource.save).to be true
       expect(resource.id).to eq('4d924084-1adb-40a5-c042-63b19db421d1')
       expect(resource.custom_id).to eq('def456')
+    end
+
+    it 'supports exporting resources' do
+      allow(existing_resource).to receive(:credentials).and_return(empty_creds_hash)
+      allow(existing_resource).to receive(:acls).and_return([])
+      expect(existing_resource.export).to eq(exported_resource)
+    end
+
+    it 'supports exporting resources with exclusions' do
+      allow(existing_resource).to receive(:credentials).and_return(empty_creds_hash)
+      allow(existing_resource).to receive(:acls).and_return([])
+      expect(existing_resource.export(exclude: :custom_id)).to eq(exported_resource_exclusions)
+    end
+
+    it 'supports exporting resources with inclusions' do
+      allow(existing_resource).to receive(:credentials).and_return(empty_creds_hash)
+      allow(existing_resource).to receive(:acls).and_return([])
+      expect(existing_resource.export(include: :relative_uri)).to eq(exported_resource_inclusions)
     end
   end
 end

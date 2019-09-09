@@ -7,6 +7,13 @@ RSpec.describe SkullIsland::Resources::KeyauthCredential do
       SkullIsland::Resources::KeyauthCredential.new(api_client: client)
     end
 
+    let(:consumer_raw) do
+      {
+        'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432',
+        'username' => 'my_consumer'
+      }
+    end
+
     let(:existing_resource_raw) do
       {
         'id' => '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
@@ -40,10 +47,33 @@ RSpec.describe SkullIsland::Resources::KeyauthCredential do
           '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         response: existing_resource_raw
       )
+      client.response_for(
+        :get,
+        "#{SkullIsland::Resources::Consumer.relative_uri}" \
+          '/ee3310c1-6789-40ac-9386-f79c0cb58432',
+        response: consumer_raw
+      )
       SkullIsland::Resources::KeyauthCredential.get(
         '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         api_client: client
       )
+    end
+
+    let(:exported_resource) do
+      {
+        'key' => '123451234512345',
+        'consumer' => "<%= lookup :consumer, 'my_consumer' %>"
+      }
+    end
+
+    let(:exported_resource_exclusions) do
+      exported_resource.reject { |k| k == 'consumer' }
+    end
+
+    let(:exported_resource_inclusions) do
+      r = 'consumers/ee3310c1-6789-40ac-9386-f79c0cb58432' \
+          '/key-auth/4661f55e-95c2-4011-8fd6-c5c56df1c9db'
+      exported_resource.merge('relative_uri' => r)
     end
 
     it 'finds existing resources' do
@@ -87,6 +117,18 @@ RSpec.describe SkullIsland::Resources::KeyauthCredential do
       expect(consumer.add_credential!(resource)).to be true
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       expect(resource.key).to eq('234562345623456')
+    end
+
+    it 'supports exporting resources' do
+      expect(existing_resource.export).to eq(exported_resource)
+    end
+
+    it 'supports exporting resources with exclusions' do
+      expect(existing_resource.export(exclude: :consumer)).to eq(exported_resource_exclusions)
+    end
+
+    it 'supports exporting resources with inclusions' do
+      expect(existing_resource.export(include: :relative_uri)).to eq(exported_resource_inclusions)
     end
   end
 end

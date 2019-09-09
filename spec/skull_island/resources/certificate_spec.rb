@@ -57,6 +57,25 @@ RSpec.describe SkullIsland::Resources::Certificate do
       )
     end
 
+    let(:exported_resource) do
+      {
+        'cert' => '-----BEGIN CERTIFICATE-----...',
+        'key' => '-----BEGIN RSA PRIVATE KEY-----...',
+        'snis' => [
+          'example.com'
+        ]
+      }
+    end
+
+    let(:exported_resource_exclusions) do
+      exported_resource.reject { |k| k == 'snis' }
+    end
+
+    let(:exported_resource_inclusions) do
+      r = 'certificates/21b69eab-09d9-40f9-a55e-c4ee47fada68'
+      exported_resource.merge('relative_uri' => r)
+    end
+
     it 'finds existing resources' do
       expect(existing_resource.id).to eq('21b69eab-09d9-40f9-a55e-c4ee47fada68')
       expect(existing_resource.snis).to eq(['example.com'])
@@ -92,6 +111,18 @@ RSpec.describe SkullIsland::Resources::Certificate do
       expect(resource.save).to be true
       expect(resource.id).to eq('21b69eab-09d9-40f9-a55e-c4ee47fada68')
       expect(resource.snis).to eq(['example.com', 'example.org'])
+    end
+
+    it 'supports exporting resources' do
+      expect(existing_resource.export).to eq(exported_resource)
+    end
+
+    it 'supports exporting resources with exclusions' do
+      expect(existing_resource.export(exclude: :snis)).to eq(exported_resource_exclusions)
+    end
+
+    it 'supports exporting resources with inclusions' do
+      expect(existing_resource.export(include: :relative_uri)).to eq(exported_resource_inclusions)
     end
   end
 end
