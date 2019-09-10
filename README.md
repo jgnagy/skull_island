@@ -267,9 +267,15 @@ plugins:
 
 All top-level keys (other than `version` and `project`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
 
+Note that while this configuration looks a lot like the [DB-less](https://docs.konghq.com/1.1.x/db-less-and-declarative-config/) configuration (and even may, at times, be interchangeable), this is merely a coincidence. **Skull Island doesn't support the DB-less mode for Kong.** This may potentially change in the future, but for now it is not a goal of this project.
+
+#### Embedded Ruby
+
 While technically _any_ Ruby is valid, the following are pretty helpful for templating your YAML files:
 
-* `ENV.fetch('VARIABLE_NAME', 'default value')` - This allows looking up the environment variable `VARIABLE_NAME` and using its value, or, if it isn't defined, it uses `default value` as the value. With this we could change `host: api.example.com` to `host: <%= ENV.fetch('API_HOST', 'api.example.com') %>`. With this, if `API_HOST` is provided, it'll use that, otherwise it will default to `api.example.com`.
+* `lookup(:service, 'foo')` -  This function resolves the ID of a `service` named `foo`. Lookup supports `:consumer` (looking up the `username` attribute), `:service`, `:route`, or `:upstream` (resolving the `name` attribute).
+
+* `ENV.fetch('VARIABLE_NAME', 'default value')` - This allows looking up the environment variable `VARIABLE_NAME` and using its value, or, if it isn't defined, it uses `default value` as the value. With this we could change `host: api.example.com` to `host: <%= ENV.fetch('API_HOST', 'api.example.com') %>`. With this, if `API_HOST` is provided, it'll use that, otherwise it will default to `api.example.com`. This is especially helpful for sensitive information; you can version control the configuration but pass in things like credentials via environment variables at runtime.
 
 ## SDK Usage
 
