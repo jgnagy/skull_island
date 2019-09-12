@@ -31,12 +31,25 @@ module SkullIsland
 
     def get(uri, data = nil)
       client_action do |client|
-        # TODO: Support the API's pagination through the "next" top-level key
-        if data
-          JSON.parse client[uri].get(json_headers.merge(params: data))
-        else
-          JSON.parse client[uri].get(json_headers)
+        results = nil
+        params = {}
+        params.merge(data) if data
+        # OPTIMIZE: Move to an Enumerable
+        loop do
+          follow_up = JSON.parse client[uri].get(json_headers.merge(params: params))
+
+          if results
+            results['data'] += follow_up['data']
+          else
+            results = follow_up.dup
+            results.delete('offset')
+            results.delete('next')
+          end
+
+          params = params.merge('offset' => follow_up['offset']) if follow_up.key?('offset')
+          raise StopIteration unless follow_up.key?('offset')
         end
+        results
       end
     end
 
