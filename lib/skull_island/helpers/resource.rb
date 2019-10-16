@@ -15,17 +15,29 @@ module SkullIsland
       end
 
       # rubocop:disable Style/GuardClause
+      # rubocop:disable Security/Eval
       def delayed_set(property, data, key)
-        # rubocop:disable Security/Eval
         if data[key]
-          value = data[key].is_a?(String) ? eval(Erubi::Engine.new(data[key]).src) : data[key]
+          value = recursive_erubi(data[key])
           send(
             "#{property}=".to_sym,
             value.is_a?(String) && value.start_with?('{"') ? eval(value) : value
           )
         end
-        # rubocop:enable Security/Eval
       end
+
+      def recursive_erubi(data)
+        if data.is_a?(String)
+          eval(Erubi::Engine.new(data).src)
+        elsif data.is_a?(Array)
+          data.map { |item| recursive_erubi(item) }
+        elsif data.is_a?(Hash)
+          data.map { |k, v| [k, recursive_erubi(v)] }.to_h
+        else
+          data
+        end
+      end
+      # rubocop:enable Security/Eval
       # rubocop:enable Style/GuardClause
 
       def digest
