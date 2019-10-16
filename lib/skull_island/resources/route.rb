@@ -39,11 +39,11 @@ module SkullIsland
           resource.methods = rdata['methods'] if rdata['methods']
           resource.paths = rdata['paths'] if rdata['paths']
           resource.protocols = rdata['protocols'] if rdata['protocols']
-          resource.hosts = rdata['hosts'] if rdata['hosts']
+          resource.delayed_set(:hosts, rdata, 'hosts') if rdata['hosts']
           resource.regex_priority = rdata['regex_priority'] if rdata['regex_priority']
           resource.strip_path = rdata['strip_path'] unless rdata['strip_path'].nil?
           resource.preserve_host = rdata['preserve_host'] unless rdata['preserve_host'].nil?
-          resource.snis = rdata['snis'] if rdata['snis']
+          resource.delayed_set(:snis, rdata, 'snis') if rdata['snis']
           resource.tags = rdata['tags'] if rdata['tags']
           resource.project = project if project
           resource.import_time = (time || Time.now.utc.to_i) if project

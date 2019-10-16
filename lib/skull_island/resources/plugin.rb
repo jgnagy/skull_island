@@ -31,7 +31,7 @@ module SkullIsland
           resource.name = resource_data['name']
           resource.enabled = resource_data['enabled']
           resource.run_on = resource_data['run_on'] if resource_data['run_on']
-          resource.config = resource_data['config'].deep_sort if resource_data['config']
+          resource.delayed_set(:config, resource_data, 'config') if resource_data['config']
           resource.tags = resource_data['tags'] if resource_data['tags']
           resource.project = project if project
           resource.import_time = (time || Time.now.utc.to_i) if project
