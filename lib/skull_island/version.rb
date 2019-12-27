@@ -3,7 +3,7 @@
 module SkullIsland
   VERSION = [
     1, # Major
-    2, # Minor
-    12 # Patch
+    4, # Minor
+    0  # Patch
   ].join('.')
 end

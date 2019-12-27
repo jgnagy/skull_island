@@ -21,8 +21,8 @@ module SkullIsland
 
         data.each_with_index do |resource_data, index|
           resource = new
-          resource.delayed_set(:group, resource_data, 'group')
-          resource.delayed_set(:consumer, resource_data, 'consumer')
+          resource.delayed_set(:group, resource_data)
+          resource.delayed_set(:consumer, resource_data)
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           known_ids << resource.id
         end

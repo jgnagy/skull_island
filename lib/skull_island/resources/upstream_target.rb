@@ -27,8 +27,8 @@ module SkullIsland
 
         data.each_with_index do |resource_data, index|
           resource = new
-          resource.delayed_set(:target, resource_data, 'target')
-          resource.delayed_set(:upstream, resource_data, 'upstream')
+          resource.delayed_set(:target, resource_data)
+          resource.delayed_set(:upstream, resource_data)
           resource.weight = resource_data['weight'] if resource_data['weight']
           resource.tags = resource_data['tags'] if resource_data['tags']
           resource.project = project if project

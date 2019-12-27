@@ -31,13 +31,13 @@ module SkullIsland
           resource.name = resource_data['name']
           resource.enabled = resource_data['enabled']
           resource.run_on = resource_data['run_on'] if resource_data['run_on']
-          resource.delayed_set(:config, resource_data, 'config') if resource_data['config']
+          resource.delayed_set(:config, resource_data) if resource_data['config']
           resource.tags = resource_data['tags'] if resource_data['tags']
           resource.project = project if project
           resource.import_time = (time || Time.now.utc.to_i) if project
-          resource.delayed_set(:consumer, resource_data, 'consumer')
-          resource.delayed_set(:route, resource_data, 'route')
-          resource.delayed_set(:service, resource_data, 'service')
+          resource.delayed_set(:consumer, resource_data)
+          resource.delayed_set(:route, resource_data)
+          resource.delayed_set(:service, resource_data)
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           known_ids << resource.id
         end

@@ -51,6 +51,7 @@ RSpec.describe SkullIsland::Resources::Upstream do
             }
           }
         },
+        'algorithm' => 'least-connections',
         'slots' => 10,
         'created_at' => 1485521710265
       }
@@ -98,7 +99,8 @@ RSpec.describe SkullIsland::Resources::Upstream do
             }
           }
         },
-        'slots' => 10
+        'slots' => 10,
+        'algorithm' => 'round-robin'
       }
     end
 
@@ -146,6 +148,7 @@ RSpec.describe SkullIsland::Resources::Upstream do
           }
         },
         'slots' => 10,
+        'algorithm' => 'round-robin',
         'created_at' => 1485521710265
       }
     end
@@ -198,6 +201,7 @@ RSpec.describe SkullIsland::Resources::Upstream do
       )
       expect(resource.name).to be nil
       resource.name = 'service.v1.xyz'
+      resource.algorithm = 'round-robin'
       resource.hash_on = 'none'
       resource.hash_fallback = 'none'
       resource.slots = 10
@@ -252,11 +256,14 @@ RSpec.describe SkullIsland::Resources::Upstream do
         response: updated_resource_raw
       )
       expect(resource.healthchecks.dig('active', 'concurrency')).to eq(10)
+      expect(resource.algorithm).to eq('least-connections')
       resource.healthchecks['active']['concurrency'] = 5
+      resource.algorithm = 'round-robin'
       expect(resource.save).to be true
       expect(resource.id).to eq('13611da7-703f-44f8-b790-fc1e7bf51b3e')
       expect(resource.slots).to eq(10)
       expect(resource.healthchecks.dig('active', 'concurrency')).to eq(5)
+      expect(resource.algorithm).to eq('round-robin')
       expect(resource.name).to eq('service.v1.xyz')
     end
 

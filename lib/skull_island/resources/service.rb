@@ -18,6 +18,7 @@ module SkullIsland
       property :connect_timeout,    validate: true
       property :write_timeout,      validate: true
       property :read_timeout,       validate: true
+      property :client_certificate, validate: true, preprocess: true, postprocess: true
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
       property :tags, validate: true, preprocess: true, postprocess: true
@@ -35,12 +36,13 @@ module SkullIsland
           resource.name = rdata['name']
           resource.retries = rdata['retries'] if rdata['retries']
           resource.protocol = rdata['protocol']
-          resource.delayed_set(:host, rdata, 'host')
-          resource.delayed_set(:port, rdata, 'port')
+          resource.delayed_set(:host, rdata)
+          resource.delayed_set(:port, rdata)
           resource.path = rdata['path'] if rdata['path']
           resource.connect_timeout = rdata['connect_timeout'] if rdata['connect_timeout']
           resource.write_timeout = rdata['write_timeout'] if rdata['write_timeout']
           resource.read_timeout = rdata['read_timeout'] if rdata['read_timeout']
+          resource.delayed_set(:client_certificate, rdata) if rdata['client_certificate']
           resource.tags = rdata['tags'] if rdata['tags']
           resource.project = project if project
           resource.import_time = (time || Time.now.utc.to_i) if project
@@ -50,7 +52,9 @@ module SkullIsland
           Route.batch_import(
             (rdata['routes'] || []).map { |r| r.merge('service' => { 'id' => resource.id }) },
             verbose: verbose,
-            test: test
+            test: test,
+            project: project,
+            time: time
           )
         end
 
@@ -83,6 +87,7 @@ module SkullIsland
         Plugin.where(:service, self, api_client: api_client)
       end
 
+      # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = {
           'name' => name,
@@ -97,6 +102,7 @@ module SkullIsland
         }
         hash['routes'] = routes.collect { |route| route.export(exclude: 'service') }
         hash['tags'] = tags unless tags.empty?
+        hash['client_certificate'] = client_certificate if client_certificate
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -105,6 +111,7 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+      # rubocop:enable Metrics/AbcSize
 
       def modified_existing?
         return false unless new?
@@ -138,6 +145,27 @@ module SkullIsland
       end
 
       private
+
+      def postprocess_client_certificate(value)
+        if value.is_a?(Hash)
+          Certificate.new(
+            entity: value,
+            lazy: true,
+            tainted: false,
+            api_client: api_client
+          )
+        else
+          value
+        end
+      end
+
+      def preprocess_client_certificate(input)
+        if input.is_a?(Hash)
+          input
+        else
+          { 'id' => input.id }
+        end
+      end
 
       # Used to validate {#protocol} on set
       def validate_protocol(value)

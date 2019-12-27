@@ -25,11 +25,9 @@ module SkullIsland
         data.each_with_index do |resource_data, index|
           resource = new
           resource.algorithm = resource_data['algorithm']
-          resource.delayed_set(:key, resource_data, 'key') if resource_data['key']
-          resource.delayed_set(:secret, resource_data, 'secret') if resource_data['secret']
-          if resource_data['rsa_public_key']
-            resource.delayed_set(:rsa_public_key, resource_data, 'rsa_public_key')
-          end
+          resource.delayed_set(:key, resource_data) if resource_data['key']
+          resource.delayed_set(:secret, resource_data) if resource_data['secret']
+          resource.delayed_set(:rsa_public_key, resource_data) if resource_data['rsa_public_key']
           resource.delayed_set(:consumer, resource_data, 'consumer')
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           known_ids << resource.id

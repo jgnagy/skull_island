@@ -1,6 +1,6 @@
 # Skull Island
 
-A full-featured SDK for [Kong](https://konghq.com/kong/) 1.1.x/1.2.x (with support for migrating from 0.14.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
+A full-featured SDK for [Kong](https://konghq.com/kong/) 1.4.x (with support for migrating from 0.14.x, 1.1.x, and 1.2.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
 
 ![Gem](https://img.shields.io/gem/v/skull_island)
 ![Travis (.org)](https://img.shields.io/travis/jgnagy/skull_island)
@@ -30,7 +30,7 @@ gem install skull_island
 Or add this to your Gemfile:
 
 ```ruby
-gem 'skull_island',  '~> 1.2'
+gem 'skull_island',  '~> 1.4'
 ```
 
 Or add this to your .gemspec:
@@ -38,7 +38,7 @@ Or add this to your .gemspec:
 ```ruby
 Gem::Specification.new do |spec|
  # ...
- spec.add_runtime_dependency 'skull_island', '~> 1.2'
+ spec.add_runtime_dependency 'skull_island', '~> 1.4'
  # ...
 end
 ```
@@ -141,7 +141,7 @@ Note that `--test` has a high likelihood of generating errors with a complicated
 
 #### Importing with Projects
 
-Skull Island 1.2.1 introduces the ability to use a special top-level key in the configuration called `project` that uses meta-data to track which resources belong to a project. This meta-data can safely be added at another time as this tool will "adopt" otherwise matching resources into a project.
+Skull Island 1.2.1 introduced the ability to use a special top-level key in the configuration called `project` that uses meta-data to track which resources belong to a project. This meta-data can safely be added at another time as this tool will "adopt" otherwise matching resources into a project.
 
 To use this functionality, either add the `project` key to your configuration file (usually directly below the `version` key) with some value that will be unique on your gateway, or use `--project foo` (where `foo` is the name of your project) as a CLI flag.
 
@@ -149,17 +149,17 @@ When using the `project` feature of Skull Island, the CLI tool will automaticall
 
 ### Migrating
 
-With Skull Island, it is possible to migrate a configuration from a 0.14.x gateway to one compatible with a 1.2.x gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.2 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
+With Skull Island, it is possible to migrate a configuration from a 0.14.x, 1.1.x, or 1.2.x gateway to the most recent compatible gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.4 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
 
 ```
 skull_island migrate /path/to/export.yml /output/location/migrated.yml
 ```
 
-While this hasn't been heavily tested for all possible use-cases, any configuration generated or usable by the `'~> 0.14'` version of this gem should safely convert using the migration command. This tool also makes no guarantees about plugin functionality, configuration compatibility across versions, or that the same plugins are installed and available in your newer gateway. It should go without saying that you should **test and confirm** that all of your functionality was successfully migrated.
+While this hasn't been heavily tested for all possible use-cases, any configuration generated or usable by the `'~> 0.14'` or `'~> 1.2'` version of this gem should safely convert using the migration command. This tool also makes no guarantees about plugin functionality, configuration compatibility across versions, or that the same plugins are installed and available in your newer gateway. It should go without saying that you should **test and confirm** that all of your functionality was successfully migrated.
 
-If you don't have a previous export, you'll need to install an older version of this gem using `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
+If you don't have a previous export, you'll need to install an older version of this gem using something like `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
 
-While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that will likely be used heavily. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1+.
+While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that are used heavily by skull_island. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1 and beyond.
 
 ### Reset A Gateway
 
@@ -188,7 +188,7 @@ If you're wondering what version of `skull_island` is installed, use:
 ```
 $ skull_island version
 
-SkullIsland Version: 1.2.5
+SkullIsland Version: 1.4.1
 ```
 
 ### File Format
@@ -197,7 +197,7 @@ The import/export/migrate CLI functions produce YAML with support for embedded R
 
 ```yaml
 ---
-version: '1.2'
+version: '1.4'
 project: FooV2
 certificates: []
 consumers:
@@ -267,7 +267,7 @@ plugins:
 
 All top-level keys (other than `version` and `project`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
 
-Note that while this configuration looks a lot like the [DB-less](https://docs.konghq.com/1.1.x/db-less-and-declarative-config/) configuration (and even may, at times, be interchangeable), this is merely a coincidence. **Skull Island doesn't support the DB-less mode for Kong.** This may potentially change in the future, but for now it is not a goal of this project.
+Note that while this configuration looks a lot like the [DB-less](https://docs.konghq.com/1.4.x/db-less-and-declarative-config/) configuration (and even may, at times, be interchangeable), this is merely a coincidence. **Skull Island doesn't support the DB-less mode for Kong.** This may potentially change in the future, but for now it is not a goal of this project.
 
 #### Embedded Ruby
 
@@ -276,6 +276,8 @@ While technically _any_ Ruby is valid, the following are pretty helpful for temp
 * `lookup(:service, 'foo')` -  This function resolves the ID of a `service` named `foo`. Lookup supports `:consumer` (looking up the `username` attribute), `:service`, `:route`, or `:upstream` (resolving the `name` attribute).
 
 * `ENV.fetch('VARIABLE_NAME', 'default value')` - This allows looking up the environment variable `VARIABLE_NAME` and using its value, or, if it isn't defined, it uses `default value` as the value. With this we could change `host: api.example.com` to `host: <%= ENV.fetch('API_HOST', 'api.example.com') %>`. With this, if `API_HOST` is provided, it'll use that, otherwise it will default to `api.example.com`. This is especially helpful for sensitive information; you can version control the configuration but pass in things like credentials via environment variables at runtime.
+
+Note also that 1.4.x and beyond of Skull Island support two phases of embedded ruby: first, a simple phase that treats the **entire file** as just text, allowing you to use the full power of ruby for things like loops, conditional logic, and more; the second phase is applied for individual attributes within the rendered YAML document. This is where the `lookup()` function above is used. 
 
 ## SDK Usage
 
@@ -554,6 +556,7 @@ resource = Resources::Service.new
 
 # These attributes can be set and read
 resource.protocol        = 'http'
+resource.client_certificate = { 'id' => '77e32ff2-...' }
 resource.connect_timeout = 60000
 resource.host            = 'example.com'
 resource.port            = 80
@@ -591,6 +594,7 @@ resource = Resources::Upstream.new
 
 # These attributes can be set and read
 resource.name          = 'service.v1.xyz'
+resource.algorithm     = 'round-robin'
 resource.hash_on       = 'none'
 resource.hash_fallback = 'none'
 resource.slots         = 1000
