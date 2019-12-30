@@ -47,7 +47,7 @@ end
 
 Skull Island comes with an executable called `skull_island` that leverages the SDK under the hood. Learn about what it can do via `help`:
 
-```
+```sh
 $ skull_island help
 Commands:
   skull_island export [OPTIONS] [OUTPUT|-]             # Export the current configuration to OUTPUT
@@ -63,7 +63,7 @@ Options:
 
 To use the commands that interact with the Kong API, set environment variables for the required parameters:
 
-```
+```sh
 KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 KONG_ADMIN_USERNAME='my-basicauth-user' \
 KONG_ADMIN_PASSWORD='my-basicauth-password' \
@@ -74,7 +74,7 @@ Note that you can skip `KONG_ADMIN_USERNAME` and `KONG_ADMIN_PASSWORD` if you ar
 
 Also note that if you're having SSL issues (such as with a private CA), you can have Ruby make use of a custom CA public key using `SSL_CERT_FILE`:
 
-```
+```sh
 SSL_CERT_FILE=/path/to/cabundle.pem \
 KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 KONG_ADMIN_USERNAME='my-basicauth-user' \
@@ -88,14 +88,14 @@ The CLI allows you to export an existing configuration to a YAML + ERB document 
 
 The `export` command will default to outputting to STDOUT if you don't provide an output file location. Otherwise, simply specify the filename you'd like to export to:
 
-```
+```sh
 KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island export /path/to/export.yml
 ```
 
 You can also get a little more information by turning on `--verbose`:
 
-```
+```sh
 KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island export --verbose /path/to/export.yml
 ```
@@ -110,14 +110,14 @@ For most credential types, exporting works as expected (you'll see the plaintext
 
 Skull Island also supports importing configurations (both partial and full) from a YAML + ERB document:
 
-```
+```sh
 KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island import /path/to/export.yml
 ```
 
 It'll also read from STDIN if you don't specify a file path (or if you specify `-` as the path):
 
-```
+```sh
 cat /path/to/export.yml | KONG_ADMIN_URL='https://api-admin.mydomain.com' skull_island import
 # OR
 KONG_ADMIN_URL='https://api-admin.mydomain.com' skull_island import < /path/to/export.yml
@@ -125,14 +125,14 @@ KONG_ADMIN_URL='https://api-admin.mydomain.com' skull_island import < /path/to/e
 
 You can also get a little more information by turning on `--verbose`:
 
-```
+```sh
 KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island import --verbose /path/to/export.yml
 ```
 
 Importing also supports a "dry run" functionality that shows you what it would do (but makes no changes) using `--test`:
 
-```
+```sh
 KONG_ADMIN_URL='https://api-admin.mydomain.com' \
 skull_island import --verbose --test /path/to/export.yml
 ```
@@ -151,7 +151,7 @@ When using the `project` feature of Skull Island, the CLI tool will automaticall
 
 With Skull Island, it is possible to migrate a configuration from a 0.14.x, 1.1.x, or 1.2.x gateway to the most recent compatible gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.4 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
 
-```
+```sh
 skull_island migrate /path/to/export.yml /output/location/migrated.yml
 ```
 
@@ -167,7 +167,7 @@ Skull Island can completely clear the configuration from a Kong instance using t
 
 Fully resetting a gateway looks like this:
 
-```
+```sh
 skull_island reset --force
 ```
 
@@ -175,7 +175,7 @@ You can, of course, include `--verbose` to see `skull_island` do its work, thoug
 
 You can also restrict the reset to just resources associated with a particular project using the `--project` flag:
 
-```
+```sh
 skull_island reset --force --project foo
 ```
 
@@ -185,7 +185,7 @@ This assumes the project is called `foo`.
 
 If you're wondering what version of `skull_island` is installed, use:
 
-```
+```sh
 $ skull_island version
 
 SkullIsland Version: 1.4.1
@@ -200,6 +200,11 @@ The import/export/migrate CLI functions produce YAML with support for embedded R
 version: '1.4'
 project: FooV2
 certificates: []
+ca_certificates:
+- cert: |-
+    -----BEGIN CERTIFICATE-----
+    MIIFUzCCA...
+    -----END CERTIFICATE-----
 consumers:
 - username: foo
   custom_id: foo
@@ -265,7 +270,7 @@ plugins:
   service: "<%= lookup :service, 'search_api' %>"
 ```
 
-All top-level keys (other than `version` and `project`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`). The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
+All top-level keys (other than `version` and `project`) require an Array as a parameter, either by providing a list of entries or an empty Array (`[]`), or they can be omitted entirely which is the same as providing an empty Array. The above shows how to use the `lookup()` function to refer to another resource. This "looks up" the resource type (`service` in this case) by `name` (`search_api` in this case) and resolves its `id`. This function can also be used to lookup a `route` or `upstream` by its `name`, or a `consumer` by its `username`. Note that Kong itself doesn't _require_ `route` resources to have unique names, so you'll need to enforce that practice yourself for `lookup` to be useful for Routes.
 
 Note that while this configuration looks a lot like the [DB-less](https://docs.konghq.com/1.4.x/db-less-and-declarative-config/) configuration (and even may, at times, be interchangeable), this is merely a coincidence. **Skull Island doesn't support the DB-less mode for Kong.** This may potentially change in the future, but for now it is not a goal of this project.
 
@@ -393,7 +398,26 @@ service.routes.size
 # => 4
 ```
 
-From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/1.2.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
+From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/1.4.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
+
+#### CA Certificates
+
+These are used by the gateway to verify upstream certificates when connecting to them via HTTPS. These are not used to allow Kong to _generate_ certificates. Thus, there is only a public key (`cert`) attribute for this resource.
+
+```ruby
+resource = Resources::CACertificate.new
+
+# These attributes can be set and read
+resource.cert = '-----BEGIN CERTIFICATE-----...' # PEM-encoded public key
+resource.tags = ['production', 'example']        # Array of tags
+resource.save
+
+# These attributes are read-only
+resource.id
+# => "1cad3055-1027-459d-b76e-f590dc5f0071"
+resource.created_at
+# => #<DateTime: 2018-07-17T12:51:28+00:00 ((2458317j,46288s,0n),+0s,2299161j)>
+```
 
 #### Certificates
 

@@ -34,6 +34,7 @@ module SkullIsland
       output['project'] = options['project'] if options['project']
 
       [
+        Resources::CACertificate,
         Resources::Certificate,
         Resources::Consumer,
         Resources::Upstream,
@@ -64,12 +65,16 @@ module SkullIsland
       input['project'] = options['project'] if options['project']
 
       [
+        Resources::CACertificate,
         Resources::Certificate,
         Resources::Consumer,
         Resources::Upstream,
         Resources::Service,
         Resources::Plugin
-      ].each { |clname| import_class(clname, input, import_time) }
+      ].each do |clname|
+        input[clname.route_key] = [] unless input[clname.route_key] # enforce all top-level keys
+        import_class(clname, input, import_time)
+      end
     end
 
     desc(
@@ -118,6 +123,7 @@ module SkullIsland
         warn '[WARN] ! FULLY Resetting gateway'
       end
       [
+        Resources::CACertificate,
         Resources::Certificate,
         Resources::Consumer,
         Resources::Upstream,
