@@ -10,6 +10,7 @@ module SkullIsland
       include Helpers::Meta
 
       property :name, required: true, validate: true
+      property :algorithm, validate: true
       property :slots, validate: true
       property :hash_on, validate: true
       property :hash_fallback, validate: true
@@ -18,6 +19,7 @@ module SkullIsland
       property :hash_on_cookie, validate: true
       property :hash_on_cookie_path, validate: true
       property :healthchecks, validate: true
+      property :host_header, validate: true
       property :created_at, read_only: true, postprocess: true
       property :tags, validate: true, preprocess: true, postprocess: true
 
@@ -32,6 +34,7 @@ module SkullIsland
         data.each_with_index do |rdata, index|
           resource = new
           resource.name = rdata['name']
+          resource.algorithm = rdata['algorithm'] if rdata['algorithm']
           resource.slots = rdata['slots'] if rdata['slots']
           resource.hash_on = rdata['hash_on']
           resource.hash_fallback = rdata['hash_fallback'] if rdata['hash_fallback']
@@ -44,6 +47,7 @@ module SkullIsland
             resource.hash_on_cookie_path = rdata['hash_on_cookie_path']
           end
           resource.healthchecks = rdata['healthchecks'] if rdata['healthchecks']
+          resource.host_header = rdata['host_header'] if rdata['host_header']
           resource.tags = rdata['tags'] if rdata['tags']
           resource.project = project if project
           resource.import_time = (time || Time.now.utc.to_i) if project
@@ -111,6 +115,7 @@ module SkullIsland
         )
       end
 
+      # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = {
           'name' => name,
@@ -123,7 +128,9 @@ module SkullIsland
           'hash_on_cookie_path' => hash_on_cookie_path,
           'healthchecks' => healthchecks
         }
+        hash['algorithm'] = algorithm if algorithm
         hash['targets'] = targets.collect { |target| target.export(exclude: 'upstream') }
+        hash['host_header'] = host_header if host_header
         hash['tags'] = tags unless tags.empty?
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
@@ -133,6 +140,7 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+      # rubocop:enable Metrics/AbcSize
 
       def modified_existing?
         return false unless new?
@@ -151,6 +159,11 @@ module SkullIsland
       end
 
       private
+
+      # Validates the upstream balancing {#algorithm}
+      def validate_algorithm(value)
+        %w[round-robin consistent-hashing least-connections].include?(value)
+      end
 
       # Used to validate {#hash_on} on set
       def validate_hash_on(value)
@@ -205,6 +218,12 @@ module SkullIsland
         # TODO: seriously need to make this better...
         # only Hash is allowed
         value.is_a?(Hash)
+      end
+
+      # Enforces valid host headers for upstreams
+      def validate_host_header(value)
+        # allow only valid hostnames
+        value.match?(host_regex) && !value.match?(/_/)
       end
     end
   end

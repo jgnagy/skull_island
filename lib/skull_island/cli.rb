@@ -11,6 +11,7 @@ module SkullIsland
   # Base CLI for SkullIsland
   class CLI < Thor
     include Helpers::Migration
+    include Helpers::CliErb
 
     class_option :verbose, type: :boolean
 
@@ -29,10 +30,11 @@ module SkullIsland
 
       validate_server_version
 
-      output = { 'version' => '1.2' }
+      output = { 'version' => '1.4' }
       output['project'] = options['project'] if options['project']
 
       [
+        Resources::CACertificate,
         Resources::Certificate,
         Resources::Consumer,
         Resources::Upstream,
@@ -54,7 +56,7 @@ module SkullIsland
       raw ||= acquire_input(input_file, options['verbose'])
 
       # rubocop:disable Security/YAMLLoad
-      input = YAML.load(raw)
+      input = YAML.load(erb_preprocess(raw))
       # rubocop:enable Security/YAMLLoad
 
       validate_config_version input['version']
@@ -63,12 +65,16 @@ module SkullIsland
       input['project'] = options['project'] if options['project']
 
       [
+        Resources::CACertificate,
         Resources::Certificate,
         Resources::Consumer,
         Resources::Upstream,
         Resources::Service,
         Resources::Plugin
-      ].each { |clname| import_class(clname, input, import_time) }
+      ].each do |clname|
+        input[clname.route_key] = [] unless input[clname.route_key] # enforce all top-level keys
+        import_class(clname, input, import_time)
+      end
     end
 
     desc(
@@ -117,6 +123,7 @@ module SkullIsland
         warn '[WARN] ! FULLY Resetting gateway'
       end
       [
+        Resources::CACertificate,
         Resources::Certificate,
         Resources::Consumer,
         Resources::Upstream,
@@ -184,9 +191,9 @@ module SkullIsland
     end
 
     def validate_config_version(version)
-      if version && ['1.1', '1.2'].include?(version)
+      if version && ['1.4'].include?(version)
         validate_server_version
-      elsif version && ['0.14', '1.0'].include?(version)
+      elsif version && ['0.14', '1.0', '1.1', '1.2'].include?(version)
         warn '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
         exit 2
       else
@@ -206,7 +213,7 @@ module SkullIsland
 
     def validate_server_version
       server_version = SkullIsland::APIClient.about_service['version']
-      if server_version.match?(/^1.[12]/)
+      if server_version.match?(/^1.[4]/)
         true
       else
         warn '[CRITICAL] Server version mismatch!'

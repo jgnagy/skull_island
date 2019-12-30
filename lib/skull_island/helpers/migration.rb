@@ -6,7 +6,9 @@ module SkullIsland
     module Migration
       def migrate_config(config)
         if config['version'] == '0.14'
-          migrate_0_14_to_1_1(config)
+          migrate_config migrate_0_14_to_1_1(config)
+        elsif ['1.1', '1.2', '1.3'].include?(config['version'])
+          migrate_1_1_to_1_4(config)
         else
           false # Just return false if it can't be migrated
         end
@@ -27,6 +29,12 @@ module SkullIsland
           end
         end
         new_config['version'] = '1.1'
+        new_config
+      end
+
+      def migrate_1_1_to_1_4(config)
+        new_config = config.dup
+        new_config['version'] = '1.4'
         new_config
       end
     end

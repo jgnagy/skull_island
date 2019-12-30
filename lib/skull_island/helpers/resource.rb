@@ -16,7 +16,7 @@ module SkullIsland
 
       # rubocop:disable Style/GuardClause
       # rubocop:disable Security/Eval
-      def delayed_set(property, data, key)
+      def delayed_set(property, data, key = property.to_s)
         if data[key]
           value = recursive_erubi(data[key])
           send(
