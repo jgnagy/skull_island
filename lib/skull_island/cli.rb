@@ -191,9 +191,9 @@ module SkullIsland
     end
 
     def validate_config_version(version)
-      if version && ['1.4'].include?(version)
+      if version && ['1.1', '1.2', '1.4'].include?(version)
         validate_server_version
-      elsif version && ['0.14', '1.0', '1.1', '1.2'].include?(version)
+      elsif version && ['0.14', '1.0'].include?(version)
         warn '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
         exit 2
       else
@@ -203,10 +203,10 @@ module SkullIsland
     end
 
     def validate_migrate_version(version)
-      if version && version == '0.14'
+      if version && ['0.14', '1.0', '1.1', '1.2'].include?(version)
         true
       else
-        warn '[CRITICAL] Config version must be 0.14 for migration.'
+        warn '[CRITICAL] Config version must be 0.14 or 1.0-1.2 for migration.'
         exit 4
       end
     end

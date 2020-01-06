@@ -159,7 +159,7 @@ While this hasn't been heavily tested for all possible use-cases, any configurat
 
 If you don't have a previous export, you'll need to install an older version of this gem using something like `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
 
-While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that are used heavily by skull_island. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1 and beyond.
+While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that are used heavily by skull_island. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1 and beyond. That said, Skull Island does allow 1.1 and 1.2 version configurations to be applied to 1.4 gateways, but not the opposite.
 
 ### Reset A Gateway
 

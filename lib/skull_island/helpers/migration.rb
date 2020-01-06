@@ -7,7 +7,7 @@ module SkullIsland
       def migrate_config(config)
         if config['version'] == '0.14'
           migrate_config migrate_0_14_to_1_1(config)
-        elsif ['1.1', '1.2', '1.3'].include?(config['version'])
+        elsif ['1.0', '1.1', '1.2', '1.3'].include?(config['version'])
           migrate_1_1_to_1_4(config)
         else
           false # Just return false if it can't be migrated
