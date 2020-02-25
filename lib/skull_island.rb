@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Core Extensions
+require 'core_extensions/string/transformations'
+String.include CoreExtensions::String::Transformations
+
 # Standard Library Requirements
 require 'date'
 require 'digest'
@@ -18,9 +22,6 @@ require 'will_paginate'
 require 'will_paginate/array'
 
 # Internal Requirements
-require 'core_extensions/string/transformations'
-String.include CoreExtensions::String::Transformations
-
 require 'skull_island/version'
 require 'skull_island/api_exception'
 require 'skull_island/exceptions/ambiguous_find'

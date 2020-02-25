@@ -52,7 +52,7 @@ module SkullIsland
       end
 
       def self.schema(name, api_client: APIClient.instance)
-        api_client.get("#{relative_uri}/schema/#{name}")
+        api_client.get("/schemas/plugins/#{name}")
       end
 
       def digest_properties

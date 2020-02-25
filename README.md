@@ -1,6 +1,6 @@
 # Skull Island
 
-A full-featured SDK for [Kong](https://konghq.com/kong/) 1.4.x (with support for migrating from 0.14.x, 1.1.x, and 1.2.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
+A full-featured SDK for [Kong](https://konghq.com/kong/) 2.0.x (with support for migrating from 0.14.x, 1.1.x, 1.2.x, 1.4.x, and 1.5.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
 
 ![Gem](https://img.shields.io/gem/v/skull_island)
 ![Travis (.org)](https://img.shields.io/travis/jgnagy/skull_island)
@@ -30,7 +30,7 @@ gem install skull_island
 Or add this to your Gemfile:
 
 ```ruby
-gem 'skull_island',  '~> 1.4'
+gem 'skull_island',  '~> 2.0'
 ```
 
 Or add this to your .gemspec:
@@ -38,7 +38,7 @@ Or add this to your .gemspec:
 ```ruby
 Gem::Specification.new do |spec|
  # ...
- spec.add_runtime_dependency 'skull_island', '~> 1.4'
+ spec.add_runtime_dependency 'skull_island', '~> 2.0'
  # ...
 end
 ```
@@ -149,17 +149,17 @@ When using the `project` feature of Skull Island, the CLI tool will automaticall
 
 ### Migrating
 
-With Skull Island, it is possible to migrate a configuration from a 0.14.x, 1.1.x, or 1.2.x gateway to the most recent compatible gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 1.4 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
+With Skull Island, it is possible to migrate a configuration from a 0.14.x, 1.1.x, 1.2.x, 1.4.x, or 1.5.x gateway to the most recent compatible gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 2.0 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
 
 ```sh
 skull_island migrate /path/to/export.yml /output/location/migrated.yml
 ```
 
-While this hasn't been heavily tested for all possible use-cases, any configuration generated or usable by the `'~> 0.14'` or `'~> 1.2'` version of this gem should safely convert using the migration command. This tool also makes no guarantees about plugin functionality, configuration compatibility across versions, or that the same plugins are installed and available in your newer gateway. It should go without saying that you should **test and confirm** that all of your functionality was successfully migrated.
+While this hasn't been heavily tested for all possible use-cases, any configuration generated or usable by the `'~> 0.14'`, `'~> 1.2'`, or `~> 1.4` version of this gem should safely convert using the migration command. This tool also makes no guarantees about plugin functionality, configuration compatibility across versions, or that the same plugins are installed and available in your newer gateway. It should go without saying that you should **test and confirm** that all of your functionality was successfully migrated.
 
 If you don't have a previous export, you'll need to install an older version of this gem using something like `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
 
-While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that are used heavily by skull_island. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1 and beyond. That said, Skull Island does allow 1.1 and 1.2 version configurations to be applied to 1.4 gateways, but not the opposite.
+While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that are used heavily by skull_island. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1 and beyond. That said, Skull Island does allow 1.1, 1.2, and 1.4 version configurations to be applied to 2.0 gateways, but not the opposite.
 
 ### Reset A Gateway
 
@@ -188,7 +188,7 @@ If you're wondering what version of `skull_island` is installed, use:
 ```sh
 $ skull_island version
 
-SkullIsland Version: 1.4.1
+SkullIsland Version: 2.0.0
 ```
 
 ### File Format
@@ -197,7 +197,7 @@ The import/export/migrate CLI functions produce YAML with support for embedded R
 
 ```yaml
 ---
-version: '1.4'
+version: '2.0'
 project: FooV2
 certificates: []
 ca_certificates:
@@ -398,7 +398,7 @@ service.routes.size
 # => 4
 ```
 
-From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/1.4.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
+From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/2.0.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
 
 #### CA Certificates
 
