@@ -20,6 +20,7 @@ module SkullIsland
       property :strip_path,     type: :boolean
       property :preserve_host,  type: :boolean
       property :snis,           validate: true
+      property :path_handling,  validate: true
       property :sources
       property :destinations
       property :service, validate: true, preprocess: true, postprocess: true
@@ -133,6 +134,12 @@ module SkullIsland
         else
           { 'id' => input.id }
         end
+      end
+
+      # Used to validate {#path_handling} on set
+      def validate_path_handling(value)
+        valid_values = %w[v0 v1]
+        valid_values.include?(value)
       end
 
       # Used to validate {#protocols} on set
