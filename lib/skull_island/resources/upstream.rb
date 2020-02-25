@@ -18,7 +18,7 @@ module SkullIsland
       property :hash_fallback_header, validate: true
       property :hash_on_cookie, validate: true
       property :hash_on_cookie_path, validate: true
-      property :healthchecks, validate: true
+      property :healthchecks, validate: true, postprocess: true
       property :host_header, validate: true
       property :created_at, read_only: true, postprocess: true
       property :tags, validate: true, preprocess: true, postprocess: true
@@ -159,6 +159,11 @@ module SkullIsland
       end
 
       private
+
+      # Prunes empty values from the healthchecks Hash
+      def postprocess_healthchecks(value)
+        value.is_a?(Hash) ? value.prune : value
+      end
 
       # Validates the upstream balancing {#algorithm}
       def validate_algorithm(value)

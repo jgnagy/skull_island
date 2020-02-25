@@ -117,7 +117,7 @@ module SkullIsland
       end
 
       def postprocess_config(value)
-        value.deep_sort.compact
+        value.deep_sort.prune.compact
       end
 
       def postprocess_consumer(value)

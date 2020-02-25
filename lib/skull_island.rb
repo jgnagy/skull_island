@@ -2,7 +2,9 @@
 
 # Core Extensions
 require 'core_extensions/string/transformations'
+require 'core_extensions/hash/pruning'
 String.include CoreExtensions::String::Transformations
+Hash.include CoreExtensions::Hash::Pruning
 
 # Standard Library Requirements
 require 'date'

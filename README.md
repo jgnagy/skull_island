@@ -282,7 +282,7 @@ While technically _any_ Ruby is valid, the following are pretty helpful for temp
 
 * `ENV.fetch('VARIABLE_NAME', 'default value')` - This allows looking up the environment variable `VARIABLE_NAME` and using its value, or, if it isn't defined, it uses `default value` as the value. With this we could change `host: api.example.com` to `host: <%= ENV.fetch('API_HOST', 'api.example.com') %>`. With this, if `API_HOST` is provided, it'll use that, otherwise it will default to `api.example.com`. This is especially helpful for sensitive information; you can version control the configuration but pass in things like credentials via environment variables at runtime.
 
-Note also that 1.4.x and beyond of Skull Island support two phases of embedded ruby: first, a simple phase that treats the **entire file** as just text, allowing you to use the full power of ruby for things like loops, conditional logic, and more; the second phase is applied for individual attributes within the rendered YAML document. This is where the `lookup()` function above is used. 
+Note also that 1.4.x and beyond of Skull Island support two phases of embedded ruby: first, a simple phase that treats the **entire file** as just text, allowing you to use the full power of ruby for things like loops, conditional logic, and more; the second phase is applied for individual attributes within the rendered YAML document. This is where the `lookup()` function above is used.
 
 ## SDK Usage
 
