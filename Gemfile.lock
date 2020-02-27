@@ -123,7 +123,7 @@ GEM
     unf_ext (0.0.7.6)
     unicode-display_width (1.6.1)
     websocket (1.2.8)
-    will_paginate (3.2.1)
+    will_paginate (3.3.0)
     yard (0.9.24)
 
 PLATFORMS
