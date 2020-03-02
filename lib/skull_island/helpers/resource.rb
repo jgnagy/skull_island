@@ -105,19 +105,22 @@ module SkullIsland
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
 
-      def lookup(type, value)
-        case type
-        when :consumer
-          { 'id' => Resources::Consumer.find(:username, value).id }
-        when :route
-          { 'id' => Resources::Route.find(:name, value).id }
-        when :service
-          { 'id' => Resources::Service.find(:name, value).id }
-        when :upstream
-          { 'id' => Resources::Upstream.find(:name, value).id }
-        else
-          raise Exceptions::InvalidArguments, "#{type} is not a valid lookup type"
-        end
+      # Looks up IDs (and usually wraps them in a Hash)
+      def lookup(type, value, raw = false)
+        id_value = case type
+                   when :consumer
+                     Resources::Consumer.find(:username, value).id
+                   when :route
+                     Resources::Route.find(:name, value).id
+                   when :service
+                     Resources::Service.find(:name, value).id
+                   when :upstream
+                     Resources::Upstream.find(:name, value).id
+                   else
+                     raise Exceptions::InvalidArguments, "#{type} is not a valid lookup type"
+                   end
+
+        raw ? id_value : { 'id' => id_value }
       end
 
       # ActiveRecord ActiveModel::Name compatibility method

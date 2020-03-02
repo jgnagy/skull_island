@@ -12,8 +12,8 @@ module SkullIsland
       end
 
       # At this phase, we want to leave this alone...
-      def lookup(type, value)
-        "<%= lookup :#{type}, '#{value}' %>"
+      def lookup(type, value, raw = false)
+        "<%= lookup :#{type}, '#{value}', #{raw} %>"
       end
     end
   end
