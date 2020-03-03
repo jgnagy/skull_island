@@ -107,7 +107,7 @@ GEM
     thor (0.20.3)
     tins (1.24.1)
       sync
-    travis (1.8.10)
+    travis (1.8.11)
       backports
       faraday (~> 0.9)
       faraday_middleware (~> 0.9, >= 0.9.1)
