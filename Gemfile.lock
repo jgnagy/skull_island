@@ -124,7 +124,7 @@ GEM
     unicode-display_width (1.6.1)
     websocket (1.2.8)
     will_paginate (3.3.0)
-    yard (0.9.24)
+    yard (0.9.25)
 
 PLATFORMS
   ruby
