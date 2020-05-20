@@ -4,8 +4,20 @@ AllCops:
 Metrics/MethodLength:
   Max: 50
 
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
 Layout/LineLength:
   Max: 100
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
 
 Metrics/ClassLength:
   Max: 190
@@ -17,6 +29,9 @@ Metrics/ModuleLength:
 
 Metrics/CyclomaticComplexity:
   Max: 7
+
+Metrics/ParameterLists:
+  Max: 6
 
 Metrics/PerceivedComplexity:
   Exclude:
@@ -40,6 +55,21 @@ Security/Eval:
   Exclude:
     - 'lib/skull_island/cli.rb'
 
+Style/ExponentialNotation:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: false
+
 Style/NumericLiterals:
   Exclude:
     - 'spec/**/*_spec.rb'
+
+Style/SlicingWithRange:
+  Enabled: true

@@ -49,16 +49,23 @@ module SkullIsland
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
           known_ids << resource.id
 
-          Route.batch_import(
+          previous_routes = resource.routes.dup
+
+          added_routes = Route.batch_import(
             (rdata['routes'] || []).map { |r| r.merge('service' => { 'id' => resource.id }) },
             verbose: verbose,
             test: test,
             project: project,
-            time: time
+            time: time,
+            cleanup: false
           )
+
+          Route.cleanup_except(project, added_routes, previous_routes)
         end
 
         cleanup_except(project, known_ids) if project
+
+        known_ids
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
@@ -116,7 +123,7 @@ module SkullIsland
       def modified_existing?
         return false unless new?
 
-        # Find routes of the same name
+        # Find services of the same name
         same_name = self.class.where(:name, name)
 
         existing = same_name.size == 1 ? same_name.first : nil

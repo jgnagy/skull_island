@@ -29,6 +29,8 @@ module SkullIsland
         end
 
         cleanup_except(project, known_ids) if project
+
+        known_ids
       end
 
       def export(options = {})

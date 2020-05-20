@@ -43,6 +43,8 @@ module SkullIsland
         end
 
         cleanup_except(project, known_ids) if project
+
+        known_ids
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity

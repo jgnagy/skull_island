@@ -31,7 +31,8 @@ module SkullIsland
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
-      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
+      # rubocop:disable Layout/LineLength
+      def self.batch_import(data, verbose: false, test: false, project: nil, time: nil, cleanup: true)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
         known_ids = []
@@ -59,11 +60,14 @@ module SkullIsland
           known_ids << resource.id
         end
 
-        cleanup_except(project, known_ids) if project
+        cleanup_except(project, known_ids) if project && cleanup
+
+        known_ids
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
       # rubocop:enable Metrics/AbcSize
+      # rubocop:enable Layout/LineLength
 
       # Provides a collection of related {Plugin} instances
       def plugins
