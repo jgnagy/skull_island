@@ -95,6 +95,8 @@ module SkullIsland
         # rubocop:enable Metrics/BlockLength
 
         cleanup_except(project, known_ids) if project
+
+        known_ids
       end
       # rubocop:enable Metrics/MethodLength
 

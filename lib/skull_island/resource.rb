@@ -179,8 +179,10 @@ module SkullIsland
       )
     end
 
-    def self.cleanup_except(project, keep_these)
-      where(:project, project).reject { |res| keep_these.include?(res.id) }.map do |res|
+    def self.cleanup_except(project, keep_these, from_these = nil)
+      old_resources = from_these || where(:project, project)
+
+      old_resources.reject { |res| keep_these.include?(res.id) }.map do |res|
         puts "[WARN] ! Removing #{name} (#{res.id})"
         res.destroy
       end
