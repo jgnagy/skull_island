@@ -102,9 +102,10 @@ module SkullIsland
       end
 
       # Used to validate {#algorithm} on set
+      # @see https://github.com/Kong/kong/blob/master/kong/plugins/jwt/daos.lua#L29
       def validate_algorithm(value)
         # allow a String
-        %w[HS256 HS384 HS512 RS256 ES256].include? value
+        %w[HS256 HS384 HS512 RS256 RS512 ES256].include? value
       end
 
       # Used to validate {#key} on set
