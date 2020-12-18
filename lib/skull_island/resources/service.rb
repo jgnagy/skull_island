@@ -116,7 +116,7 @@ module SkullIsland
         if client_certificate&.name
           hash['client_certificate'] = "<%= lookup :certificate, '#{client_certificate.name}' %>"
         elsif client_certificate
-          hash['client_certificate'] = { id: client_certificate.id }
+          hash['client_certificate'] = { 'id' => client_certificate.id }
         end
         if ca_certificates && !ca_certificates.empty?
           hash['ca_certificates'] = export_ca_certificates
