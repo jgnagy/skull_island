@@ -30,7 +30,7 @@ module SkullIsland
 
       validate_server_version
 
-      output = { 'version' => '2.0' }
+      output = { 'version' => '2.2' }
       output['project'] = options['project'] if options['project']
 
       [
@@ -191,7 +191,7 @@ module SkullIsland
     end
 
     def validate_config_version(version)
-      if version && ['1.1', '1.2', '1.4', '1.5', '2.0'].include?(version)
+      if version && ['1.1', '1.2', '1.4', '1.5', '2.0', '2.1', '2.2'].include?(version)
         validate_server_version
       elsif version && ['0.14', '1.0'].include?(version)
         warn '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
@@ -213,7 +213,7 @@ module SkullIsland
 
     def validate_server_version
       server_version = SkullIsland::APIClient.about_service['version']
-      if server_version.match?(/^2.0/)
+      if server_version.match?(/^2.2/)
         true
       else
         warn '[CRITICAL] Server version mismatch!'

@@ -12,11 +12,12 @@ module SkullIsland
       property :cert, required: true, validate: true
       property :key, required: true, validate: true
       property :snis, validate: true
+      # property :name
       property :created_at, read_only: true, postprocess: true
       property :tags, validate: true, preprocess: true, postprocess: true
 
-      # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity
       def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
@@ -28,6 +29,7 @@ module SkullIsland
           resource.delayed_set(:key, resource_data)
           resource.snis = resource_data['snis'] if resource_data['snis']
           resource.tags = resource_data['tags'] if resource_data['tags']
+          resource.name = resource_data['name'] if resource_data['name']
           resource.project = project if project
           resource.import_time = (time || Time.now.utc.to_i) if project
           resource.import_update_or_skip(index: index, verbose: verbose, test: test)
@@ -38,13 +40,14 @@ module SkullIsland
 
         known_ids
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       def export(options = {})
         hash = { 'cert' => cert, 'key' => key }
         hash['snis'] = snis if snis && !snis.empty?
         hash['tags'] = tags unless tags.empty?
+        hash['name'] = name if name
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -57,10 +60,19 @@ module SkullIsland
       def modified_existing?
         return false unless new?
 
-        # Find certs of the same cert and key
-        same_key = self.class.where(:key, key)
+        # Find certs of the same "name"
+        if name
+          same_name = self.class.where(:name, name)
 
-        existing = same_key.size == 1 ? same_key.first : nil
+          existing = same_name.size == 1 ? same_name.first : nil
+        end
+
+        unless existing
+          # Find certs of the same cert and key
+          same_key = self.class.where(:key, key)
+
+          existing = same_key.size == 1 ? same_key.first : nil
+        end
 
         if existing
           @entity['id'] = existing.id
@@ -68,6 +80,16 @@ module SkullIsland
         else
           false
         end
+      end
+
+      # Simulates retrieving a #name property via a tag
+      def name
+        metatags['name']
+      end
+
+      # Simulates setting a #name property via a tag
+      def name=(value)
+        add_meta('name', value.to_s)
       end
 
       private

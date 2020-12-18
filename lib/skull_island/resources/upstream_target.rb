@@ -17,9 +17,6 @@ module SkullIsland
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
       property :tags, validate: true, preprocess: true, postprocess: true
-
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # rubocop:disable Metrics/PerceivedComplexity
       def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
@@ -41,8 +38,6 @@ module SkullIsland
 
         known_ids
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
-      # rubocop:enable Metrics/PerceivedComplexity
 
       def self.all(options = {})
         api_client = options[:api_client] || APIClient.instance
