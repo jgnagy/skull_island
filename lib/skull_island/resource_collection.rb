@@ -161,9 +161,10 @@ module SkullIsland
     #   use #merge
     # @return [ResourceCollection]
     def +(other)
-      if other.is_a?(self.class)
+      case other
+      when self.class
         self.class.new(@list + other.to_a, type: @type, api_client: @api_client)
-      elsif other.is_a?(@type)
+      when @type
         self.class.new(@list + [other], type: @type, api_client: @api_client)
       else
         raise Exceptions::InvalidArguments
@@ -171,7 +172,7 @@ module SkullIsland
     end
 
     def <<(other)
-      raise Exceptions::InvalidArguments, 'Resource Type Mismatch' unless other.class == @type
+      raise Exceptions::InvalidArguments, 'Resource Type Mismatch' unless other.instance_of?(@type)
 
       @list << other
     end

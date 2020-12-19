@@ -43,7 +43,7 @@ module SkullIsland
       ].each { |clname| export_class(clname, output) }
 
       if output_file == '-'
-        STDOUT.puts output.to_yaml
+        $stdout.puts output.to_yaml
       else
         File.write(full_filename, output.to_yaml)
       end
@@ -96,7 +96,7 @@ module SkullIsland
 
       if output_file == '-'
         warn '[INFO] Outputting to STDOUT' if options['verbose']
-        STDOUT.puts output.to_yaml
+        $stdout.puts output.to_yaml
       else
         full_filename = File.expand_path(output_file)
         dirname = File.dirname(full_filename)
@@ -175,7 +175,7 @@ module SkullIsland
     def acquire_input(input_file, verbose = false)
       if input_file == '-'
         warn '[INFO] Reading from STDIN' if verbose
-        STDIN.read
+        $stdin.read
       else
         full_filename = File.expand_path(input_file)
         unless File.exist?(full_filename) && File.ftype(full_filename) == 'file'
@@ -213,9 +213,10 @@ module SkullIsland
 
     def validate_server_version
       server_version = SkullIsland::APIClient.about_service['version']
-      if server_version.match?(/^2.[12]/)
+      case server_version
+      when /^2.[12]/
         true
-      elsif server_version.match?(/^2.0/)
+      when /^2.0/
         warn "[WARN] Older server version #{server_version} detected! " \
              'You may encounter Service resource API exceptions.'
       else

@@ -17,6 +17,9 @@ module SkullIsland
       property :weight, validate: true
       property :created_at, read_only: true, postprocess: true
       property :tags, validate: true, preprocess: true, postprocess: true
+
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
@@ -38,6 +41,8 @@ module SkullIsland
 
         known_ids
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def self.all(options = {})
         api_client = options[:api_client] || APIClient.instance
@@ -46,7 +51,7 @@ module SkullIsland
       end
 
       def self.get(id, options = {})
-        if options[:upstream]&.is_a?(Upstream)
+        if options[:upstream].is_a?(Upstream)
           options[:upstream].target(id)
         elsif options[:upstream]
           upstream_opts = options.merge(lazy: true)
@@ -103,9 +108,10 @@ module SkullIsland
       end
 
       def preprocess_upstream(input)
-        if input.is_a?(Hash)
+        case input
+        when Hash
           input
-        elsif input.is_a?(String)
+        when String
           { 'id' => input }
         else
           { 'id' => input.id }

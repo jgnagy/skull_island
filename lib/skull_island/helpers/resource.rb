@@ -29,11 +29,12 @@ module SkullIsland
       end
 
       def recursive_erubi(data)
-        if data.is_a?(String)
+        case data
+        when String
           eval(Erubi::Engine.new(data).src)
-        elsif data.is_a?(Array)
+        when Array
           data.map { |item| recursive_erubi(item) }
-        elsif data.is_a?(Hash)
+        when Hash
           data.map { |k, v| [k, recursive_erubi(v)] }.to_h
         else
           data
@@ -74,7 +75,7 @@ module SkullIsland
       end
 
       def host_regex
-        /^(([\w]|[\w][\w\-]*[\w])\.)*([\w]|[\w][\w\-]*[\w])$/
+        /^((\w|\w[\w\-]*\w)\.)*(\w|\w[\w\-]*\w)$/
       end
 
       def id_property
@@ -90,7 +91,7 @@ module SkullIsland
       end
 
       # rubocop:disable Metrics/PerceivedComplexity
-      def import_update_or_skip(verbose: false, test: false, index:)
+      def import_update_or_skip(index:, verbose: false, test: false)
         if find_by_digest
           puts "[INFO] Skipping #{self.class} index #{index} (#{id})" if verbose
         elsif test

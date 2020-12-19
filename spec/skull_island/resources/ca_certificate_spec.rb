@@ -92,7 +92,7 @@ RSpec.describe SkullIsland::Resources::CACertificate do
         response: updated_resource_raw
       )
       expect(resource.cert).to eq('-----BEGIN CERTIFICATE-----...')
-      resource.cert = resource.cert + ';-P'
+      resource.cert = "#{resource.cert};-P"
       expect(resource.save).to be true
       expect(resource.id).to eq('04fbeacf-a9f1-4a5d-ae4a-b0407445db3f')
       expect(resource.cert).to eq('-----BEGIN CERTIFICATE-----...;-P')

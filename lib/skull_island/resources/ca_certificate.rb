@@ -14,6 +14,8 @@ module SkullIsland
       property :tags, validate: true, preprocess: true, postprocess: true
       # property :name
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
@@ -34,6 +36,8 @@ module SkullIsland
 
         known_ids
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def export(options = {})
         hash = { 'cert' => cert }

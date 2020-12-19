@@ -98,6 +98,8 @@ module SkullIsland
         Plugin.where(:service, self, api_client: api_client)
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = {
@@ -130,6 +132,8 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
       # rubocop:enable Metrics/AbcSize
 
       def modified_existing?
@@ -188,11 +192,7 @@ module SkullIsland
 
       def preprocess_ca_certificates(input)
         input.to_a.map do |cacert|
-          if cacert.is_a?(String)
-            cacert
-          else
-            cacert.id
-          end
+          cacert.is_a?(String) ? cacert : cacert.id
         end
       end
 
@@ -210,9 +210,10 @@ module SkullIsland
       end
 
       def preprocess_client_certificate(input)
-        if input.is_a?(Hash)
+        case input
+        when Hash
           input
-        elsif input.is_a?(String)
+        when String
           { 'id' => input }
         else
           { 'id' => input.id }
