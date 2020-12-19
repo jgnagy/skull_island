@@ -83,7 +83,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
     it 'finds existing resources' do
       expect(existing_resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       hashed_password = Digest::SHA1.hexdigest(
-        '123451234512345' + existing_resource_raw['consumer']['id']
+        "123451234512345#{existing_resource_raw['consumer']['id']}"
       )
       expect(existing_resource.password).to eq("hash{#{hashed_password}}")
     end
@@ -104,7 +104,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       expect(resource.save).to be true
 
       hashed_password = Digest::SHA1.hexdigest(
-        '234562345623456' + resource.consumer.id
+        "234562345623456#{resource.consumer.id}"
       )
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       expect(resource.password).to eq("hash{#{hashed_password}}")
@@ -130,7 +130,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       expect(consumer.add_credential!(resource)).to be true
 
       hashed_password = Digest::SHA1.hexdigest(
-        '234562345623456' + consumer.id
+        "234562345623456#{consumer.id}"
       )
       expect(resource.id).to eq('4661f55e-95c2-4011-8fd6-c5c56df1c9db')
       expect(resource.password).to eq("hash{#{hashed_password}}")

@@ -34,7 +34,7 @@ module SkullIsland
         valid = name.is_a? String
         begin
           u = URI.parse(name)
-          valid = false unless u.class == URI::HTTP || u.class == URI::HTTPS
+          valid = false unless u.is_a?(URI::HTTP) || u.is_a?(URI::HTTPS)
         rescue URI::InvalidURIError
           valid = false
         end

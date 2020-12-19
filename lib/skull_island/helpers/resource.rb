@@ -16,6 +16,8 @@ module SkullIsland
 
       # rubocop:disable Style/GuardClause
       # rubocop:disable Security/Eval
+      # The delayed_set method allows a second phase of Erb templating immediately
+      # before sending data to the API. This allows the `lookup` function to work dynamically
       def delayed_set(property, data, key = property.to_s)
         if data[key]
           value = recursive_erubi(data[key])
@@ -27,11 +29,12 @@ module SkullIsland
       end
 
       def recursive_erubi(data)
-        if data.is_a?(String)
+        case data
+        when String
           eval(Erubi::Engine.new(data).src)
-        elsif data.is_a?(Array)
+        when Array
           data.map { |item| recursive_erubi(item) }
-        elsif data.is_a?(Hash)
+        when Hash
           data.map { |k, v| [k, recursive_erubi(v)] }.to_h
         else
           data
@@ -72,7 +75,7 @@ module SkullIsland
       end
 
       def host_regex
-        /^(([\w]|[\w][\w\-]*[\w])\.)*([\w]|[\w][\w\-]*[\w])$/
+        /^((\w|\w[\w\-]*\w)\.)*(\w|\w[\w\-]*\w)$/
       end
 
       def id_property
@@ -87,9 +90,8 @@ module SkullIsland
         self.class.immutable?
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
-      def import_update_or_skip(verbose: false, test: false, index:)
+      def import_update_or_skip(index:, verbose: false, test: false)
         if find_by_digest
           puts "[INFO] Skipping #{self.class} index #{index} (#{id})" if verbose
         elsif test
@@ -102,12 +104,16 @@ module SkullIsland
           puts "[ERR] Failed to save #{self.class} index #{index}"
         end
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
+
       # rubocop:enable Metrics/PerceivedComplexity
 
       # Looks up IDs (and usually wraps them in a Hash)
       def lookup(type, value, raw = false)
         id_value = case type
+                   when :ca_certificate
+                     Resources::CACertificate.find(:name, value).id
+                   when :certificate
+                     Resources::Certificate.find(:name, value).id
                    when :consumer
                      Resources::Consumer.find(:username, value).id
                    when :route

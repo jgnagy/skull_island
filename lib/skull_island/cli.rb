@@ -30,7 +30,7 @@ module SkullIsland
 
       validate_server_version
 
-      output = { 'version' => '2.0' }
+      output = { 'version' => '2.2' }
       output['project'] = options['project'] if options['project']
 
       [
@@ -43,7 +43,7 @@ module SkullIsland
       ].each { |clname| export_class(clname, output) }
 
       if output_file == '-'
-        STDOUT.puts output.to_yaml
+        $stdout.puts output.to_yaml
       else
         File.write(full_filename, output.to_yaml)
       end
@@ -96,7 +96,7 @@ module SkullIsland
 
       if output_file == '-'
         warn '[INFO] Outputting to STDOUT' if options['verbose']
-        STDOUT.puts output.to_yaml
+        $stdout.puts output.to_yaml
       else
         full_filename = File.expand_path(output_file)
         dirname = File.dirname(full_filename)
@@ -175,7 +175,7 @@ module SkullIsland
     def acquire_input(input_file, verbose = false)
       if input_file == '-'
         warn '[INFO] Reading from STDIN' if verbose
-        STDIN.read
+        $stdin.read
       else
         full_filename = File.expand_path(input_file)
         unless File.exist?(full_filename) && File.ftype(full_filename) == 'file'
@@ -191,7 +191,7 @@ module SkullIsland
     end
 
     def validate_config_version(version)
-      if version && ['1.1', '1.2', '1.4', '1.5', '2.0'].include?(version)
+      if version && ['1.1', '1.2', '1.4', '1.5', '2.0', '2.1', '2.2'].include?(version)
         validate_server_version
       elsif version && ['0.14', '1.0'].include?(version)
         warn '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'
@@ -213,8 +213,12 @@ module SkullIsland
 
     def validate_server_version
       server_version = SkullIsland::APIClient.about_service['version']
-      if server_version.match?(/^2.0/)
+      case server_version
+      when /^2.[12]/
         true
+      when /^2.0/
+        warn "[WARN] Older server version #{server_version} detected! " \
+             'You may encounter Service resource API exceptions.'
       else
         warn '[CRITICAL] Server version mismatch!'
         exit 1

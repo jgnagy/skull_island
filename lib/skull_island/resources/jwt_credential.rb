@@ -48,6 +48,7 @@ module SkullIsland
         consumer ? "#{consumer.relative_uri}/jwt" : nil
       end
 
+      # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = { 'algorithm' => algorithm }
         hash['key'] = key if key
@@ -62,6 +63,7 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+      # rubocop:enable Metrics/AbcSize
 
       # Keys can't be updated, only created or deleted
       def modified_existing?

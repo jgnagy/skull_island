@@ -21,6 +21,7 @@ module SkullIsland
 
       # rubocop:disable Metrics/CyclomaticComplexity
       # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/AbcSize
       def self.batch_import(data, verbose: false, test: false, project: nil, time: nil)
         raise(Exceptions::InvalidArguments) unless data.is_a?(Array)
 
@@ -48,6 +49,7 @@ module SkullIsland
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/AbcSize
 
       def self.enabled_names(api_client: APIClient.instance)
         api_client.get("#{relative_uri}/enabled")['enabled_plugins']
@@ -123,14 +125,15 @@ module SkullIsland
       end
 
       def postprocess_consumer(value)
-        if value.is_a?(Hash)
+        case value
+        when Hash
           Consumer.new(
             entity: value,
             lazy: true,
             tainted: false,
             api_client: api_client
           )
-        elsif value.is_a?(String)
+        when String
           Consumer.new(
             entity: { 'id' => value },
             lazy: true,
@@ -143,9 +146,10 @@ module SkullIsland
       end
 
       def preprocess_consumer(input)
-        if input.is_a?(Hash)
+        case input
+        when Hash
           input
-        elsif input.is_a?(Consumer)
+        when Consumer
           { 'id' => input.id }
         else
           input
@@ -153,14 +157,15 @@ module SkullIsland
       end
 
       def postprocess_route(value)
-        if value.is_a?(Hash)
+        case value
+        when Hash
           Route.new(
             entity: value,
             lazy: true,
             tainted: false,
             api_client: api_client
           )
-        elsif value.is_a?(String)
+        when String
           Route.new(
             entity: { 'id' => value },
             lazy: true,
@@ -173,9 +178,10 @@ module SkullIsland
       end
 
       def preprocess_route(input)
-        if input.is_a?(Hash)
+        case input
+        when Hash
           input
-        elsif input.is_a?(Route)
+        when Route
           { 'id' => input.id }
         else
           input
@@ -183,14 +189,15 @@ module SkullIsland
       end
 
       def postprocess_service(value)
-        if value.is_a?(Hash)
+        case value
+        when Hash
           Service.new(
             entity: value,
             lazy: true,
             tainted: false,
             api_client: api_client
           )
-        elsif value.is_a?(String)
+        when String
           Service.new(
             entity: { 'id' => value },
             lazy: true,
@@ -203,9 +210,10 @@ module SkullIsland
       end
 
       def preprocess_service(input)
-        if input.is_a?(Hash)
+        case input
+        when Hash
           input
-        elsif input.is_a?(Service)
+        when Service
           { 'id' => input.id }
         else
           input

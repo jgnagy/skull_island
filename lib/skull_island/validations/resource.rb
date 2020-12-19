@@ -24,7 +24,7 @@ module SkullIsland
       def validate_tags(value)
         # allow only valid hostnames
         value.each do |tag|
-          return false unless tag.is_a?(String) && tag.match?(/^[\w_\-\.~]+$/)
+          return false unless tag.is_a?(String) && tag.match?(/^[\w_\-.~]+$/)
         end
         true
       end

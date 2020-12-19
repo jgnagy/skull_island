@@ -10,14 +10,16 @@ module SkullIsland
       include Helpers::Meta
 
       property :name
-      property :retries
+      property :retries,            validate: true
       property :protocol,           validate: true, required: true
       property :host,               validate: true, required: true
       property :port,               validate: true, required: true
+      property :tls_verify,         type: :boolean
       property :path
       property :connect_timeout,    validate: true
       property :write_timeout,      validate: true
       property :read_timeout,       validate: true
+      property :ca_certificates,    validate: true, preprocess: true, postprocess: true
       property :client_certificate, validate: true, preprocess: true, postprocess: true
       property :created_at, read_only: true, postprocess: true
       property :updated_at, read_only: true, postprocess: true
@@ -42,7 +44,9 @@ module SkullIsland
           resource.connect_timeout = rdata['connect_timeout'] if rdata['connect_timeout']
           resource.write_timeout = rdata['write_timeout'] if rdata['write_timeout']
           resource.read_timeout = rdata['read_timeout'] if rdata['read_timeout']
+          resource.tls_verify = rdata['tls_verify'] if rdata['tls_verify']
           resource.delayed_set(:client_certificate, rdata) if rdata['client_certificate']
+          resource.delayed_set(:ca_certificates, rdata) if rdata['ca_certificates']
           resource.tags = rdata['tags'] if rdata['tags']
           resource.project = project if project
           resource.import_time = (time || Time.now.utc.to_i) if project
@@ -94,6 +98,8 @@ module SkullIsland
         Plugin.where(:service, self, api_client: api_client)
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = {
@@ -109,7 +115,15 @@ module SkullIsland
         }
         hash['routes'] = routes.collect { |route| route.export(exclude: 'service') }
         hash['tags'] = tags unless tags.empty?
-        hash['client_certificate'] = client_certificate if client_certificate
+        if client_certificate&.name
+          hash['client_certificate'] = "<%= lookup :certificate, '#{client_certificate.name}' %>"
+        elsif client_certificate
+          hash['client_certificate'] = { 'id' => client_certificate.id }
+        end
+        if ca_certificates && !ca_certificates.empty?
+          hash['ca_certificates'] = export_ca_certificates
+        end
+        hash['tls_verify'] = tls_verify if [true, false].include?(tls_verify)
         [*options[:exclude]].each do |exclude|
           hash.delete(exclude.to_s)
         end
@@ -118,6 +132,8 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
       # rubocop:enable Metrics/AbcSize
 
       def modified_existing?
@@ -153,6 +169,33 @@ module SkullIsland
 
       private
 
+      def export_ca_certificates
+        ca_certificates.map do |cacert|
+          cacert.name ? "<%= lookup :ca_certificate, '#{cacert.name}', raw: true %>" : cacert.id
+        end
+      end
+
+      def postprocess_ca_certificates(value)
+        if value.respond_to?(:to_a)
+          value.to_a.map do |cacert|
+            CACertificate.new(
+              entity: { 'id' => cacert },
+              lazy: true,
+              tainted: false,
+              api_client: api_client
+            )
+          end
+        else
+          value
+        end
+      end
+
+      def preprocess_ca_certificates(input)
+        input.to_a.map do |cacert|
+          cacert.is_a?(String) ? cacert : cacert.id
+        end
+      end
+
       def postprocess_client_certificate(value)
         if value.is_a?(Hash)
           Certificate.new(
@@ -167,11 +210,29 @@ module SkullIsland
       end
 
       def preprocess_client_certificate(input)
-        if input.is_a?(Hash)
+        case input
+        when Hash
           input
+        when String
+          { 'id' => input }
         else
           { 'id' => input.id }
         end
+      end
+
+      # Validates {#ca_certificates} on set
+      def validate_ca_certificates(value)
+        # only Arrays (or Enumarables) are supported
+        return false unless value.is_a?(Array) || value.respond_to?(:to_a)
+
+        # Can only contain a array of Strings or CACertificates
+        value.to_a.reject { |v| v.is_a?(String) || v.is_a?(CACertificate) }.empty?
+      end
+
+      # Used to validate {#client_certificate} on set
+      def validate_client_certificate(value)
+        # only Strings, Hashes, or Certificates are allowed
+        value.is_a?(String) || value.is_a?(Hash) || value.is_a?(Certificate)
       end
 
       # Used to validate {#protocol} on set
@@ -188,6 +249,12 @@ module SkullIsland
 
       # Used to validate {#port} on set
       def validate_port(value)
+        # only positive Integers of the right value are allowed
+        value.is_a?(Integer) && value.positive? && (1...65_535).cover?(value)
+      end
+
+      # Used to validate {#retries} on set
+      def validate_retries(value)
         # only positive Integers of the right value are allowed
         value.is_a?(Integer) && value.positive? && (1...65_535).cover?(value)
       end

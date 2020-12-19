@@ -11,4 +11,5 @@ deploy:
   gem: skull_island
   on:
     tags: true
+    rvm: 2.6
     repo: jgnagy/skull_island

@@ -44,7 +44,7 @@ module SkullIsland
       end
 
       def project=(project_id)
-        unless project_id.is_a?(String) && project_id.match?(/^[\w_\-\.~]+$/)
+        unless project_id.is_a?(String) && project_id.match?(/^[\w_\-.~]+$/)
           raise Exceptions::InvalidArguments, 'project'
         end
 

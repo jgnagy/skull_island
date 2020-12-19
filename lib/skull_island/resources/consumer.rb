@@ -60,7 +60,7 @@ module SkullIsland
 
           known_acls = AccessControlList.batch_import(
             (
-              resource_data.dig('acls') || []
+              resource_data['acls'] || []
             ).map { |t| t.merge('consumer' => { 'id' => resource.id }) },
             verbose: verbose,
             test: test
@@ -105,9 +105,10 @@ module SkullIsland
       end
 
       def add_acl!(details)
-        r = if details.is_a?(AccessControlList)
+        r = case details
+            when AccessControlList
               details
-            elsif details.is_a?(String)
+            when String
               resource = AccessControlList.new(api_client: api_client)
               resource.group = details
               resource
@@ -164,6 +165,7 @@ module SkullIsland
         Plugin.where(:consumer, self, api_client: api_client)
       end
 
+      # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = { 'username' => username, 'custom_id' => custom_id }
         creds = credentials_for_export
@@ -178,6 +180,7 @@ module SkullIsland
         end
         hash.reject { |_, value| value.nil? }
       end
+      # rubocop:enable Metrics/AbcSize
 
       def modified_existing?
         return false unless new?

@@ -21,7 +21,8 @@ RSpec.describe SkullIsland::Resources::Service do
         'name' => 'example-service',
         'retries' => 5,
         'read_timeout' => 60000,
-        'write_timeout' => 60000
+        'write_timeout' => 60000,
+        'tls_verify' => false
       }
     end
 
@@ -35,7 +36,8 @@ RSpec.describe SkullIsland::Resources::Service do
         'name' => 'example-service',
         'retries' => 10,
         'read_timeout' => 60000,
-        'write_timeout' => 60000
+        'write_timeout' => 60000,
+        'tls_verify' => false
       }
     end
 
@@ -52,7 +54,8 @@ RSpec.describe SkullIsland::Resources::Service do
         'name' => 'example-service',
         'retries' => 10,
         'read_timeout' => 60000,
-        'write_timeout' => 60000
+        'write_timeout' => 60000,
+        'tls_verify' => false
       }
     end
 
@@ -85,7 +88,8 @@ RSpec.describe SkullIsland::Resources::Service do
         'retries' => 5,
         'routes' => [],
         'read_timeout' => 60000,
-        'write_timeout' => 60000
+        'write_timeout' => 60000,
+        'tls_verify' => false
       }
     end
 
@@ -119,6 +123,7 @@ RSpec.describe SkullIsland::Resources::Service do
       resource.path = '/api'
       resource.name = 'example-service'
       resource.retries = 10
+      resource.tls_verify = false
       resource.read_timeout = 60000
       resource.write_timeout = 60000
       expect(resource.save).to be true

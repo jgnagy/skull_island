@@ -1,5 +1,6 @@
 AllCops:
   TargetRubyVersion: 2.5
+  NewCops: enable
 
 Metrics/MethodLength:
   Max: 50
@@ -13,6 +14,14 @@ Layout/LineLength:
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+    - 'spec/spec_helper.rb'
+
+Lint/MissingSuper:
+  Enabled: false
+
 Lint/RaiseException:
   Enabled: true
 
@@ -20,7 +29,7 @@ Lint/StructNewOverride:
   Enabled: true
 
 Metrics/ClassLength:
-  Max: 190
+  Max: 200
 
 Metrics/ModuleLength:
   Max: 175
@@ -28,12 +37,13 @@ Metrics/ModuleLength:
     - 'lib/skull_island/helpers/resource.rb'
 
 Metrics/CyclomaticComplexity:
-  Max: 7
+  Max: 8
 
 Metrics/ParameterLists:
   Max: 6
 
 Metrics/PerceivedComplexity:
+  Max: 8
   Exclude:
     - 'lib/skull_island/cli.rb'
 
@@ -70,6 +80,9 @@ Style/HashTransformValues:
 Style/NumericLiterals:
   Exclude:
     - 'spec/**/*_spec.rb'
+
+Style/OptionalBooleanParameter:
+  Enabled: false
 
 Style/SlicingWithRange:
   Enabled: true
