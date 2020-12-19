@@ -213,8 +213,11 @@ module SkullIsland
 
     def validate_server_version
       server_version = SkullIsland::APIClient.about_service['version']
-      if server_version.match?(/^2.2/)
+      if server_version.match?(/^2.[12]/)
         true
+      elsif server_version.match?(/^2.0/)
+        warn "[WARN] Older server version #{server_version} detected! " \
+             'You may encounter Service resource API exceptions.'
       else
         warn '[CRITICAL] Server version mismatch!'
         exit 1
