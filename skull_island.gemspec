@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['jonathan.gnagy@gmail.com']
 
   spec.summary       = 'Ruby SDK for Kong'
-  spec.description   = 'A Ruby SDK for Kong 0.14.x'
+  spec.description   = 'A Ruby SDK for Kong'
   spec.homepage      = 'https://github.com/jgnagy/skull_island'
   spec.license       = 'MIT'
 
