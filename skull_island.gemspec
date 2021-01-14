@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'json', '~> 2.1'
   spec.add_runtime_dependency 'linguistics', '~> 2.1'
   spec.add_runtime_dependency 'rest-client', '~> 2.1'
-  spec.add_runtime_dependency 'thor', '~> 0.20'
+  spec.add_runtime_dependency 'thor', '~> 1.0.0'
   spec.add_runtime_dependency 'will_paginate', '~> 3.1'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
