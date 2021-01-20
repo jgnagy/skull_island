@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skull_island (2.2.0)
+    skull_island (2.2.1)
       deepsort (~> 0.4)
       erubi (~> 1.8)
       json (~> 2.1)
@@ -159,4 +159,4 @@ DEPENDENCIES
   yard (~> 0.9.20)
 
 BUNDLED WITH
-   2.1.4
+   2.2.6
