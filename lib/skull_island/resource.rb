@@ -122,7 +122,7 @@ module SkullIsland
       )
     end
 
-    def self.from_hash(hash)
+    def self.from_hash(hash, options = {})
       # TODO: better options validations
       raise Exceptions::InvalidOptions unless options.is_a?(Hash)
 
