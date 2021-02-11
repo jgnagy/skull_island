@@ -215,6 +215,9 @@ module SkullIsland
         @api_client.invalidate_cache_for(self.class.relative_uri.to_s) # clear any collection class
         @tainted = false
         true
+      rescue RestClient::BadRequest => e
+        warn "[WARN] Failed to save #{self.class} via #{new? ? save_uri : relative_uri} with " \
+             "'#{e.message}':\n#{saveable_data.to_yaml}\n\nReceived: #{e.inspect}"
       end
 
       def save_uri
