@@ -11,7 +11,7 @@ module SkullIsland
     attr_reader :max_size, :keys
 
     # @raise [Exceptions::InvalidCacheSize] if the max_size isn't an Integer
-    def initialize(max_size = 100)
+    def initialize(max_size = 10_000)
       raise Exceptions::InvalidCacheSize unless max_size.is_a?(Integer)
 
       @max_size     = max_size
