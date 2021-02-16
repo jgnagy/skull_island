@@ -24,15 +24,15 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '~> 2.5'
+  spec.required_ruby_version = '~> 3.0'
 
   spec.add_runtime_dependency 'deepsort', '~> 0.4'
   spec.add_runtime_dependency 'erubi', '~> 1.8'
-  spec.add_runtime_dependency 'json', '~> 2.1'
   spec.add_runtime_dependency 'linguistics', '~> 2.1'
   spec.add_runtime_dependency 'rest-client', '~> 2.1'
   spec.add_runtime_dependency 'thor', '~> 1.0'
   spec.add_runtime_dependency 'will_paginate', '~> 3.1'
+  spec.add_runtime_dependency 'yajl-ruby', '~> 1.4'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'coveralls', '~> 0.7'

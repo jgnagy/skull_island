@@ -1,4 +1,4 @@
-FROM ruby:2.5-alpine
+FROM ruby:3.0-alpine
 LABEL maintainer="Jonathan Gnagy <jonathan.gnagy@gmail.com>"
 
 COPY . /install
