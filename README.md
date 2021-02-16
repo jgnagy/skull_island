@@ -1,6 +1,6 @@
 # Skull Island
 
-A full-featured SDK for [Kong](https://konghq.com/kong/) 2.2.x (with support 2.0.x and 2.1.x, and for migrating from 0.14.x, 1.1.x, 1.2.x, 1.4.x, and 1.5.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
+A full-featured SDK for [Kong](https://konghq.com/kong/) 2.3.x (with support 2.0.x, 2.1.x, and 2.2.x, and for migrating from 0.14.x, 1.1.x, 1.2.x, 1.4.x, and 1.5.x). Note that this is unofficial (meaning this project is in no way officially endorsed, recommended, or related to Kong [as a company](https://konghq.com/) or an [open-source project](https://github.com/Kong/kong)). It is also in no way related to the [pet toy company](https://www.kongcompany.com/) by the same name (but hopefully that was obvious).
 
 ![Gem](https://img.shields.io/gem/v/skull_island)
 ![Travis (.org)](https://img.shields.io/travis/jgnagy/skull_island)
@@ -21,7 +21,9 @@ skull_island help
 
 ### Ruby Gem Install / SDK
 
-Either:
+**Note:** Starting with 2.3.0, Skull Island only supports Ruby 3.0+. If you need to use Ruby 2.x, you'll need to use a gem version < 2.3.0. I'll maintain the 2.2.x line for Ruby 2.x compatibility for 2021.
+
+To use the Skull Island gem, either:
 
 ```sh
 gem install skull_island
@@ -30,7 +32,7 @@ gem install skull_island
 Or add this to your Gemfile:
 
 ```ruby
-gem 'skull_island',  '~> 2.2'
+gem 'skull_island',  '~> 2.3'
 ```
 
 Or add this to your .gemspec:
@@ -38,7 +40,7 @@ Or add this to your .gemspec:
 ```ruby
 Gem::Specification.new do |spec|
  # ...
- spec.add_runtime_dependency 'skull_island', '~> 2.2'
+ spec.add_runtime_dependency 'skull_island', '~> 2.3'
  # ...
 end
 ```
@@ -149,7 +151,7 @@ When using the `project` feature of Skull Island, the CLI tool will automaticall
 
 ### Migrating
 
-With Skull Island, it is possible to migrate a configuration from a 0.14.x, 1.1.x, 1.2.x, 1.4.x, or 1.5.x gateway to the most recent compatible gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 2.2 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
+With Skull Island, it is possible to migrate a configuration from a 0.14.x, 1.1.x, 1.2.x, 1.4.x, or 1.5.x gateway to the most recent compatible gateway. If you have a previous export, you can just run `skull_island migrate /path/to/export.yml` and you'll receive a 2.3 compatible config on standard out. If you'd prefer, you can have that config written to a file as well (just like the export command) like so:
 
 ```sh
 skull_island migrate /path/to/export.yml /output/location/migrated.yml
@@ -159,7 +161,7 @@ While this hasn't been heavily tested for all possible use-cases, any configurat
 
 If you don't have a previous export, you'll need to install an older version of this gem using something like `gem install --version '~> 0.14' skull_island`, then perform an `export`, then you can switch back to the latest version of the gem for migrating and importing.
 
-While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that are used heavily by skull_island. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1 and beyond. That said, Skull Island does allow 1.x, 2.0.x, and 2.1.x version configurations to be applied to 2.2 gateways, but not the opposite.
+While it would be possible to make migration _automatic_ for the `import` command, `skull_island` intentionally doesn't do this to avoid the appearance that the config is losslessly compatible across versions. In reality, the newer config version has additional features (like tagging) that are used heavily by skull_island. It makes sense to this author to maintain the migration component and the normal functionality as distinct features to encourage the use of the newer capabilities in 1.1 and beyond. That said, Skull Island does allow 1.x, 2.0.x, 2.1.x, and 2.2.x version configurations to be applied to 2.3 gateways, but not the opposite.
 
 ### Reset A Gateway
 
@@ -188,7 +190,7 @@ If you're wondering what version of `skull_island` is installed, use:
 ```sh
 $ skull_island version
 
-SkullIsland Version: 2.2.0
+SkullIsland Version: 2.3.0
 ```
 
 ### File Format
@@ -197,7 +199,7 @@ The import/export/migrate CLI functions produce YAML with support for embedded R
 
 ```yaml
 ---
-version: '2.2'
+version: '2.3'
 project: FooV2
 certificates: []
 ca_certificates:
