@@ -35,11 +35,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'yajl-ruby', '~> 1.4'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
-  spec.add_development_dependency 'coveralls', '~> 0.7'
+  spec.add_development_dependency 'coveralls_reborn', '~> 0.20'
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop', '~> 0.50'
-  spec.add_development_dependency 'simplecov', '~> 0.17'
+  spec.add_development_dependency 'simplecov', '~> 0.21'
   spec.add_development_dependency 'travis', '~> 1.8'
   spec.add_development_dependency 'yard', '~> 0.9.20'
 end
