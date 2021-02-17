@@ -9,7 +9,6 @@ Hash.include CoreExtensions::Hash::Pruning
 # Standard Library Requirements
 require 'date'
 require 'digest'
-require 'json'
 require 'singleton'
 require 'uri'
 require 'yaml'
@@ -22,6 +21,7 @@ Linguistics.use(:en)
 require 'rest-client'
 require 'will_paginate'
 require 'will_paginate/array'
+require 'yajl/json_gem'
 
 # Internal Requirements
 require 'skull_island/version'
