@@ -30,7 +30,7 @@ module SkullIsland
 
       validate_server_version
 
-      output = { 'version' => '2.2' }
+      output = { 'version' => '2.3' }
       output['project'] = options['project'] if options['project']
 
       [
@@ -191,7 +191,7 @@ module SkullIsland
     end
 
     def validate_config_version(version)
-      if version && ['1.1', '1.2', '1.4', '1.5', '2.0', '2.1', '2.2'].include?(version)
+      if version && ['1.1', '1.2', '1.4', '1.5', '2.0', '2.1', '2.2', '2.3'].include?(version)
         validate_server_version
       elsif version && ['0.14', '1.0'].include?(version)
         warn '[CRITICAL] Config version is too old. Try `migrate` instead of `import`.'

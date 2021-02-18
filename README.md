@@ -400,7 +400,7 @@ service.routes.size
 # => 4
 ```
 
-From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/2.2.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
+From here, the SDK mostly wraps the attributes described in the [Kong API Docs](https://docs.konghq.com/2.3.x/admin-api/). For simplicity, I'll go over the resource types and attributes this SDK supports manipulating. Rely on the API documentation to determine which attributes are required and under which conditions.
 
 #### CA Certificates
 
