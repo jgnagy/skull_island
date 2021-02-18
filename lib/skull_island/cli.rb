@@ -214,7 +214,7 @@ module SkullIsland
     def validate_server_version
       server_version = SkullIsland::APIClient.about_service['version']
       case server_version
-      when /^2.[12]/
+      when /^2.[123]/
         true
       when /^2.0/
         warn "[WARN] Older server version #{server_version} detected! " \
