@@ -1,13 +1,22 @@
 env:
   global:
-  - CODECLIMATE_REPO_TOKEN=403b284cf8ed6f468a3d861a70b02c6cdec30225dfb435861b19a12cafbef426
+  - CC_TEST_REPORTER_ID=403b284cf8ed6f468a3d861a70b02c6cdec30225dfb435861b19a12cafbef426
 language: ruby
 cache: bundler
 rvm:
 - 3.0
-after_script:
-- bundle exec codeclimate-test-reporter
+
 before_install: gem install bundler -v '~> 2.2'
+
+before_script:
+- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+- chmod +x ./cc-test-reporter
+- ./cc-test-reporter before-build
+
+after_script:
+- ./cc-test-reporter format-coverage -t simplecov -o coverage/codeclimate.json coverage/.resultset.json # Format coverage
+- if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then ./cc-test-reporter upload-coverage; fi  # Upload coverage/codeclimate.json
+
 deploy:
   provider: rubygems
   api_key:

@@ -16,7 +16,7 @@ module SkullIsland
       # Ensure that required properties are set before saving
       def validate_required_properties(data)
         required_properties.each do |name, _value|
-          raise Exceptions::InvalidArguments if data[name.to_s].nil?
+          raise Exceptions::InvalidArguments, "Missing argument: #{name}" if data[name.to_s].nil?
         end
       end
 
