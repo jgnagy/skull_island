@@ -154,7 +154,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 2.0)
-  codeclimate-test-reporter (~> 1.0.0)
+  codeclimate-test-reporter (~> 1.0)
   coveralls_reborn (~> 0.20)
   rake (~> 13.0)
   rspec (~> 3.0)
