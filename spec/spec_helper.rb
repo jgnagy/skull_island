@@ -2,11 +2,14 @@
 
 require 'bundler/setup'
 require 'simplecov'
+require 'simplecov-json'
 require 'coveralls'
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
+# Generate HTML and JSON reports
+SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(
   [
-    SimpleCov::Formatter::HTMLFormatter
+    SimpleCov::Formatter::HTMLFormatter,
+    SimpleCov::Formatter::JSONFormatter
   ]
 )
 

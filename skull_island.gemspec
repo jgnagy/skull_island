@@ -40,6 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop', '~> 0.50'
   spec.add_development_dependency 'simplecov', '~> 0.21'
+  spec.add_development_dependency 'simplecov-json', '~> 0.2'
   spec.add_development_dependency 'travis', '~> 1.8'
   spec.add_development_dependency 'yard', '~> 0.9.20'
 end
