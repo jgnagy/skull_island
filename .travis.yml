@@ -1,23 +1,20 @@
 env:
   global:
-  - CC_TEST_REPORTER_ID=403b284cf8ed6f468a3d861a70b02c6cdec30225dfb435861b19a12cafbef426
+    secure: X0rMm9ggYBmo9qLM7D5UYrEa1EpKQV+OzXsHKmHFnZteAlc4EUOsuT0EfYSP+zWUJVUjjSb69CYz70slYxnc8Ovoya/k790mve/aPiJCjq7CFXdZDyMALFttBshcVO5sAGhvkyvD/vtUMiaiZNEQheHJ6P3DnAOYCTEcFKxRfmauzYmFuIUuDZXKDfvIar1TgWguOxk52jXkks68n8iS0UzRyMTgrA0+VxCWpmzGAuuKATcYmt/vuSjeNY1DoLHPuhrhtDHtbL0U0qNkaFauzjr+p8GOcNGEh38sY/+rBLTIEoQifmtkvM0UjKkJJHYwG+5TiCKAtqeVtqyP1mNhDdbuQtprzuzt/AvFevcy2g1KsjEGXn4mklahyDsBWiCOGAmlik/HmUnTCfy1daJLajWcy6JLg6GcNxMzufPVWDe/ceWp6J3Wd7JVhJ96d7qo5hufTnOSpLr/vtVuZ3ZRaPfYHRxhardwaWA2szW1J7/rVKPJn1/jQ8xu3+9eqKJa7IT8sPIDBHAyFo+W5rLUMeicXRKAcVGeCO6rs/auGWnD2/xXO830T0GiYU6AohEeY/w5vBVvuKLbbJvHWH71EiPHTykAL0pIFOlCC4m7kxwsfA+GvYAboWxTdUNc53Vgz8/1lomRBqaf/q7c2lFjW4MIgfLGDxnzGbaf8cVEVDg=
 language: ruby
 cache: bundler
 rvm:
 - 3.0
-
 before_install: gem install bundler -v '~> 2.2'
-
 before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
-
+- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+  > ./cc-test-reporter
+- chmod +x ./cc-test-reporter
+- "./cc-test-reporter before-build"
 after_script:
-  - ./cc-test-reporter format-coverage -t cobertura coverage/coverage.xml
-  - ./cc-test-reporter upload-coverage
-  - exit $TRAVIS_TEST_RESULT
-
+- "./cc-test-reporter format-coverage -t cobertura coverage/coverage.xml"
+- "./cc-test-reporter upload-coverage"
+- exit $TRAVIS_TEST_RESULT
 deploy:
   provider: rubygems
   api_key:
