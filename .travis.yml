@@ -14,7 +14,7 @@ before_script:
   - ./cc-test-reporter before-build
 
 after_script:
-  - ./cc-test-reporter after-build -t cobertura --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build -t cobertura --exit-code $TRAVIS_TEST_RESULT coverage/coverage.xml
 
 deploy:
   provider: rubygems
