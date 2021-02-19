@@ -2,20 +2,17 @@
 
 require 'bundler/setup'
 require 'simplecov'
+require 'simplecov-cobertura'
 require 'coveralls'
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
-  [
-    SimpleCov::Formatter::HTMLFormatter
-  ]
-)
+Coveralls.wear!
 
 SimpleCov.start do
   add_filter '/spec/'
   add_filter '/.bundle/'
 end
 
-Coveralls.wear!
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 require 'skull_island'
 require 'skull_island/rspec'
