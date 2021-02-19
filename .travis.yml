@@ -9,13 +9,12 @@ rvm:
 before_install: gem install bundler -v '~> 2.2'
 
 before_script:
-- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-- chmod +x ./cc-test-reporter
-- ./cc-test-reporter before-build
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 
 after_script:
-- ./cc-test-reporter format-coverage -t simplecov -o coverage/codeclimate.json coverage/.resultset.json # Format coverage
-- if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then ./cc-test-reporter upload-coverage; fi  # Upload coverage/codeclimate.json
+  - ./cc-test-reporter after-build -t cobertura --exit-code $TRAVIS_TEST_RESULT
 
 deploy:
   provider: rubygems

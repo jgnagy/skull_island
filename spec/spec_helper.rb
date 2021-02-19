@@ -2,23 +2,17 @@
 
 require 'bundler/setup'
 require 'simplecov'
-require 'simplecov-json'
+require 'simplecov-cobertura'
 require 'coveralls'
 
-# Generate HTML and JSON reports
-SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(
-  [
-    SimpleCov::Formatter::HTMLFormatter,
-    SimpleCov::Formatter::JSONFormatter
-  ]
-)
+Coveralls.wear!
 
 SimpleCov.start do
   add_filter '/spec/'
   add_filter '/.bundle/'
 end
 
-Coveralls.wear!
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 require 'skull_island'
 require 'skull_island/rspec'
