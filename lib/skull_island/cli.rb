@@ -132,6 +132,12 @@ module SkullIsland
       ].each { |clname| reset_class(clname, options['project']) }
     end
 
+    desc('render [INPUT|-]', 'Render out preprocessed YAML for troubleshooting')
+    def render(input_file = '-')
+      raw ||= acquire_input(input_file, options['verbose'])
+      puts erb_preprocess(raw)
+    end
+
     desc('version', 'Display the current installed version of skull_island')
     def version
       puts "SkullIsland Version: #{SkullIsland::VERSION}"
