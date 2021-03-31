@@ -56,6 +56,7 @@ Commands:
   skull_island help [COMMAND]                          # Describe available commands or one specific command
   skull_island import [OPTIONS] [INPUT|-]              # Import a configuration from INPUT
   skull_island migrate [OPTIONS] [INPUT|-] [OUTPUT|-]  # Migrate an older config from INPUT to OUTPUT
+  skull_island render [INPUT|-]                        # Render out preprocessed YAML for troubleshooting
   skull_island reset                                   # Fully reset a gateway (removing all config)
   skull_island version                                 # Display the current installed version of skull_island
 
@@ -148,6 +149,16 @@ Skull Island 1.2.1 introduced the ability to use a special top-level key in the 
 To use this functionality, either add the `project` key to your configuration file (usually directly below the `version` key) with some value that will be unique on your gateway, or use `--project foo` (where `foo` is the name of your project) as a CLI flag.
 
 When using the `project` feature of Skull Island, the CLI tool will automatically clean up old resources no longer found in your config file. This is, in fact, the _only_ circumstance under which this tool actually removes resources. Use this feature with care, as it can delete large swaths of your configuration if used incorrectly. It is **critical** that this value is unique since this project functionality is used to delete resources.
+
+#### Troubleshooting Import Failures
+
+If you're having trouble importing some YAML -- especially if you've done a lot of templating or have a lot of embedded ruby in your template -- you can use the `render` command to just output the raw, preprocessed YAML that Skull Island would attempt to import:
+
+```sh
+skull_island render /path/to/some/template.yml
+```
+
+This is safe to do on your local machine since it doesn't connect to a gateway. It will leave `lookup` functions but otherwise will leave the YAML without embedded ruby. This can then be linted with any YAML linter to help discover YAML-related formatting issues, etc., that cause import issues.
 
 ### Migrating
 
