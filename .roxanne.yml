@@ -1,6 +1,6 @@
 version: 1.0
 stages:
   test:
-    image: ruby:3.0
+    image: ruby:3.0-alpine
   build:
     image: docker:latest
