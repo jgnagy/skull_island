@@ -1,0 +1,10 @@
+version: 1.0
+stages:
+  test:
+    image: ruby:3.0
+  build:
+    image: docker:latest
+  publish:
+    image: docker:latest
+    only:
+    - master
