@@ -163,7 +163,7 @@ RSpec.describe SkullIsland::Resources::Upstream do
       client.response_for(
         :get,
         "#{SkullIsland::Resources::Upstream.relative_uri}/" \
-            '13611da7-703f-44f8-b790-fc1e7bf51b3e/targets',
+        '13611da7-703f-44f8-b790-fc1e7bf51b3e/targets',
         response: { 'data' => [] }
       )
       SkullIsland::Resources::Upstream.get(

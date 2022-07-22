@@ -80,7 +80,7 @@ module SkullIsland
         [*options[:include]].each do |inc|
           hash[inc.to_s] = send(inc.to_sym)
         end
-        hash.reject { |_, value| value.nil? }
+        hash.compact
       end
 
       # rubocop:disable Metrics/CyclomaticComplexity
@@ -147,8 +147,6 @@ module SkullIsland
 
       def preprocess_consumer(input)
         case input
-        when Hash
-          input
         when Consumer
           { 'id' => input.id }
         else
@@ -179,8 +177,6 @@ module SkullIsland
 
       def preprocess_route(input)
         case input
-        when Hash
-          input
         when Route
           { 'id' => input.id }
         else
@@ -211,8 +207,6 @@ module SkullIsland
 
       def preprocess_service(input)
         case input
-        when Hash
-          input
         when Service
           { 'id' => input.id }
         else

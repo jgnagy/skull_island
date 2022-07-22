@@ -61,6 +61,9 @@ Metrics/BlockLength:
 Layout/HeredocIndentation:
   Enabled: false
 
+Naming/VariableNumber:
+  Enabled: false
+
 Security/Eval:
   Exclude:
     - 'lib/skull_island/cli.rb'

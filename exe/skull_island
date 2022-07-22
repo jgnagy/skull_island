@@ -5,7 +5,7 @@
 require 'skull_island/cli'
 
 configuration = {
-  server: ENV['KONG_ADMIN_URL']
+  server: ENV.fetch('KONG_ADMIN_URL', nil)
 }
 configuration[:username] = ENV['KONG_ADMIN_USERNAME'] if ENV['KONG_ADMIN_USERNAME']
 configuration[:password] = ENV['KONG_ADMIN_PASSWORD'] if ENV['KONG_ADMIN_PASSWORD']
