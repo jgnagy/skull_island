@@ -43,7 +43,6 @@ module SkullIsland
       # rubocop:enable Metrics/PerceivedComplexity
       # rubocop:enable Metrics/CyclomaticComplexity
 
-      # rubocop:disable Metrics/AbcSize
       def export(options = {})
         hash = { 'cert' => cert, 'key' => key }
         hash['snis'] = snis if snis && !snis.empty?
@@ -55,9 +54,8 @@ module SkullIsland
         [*options[:include]].each do |inc|
           hash[inc.to_s] = send(inc.to_sym)
         end
-        hash.reject { |_, value| value.nil? }
+        hash.compact
       end
-      # rubocop:enable Metrics/AbcSize
 
       def modified_existing?
         return false unless new?

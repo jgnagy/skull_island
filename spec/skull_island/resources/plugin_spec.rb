@@ -75,13 +75,13 @@ RSpec.describe SkullIsland::Resources::Plugin do
       client.response_for(
         :get,
         "#{SkullIsland::Resources::Consumer.relative_uri}" \
-          '/a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4',
+        '/a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4',
         response: consumer_raw
       )
       client.response_for(
         :get,
         "#{SkullIsland::Resources::Service.relative_uri}" \
-          '/5fd1z584-1adb-40a5-c042-63b19db49x21',
+        '/5fd1z584-1adb-40a5-c042-63b19db49x21',
         response: service_raw
       )
       SkullIsland::Resources::Plugin.get(

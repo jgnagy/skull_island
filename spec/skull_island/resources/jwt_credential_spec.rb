@@ -53,13 +53,13 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
       client.response_for(
         :get,
         "#{SkullIsland::Resources::JWTCredential.relative_uri}" \
-          '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
+        '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         response: existing_resource_raw
       )
       client.response_for(
         :get,
         "#{SkullIsland::Resources::Consumer.relative_uri}" \
-          '/ee3310c1-6789-40ac-9386-f79c0cb58432',
+        '/ee3310c1-6789-40ac-9386-f79c0cb58432',
         response: consumer_raw
       )
       SkullIsland::Resources::JWTCredential.get(
@@ -98,7 +98,7 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
       resource.api_client.response_for(
         :post,
         "#{SkullIsland::Resources::Consumer.relative_uri}/" \
-          'ee3310c1-6789-40ac-9386-f79c0cb58432/jwt',
+        'ee3310c1-6789-40ac-9386-f79c0cb58432/jwt',
         data: new_resource_post,
         response: new_resource_raw
       )
@@ -119,7 +119,7 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
       resource.api_client.response_for(
         :post,
         "#{SkullIsland::Resources::Consumer.relative_uri}/" \
-          'ee3310c1-6789-40ac-9386-f79c0cb58432/jwt',
+        'ee3310c1-6789-40ac-9386-f79c0cb58432/jwt',
         data: new_resource_post,
         response: new_resource_raw
       )

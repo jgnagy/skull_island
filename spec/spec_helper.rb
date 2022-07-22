@@ -7,11 +7,6 @@ require 'coveralls'
 
 Coveralls.wear!
 
-SimpleCov.start do
-  add_filter '/spec/'
-  add_filter '/.bundle/'
-end
-
 SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 require 'skull_island'

@@ -35,7 +35,7 @@ module SkullIsland
         when Array
           data.map { |item| recursive_erubi(item) }
         when Hash
-          data.map { |k, v| [k, recursive_erubi(v)] }.to_h
+          data.to_h { |k, v| [k, recursive_erubi(v)] }
         else
           data
         end

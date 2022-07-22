@@ -4,7 +4,7 @@ env:
 language: ruby
 cache: bundler
 rvm:
-- 3.0
+- 3.1
 before_install: gem install bundler -v '~> 2.2'
 before_script:
 - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
@@ -22,5 +22,5 @@ deploy:
   gem: skull_island
   on:
     tags: true
-    rvm: 3.0
+    rvm: 3.1
     repo: jgnagy/skull_island

@@ -51,7 +51,7 @@ module SkullIsland
         [*options[:include]].each do |inc|
           hash[inc.to_s] = send(inc.to_sym)
         end
-        hash.reject { |_, value| value.nil? }
+        hash.compact
       end
 
       # Keys can't be updated, only created or deleted

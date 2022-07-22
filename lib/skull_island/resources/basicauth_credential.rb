@@ -66,7 +66,7 @@ module SkullIsland
         [*options[:include]].each do |inc|
           hash[inc.to_s] = send(inc.to_sym)
         end
-        hash.reject { |_, value| value.nil? }
+        hash.compact
       end
 
       # Credentials can't be updated, only deleted then created
