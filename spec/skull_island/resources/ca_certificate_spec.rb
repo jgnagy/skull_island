@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::CACertificate do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::CACertificate.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:existing_resource_raw) do
@@ -40,7 +40,7 @@ RSpec.describe SkullIsland::Resources::CACertificate do
         "#{subject.class.relative_uri}/04fbeacf-a9f1-4a5d-ae4a-b0407445db3f",
         response: existing_resource_raw
       )
-      SkullIsland::Resources::CACertificate.get(
+      described_class.get(
         '04fbeacf-a9f1-4a5d-ae4a-b0407445db3f',
         api_client: client
       )

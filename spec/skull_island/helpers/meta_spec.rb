@@ -2,7 +2,11 @@
 
 RSpec.describe SkullIsland::Helpers::Meta do
   subject do
-    class MetaTest
+    MetaTest.new(['testtag', '_meta~this~that', '_meta~project~testproj'])
+  end
+
+  before do
+    fake_meta_class = Class.new do
       include SkullIsland::Helpers::Meta
 
       def initialize(tags)
@@ -14,8 +18,7 @@ RSpec.describe SkullIsland::Helpers::Meta do
         @entity[key.to_s] = value
       end
     end
-
-    MetaTest.new(['testtag', '_meta~this~that', '_meta~project~testproj'])
+    stub_const('MetaTest', fake_meta_class)
   end
 
   it 'checks if an objects supports meta' do

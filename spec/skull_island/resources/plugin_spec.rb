@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::Plugin do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::Plugin.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:consumer_raw) do
@@ -84,7 +84,7 @@ RSpec.describe SkullIsland::Resources::Plugin do
         '/5fd1z584-1adb-40a5-c042-63b19db49x21',
         response: service_raw
       )
-      SkullIsland::Resources::Plugin.get(
+      described_class.get(
         '4d924084-1adb-40a5-c042-63b19db421d1',
         api_client: client
       )
@@ -125,7 +125,7 @@ RSpec.describe SkullIsland::Resources::Plugin do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.name).to be nil
+      expect(resource.name).to be_nil
       resource.name = 'rate-limiting'
       resource.service = { 'id' => '5fd1z584-1adb-40a5-c042-63b19db49x21' }
       resource.consumer = { 'id' => 'a3dX2dh2-1adb-40a5-c042-63b19dbx83hF4' }

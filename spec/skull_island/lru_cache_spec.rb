@@ -2,13 +2,13 @@
 
 RSpec.describe SkullIsland::LRUCache do
   let(:populated_cache) do
-    cache = SkullIsland::LRUCache.new
+    cache = described_class.new
     cache.store(:foo, 'bar')
     cache
   end
 
   let(:larger_cache) do
-    SkullIsland::LRUCache.new(500)
+    described_class.new(500)
   end
 
   it 'allows retrieving cached items' do
@@ -43,7 +43,7 @@ RSpec.describe SkullIsland::LRUCache do
   it 'allows flushing cache (including metadata)' do
     expect(populated_cache.size).to eq(1)
     expect(populated_cache[:foo]).to eq('bar')
-    expect(populated_cache[:not_here]).to be(nil)
+    expect(populated_cache[:not_here]).to be_nil
     expect(populated_cache.statistics[:hits]).not_to eq(0)
     expect(populated_cache.statistics[:misses]).not_to eq(0)
     populated_cache.flush

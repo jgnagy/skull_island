@@ -2,6 +2,6 @@
 
 RSpec.describe SkullIsland do
   it 'has a version number' do
-    expect(SkullIsland::VERSION).not_to be nil
+    expect(SkullIsland::VERSION).not_to be_nil
   end
 end

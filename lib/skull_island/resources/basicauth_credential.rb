@@ -85,7 +85,7 @@ module SkullIsland
       end
 
       def project
-        consumer ? consumer.project : nil
+        consumer&.project
       end
 
       def <=>(other)

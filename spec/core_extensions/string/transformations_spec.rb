@@ -2,11 +2,12 @@
 
 RSpec.describe CoreExtensions::String::Transformations do
   subject do
-    class Foo < String
-      include CoreExtensions::String::Transformations
-    end
-
     Foo.new('a_test_string')
+  end
+
+  before do
+    fake_string_class = Class.new(String) { include CoreExtensions::String::Transformations }
+    stub_const('Foo', fake_string_class)
   end
 
   let(:camel_string) do

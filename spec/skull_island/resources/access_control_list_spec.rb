@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::AccessControlList.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:consumer_raw) do
@@ -43,7 +43,7 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
       client = FakeAPIClient.new
       client.response_for(
         :get,
-        "#{SkullIsland::Resources::AccessControlList.relative_uri}" \
+        "#{described_class.relative_uri}" \
         '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         response: existing_resource_raw
       )
@@ -53,7 +53,7 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
         '/ee3310c1-6789-40ac-9386-f79c0cb58432',
         response: consumer_raw
       )
-      SkullIsland::Resources::AccessControlList.get(
+      described_class.get(
         '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         api_client: client
       )
@@ -89,7 +89,7 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
         data: new_resource_post,
         response: new_resource_raw
       )
-      expect(resource.group).to be nil
+      expect(resource.group).to be_nil
       resource.group = 'othergroup'
       resource.consumer = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
       expect(resource.save).to be true
@@ -106,7 +106,7 @@ RSpec.describe SkullIsland::Resources::AccessControlList do
         data: new_resource_post,
         response: new_resource_raw
       )
-      expect(resource.group).to be nil
+      expect(resource.group).to be_nil
       resource.group = 'othergroup'
       consumer = SkullIsland::Resources::Consumer.get(
         'ee3310c1-6789-40ac-9386-f79c0cb58432',

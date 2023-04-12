@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::JWTCredential.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:consumer_raw) do
@@ -52,7 +52,7 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
       client = FakeAPIClient.new
       client.response_for(
         :get,
-        "#{SkullIsland::Resources::JWTCredential.relative_uri}" \
+        "#{described_class.relative_uri}" \
         '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         response: existing_resource_raw
       )
@@ -62,7 +62,7 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
         '/ee3310c1-6789-40ac-9386-f79c0cb58432',
         response: consumer_raw
       )
-      SkullIsland::Resources::JWTCredential.get(
+      described_class.get(
         '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         api_client: client
       )
@@ -102,7 +102,7 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
         data: new_resource_post,
         response: new_resource_raw
       )
-      expect(resource.key).to be nil
+      expect(resource.key).to be_nil
       resource.algorithm = 'RS256'
       resource.key = '2b3c4d5e6f7a'
       resource.rsa_public_key = '-----BEGIN CERTIFICATE-----...'
@@ -123,7 +123,7 @@ RSpec.describe SkullIsland::Resources::JWTCredential do
         data: new_resource_post,
         response: new_resource_raw
       )
-      expect(resource.key).to be nil
+      expect(resource.key).to be_nil
       resource.algorithm = 'RS256'
       resource.key = '2b3c4d5e6f7a'
       resource.rsa_public_key = '-----BEGIN CERTIFICATE-----...'

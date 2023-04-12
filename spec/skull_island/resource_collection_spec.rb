@@ -3,17 +3,17 @@
 RSpec.describe SkullIsland::ResourceCollection do
   subject do
     client = FakeAPIClient.new
-    SkullIsland::ResourceCollection.new([1, 2, 3], api_client: client)
+    described_class.new([1, 2, 3], api_client: client)
   end
 
   let(:empty_collection) do
     client = FakeAPIClient.new
-    SkullIsland::ResourceCollection.new([], type: Integer, api_client: client)
+    described_class.new([], type: Integer, api_client: client)
   end
 
   let(:other_collection) do
     client = FakeAPIClient.new
-    SkullIsland::ResourceCollection.new([5, 3, 4], api_client: client)
+    described_class.new([5, 3, 4], api_client: client)
   end
 
   it 'reports when it is empty' do
