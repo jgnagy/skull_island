@@ -75,7 +75,7 @@ module SkullIsland
       end
 
       def host_regex
-        /^((\w|\w[\w\-]*\w)\.)*(\w|\w[\w\-]*\w)$/
+        /^((\w|\w[\w-]*\w)\.)*(\w|\w[\w-]*\w)$/
       end
 
       def id_property

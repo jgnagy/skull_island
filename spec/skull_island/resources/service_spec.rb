@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::Service do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::Service.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:existing_resource_raw) do
@@ -71,7 +71,7 @@ RSpec.describe SkullIsland::Resources::Service do
         SkullIsland::Resources::Route.relative_uri,
         response: { 'data' => [] }
       )
-      SkullIsland::Resources::Service.get(
+      described_class.get(
         '4e13f54a-bbf1-47a8-8777-255fed7116f2',
         api_client: client
       )
@@ -115,7 +115,7 @@ RSpec.describe SkullIsland::Resources::Service do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.protocol).to be nil
+      expect(resource.protocol).to be_nil
       resource.protocol = 'http'
       resource.connect_timeout = 60000
       resource.host = 'example.com'

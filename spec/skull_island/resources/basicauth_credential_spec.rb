@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::BasicauthCredential.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:consumer_raw) do
@@ -46,7 +46,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
       client = FakeAPIClient.new
       client.response_for(
         :get,
-        "#{SkullIsland::Resources::BasicauthCredential.relative_uri}" \
+        "#{described_class.relative_uri}" \
         '/4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         response: existing_resource_raw
       )
@@ -56,7 +56,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
         '/ee3310c1-6789-40ac-9386-f79c0cb58432',
         response: consumer_raw
       )
-      SkullIsland::Resources::BasicauthCredential.get(
+      described_class.get(
         '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         api_client: client
       )
@@ -97,7 +97,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
         data: new_resource_post,
         response: new_resource_raw
       )
-      expect(resource.password).to be nil
+      expect(resource.password).to be_nil
       resource.username = 'test2'
       resource.password = '234562345623456'
       resource.consumer = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
@@ -119,7 +119,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
         data: new_resource_post,
         response: new_resource_raw
       )
-      expect(resource.password).to be nil
+      expect(resource.password).to be_nil
       resource.username = 'test2'
       resource.password = '234562345623456'
       consumer = SkullIsland::Resources::Consumer.get(
@@ -138,7 +138,7 @@ RSpec.describe SkullIsland::Resources::BasicauthCredential do
 
     it 'properly compares credentials' do
       resource = subject
-      expect(resource.password).to be nil
+      expect(resource.password).to be_nil
       resource.username = 'test'
       resource.password = '123451234512345'
       resource.consumer = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }

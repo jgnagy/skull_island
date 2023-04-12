@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::UpstreamTarget.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:upstream_raw) do
@@ -62,7 +62,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
         'ee3310c1-6789-40ac-9386-f79c0cb58432/targets',
         response: { 'data' => [existing_resource_raw] }
       )
-      SkullIsland::Resources::UpstreamTarget.get(
+      described_class.get(
         '4661f55e-95c2-4011-8fd6-c5c56df1c9db',
         upstream: 'ee3310c1-6789-40ac-9386-f79c0cb58432',
         api_client: client
@@ -83,7 +83,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.weight).to be nil
+      expect(resource.weight).to be_nil
       resource.target = '4.5.6.7:80'
       resource.weight = 15
       resource.upstream = { 'id' => 'ee3310c1-6789-40ac-9386-f79c0cb58432' }
@@ -101,7 +101,7 @@ RSpec.describe SkullIsland::Resources::UpstreamTarget do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.weight).to be nil
+      expect(resource.weight).to be_nil
       resource.target = '4.5.6.7:80'
       resource.weight = 15
       upstream = SkullIsland::Resources::Upstream.get(

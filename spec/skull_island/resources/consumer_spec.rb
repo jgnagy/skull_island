@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::Consumer do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::Consumer.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:existing_resource_raw) do
@@ -37,7 +37,7 @@ RSpec.describe SkullIsland::Resources::Consumer do
         "#{subject.class.relative_uri}/4d924084-1adb-40a5-c042-63b19db421d1",
         response: existing_resource_raw
       )
-      SkullIsland::Resources::Consumer.get(
+      described_class.get(
         '4d924084-1adb-40a5-c042-63b19db421d1',
         api_client: client
       )
@@ -79,7 +79,7 @@ RSpec.describe SkullIsland::Resources::Consumer do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.custom_id).to be nil
+      expect(resource.custom_id).to be_nil
       resource.custom_id = 'def456'
       expect(resource.save).to be true
       expect(resource.id).to eq('4d924084-1adb-40a5-c042-63b19db421d1')

@@ -2,10 +2,6 @@
 
 RSpec.describe CoreExtensions::Hash::Pruning do
   subject do
-    class Bar < Hash
-      include CoreExtensions::Hash::Pruning
-    end
-
     bar = Bar.new
     bar[:a] = ''
     bar[:b] = nil
@@ -13,6 +9,11 @@ RSpec.describe CoreExtensions::Hash::Pruning do
     bar[:d] = {}
     bar[:e] = 'keep me'
     bar
+  end
+
+  before do
+    fake_hash_class = Class.new(Hash) { include CoreExtensions::Hash::Pruning }
+    stub_const('Bar', fake_hash_class)
   end
 
   it 'removes empty and nil values' do

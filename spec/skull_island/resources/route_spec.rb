@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::Route do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::Route.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:service_raw) do
@@ -76,7 +76,7 @@ RSpec.describe SkullIsland::Resources::Route do
         "#{SkullIsland::Resources::Service.relative_uri}/4e13f54a-bbf1-47a8-8777-255fed7116f2",
         response: service_raw
       )
-      SkullIsland::Resources::Route.get(
+      described_class.get(
         '22108377-8f26-4c0e-bd9e-2962c1d6b0e6',
         api_client: client
       )
@@ -115,7 +115,7 @@ RSpec.describe SkullIsland::Resources::Route do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.hosts).to be nil
+      expect(resource.hosts).to be_nil
       resource.hosts = ['example.com', 'example.org']
       resource.protocols = %w[http https]
       resource.regex_priority = 0

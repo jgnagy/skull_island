@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::Upstream do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::Upstream.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:existing_resource_raw) do
@@ -162,11 +162,11 @@ RSpec.describe SkullIsland::Resources::Upstream do
       )
       client.response_for(
         :get,
-        "#{SkullIsland::Resources::Upstream.relative_uri}/" \
+        "#{described_class.relative_uri}/" \
         '13611da7-703f-44f8-b790-fc1e7bf51b3e/targets',
         response: { 'data' => [] }
       )
-      SkullIsland::Resources::Upstream.get(
+      described_class.get(
         '13611da7-703f-44f8-b790-fc1e7bf51b3e',
         api_client: client
       )
@@ -199,7 +199,7 @@ RSpec.describe SkullIsland::Resources::Upstream do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.name).to be nil
+      expect(resource.name).to be_nil
       resource.name = 'service.v1.xyz'
       resource.algorithm = 'round-robin'
       resource.hash_on = 'none'

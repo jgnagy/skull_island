@@ -93,3 +93,16 @@ Style/OptionalBooleanParameter:
 
 Style/SlicingWithRange:
   Enabled: true
+
+# Rspec cops
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/NamedSubject:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10

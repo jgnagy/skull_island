@@ -90,7 +90,7 @@ module SkullIsland
 
         # Find plugins of the same name
         same_name = self.class.where(:name, name)
-        return false if same_name.size.zero?
+        return false if same_name.empty?
 
         same_name_and_consumer = consumer ? same_name.where(:consumer, consumer) : nil
         same_name_and_route = route ? same_name.where(:route, route) : nil

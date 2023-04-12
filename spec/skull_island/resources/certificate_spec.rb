@@ -4,7 +4,7 @@ RSpec.describe SkullIsland::Resources::Certificate do
   describe 'when configured' do
     subject do
       client = FakeAPIClient.new
-      SkullIsland::Resources::Certificate.new(api_client: client)
+      described_class.new(api_client: client)
     end
 
     let(:existing_resource_raw) do
@@ -51,7 +51,7 @@ RSpec.describe SkullIsland::Resources::Certificate do
         "#{subject.class.relative_uri}/21b69eab-09d9-40f9-a55e-c4ee47fada68",
         response: existing_resource_raw
       )
-      SkullIsland::Resources::Certificate.get(
+      described_class.get(
         '21b69eab-09d9-40f9-a55e-c4ee47fada68',
         api_client: client
       )
@@ -89,7 +89,7 @@ RSpec.describe SkullIsland::Resources::Certificate do
         data: updated_resource_post,
         response: updated_resource_raw
       )
-      expect(resource.snis).to be nil
+      expect(resource.snis).to be_nil
       resource.cert = '-----BEGIN CERTIFICATE-----...'
       resource.key = '-----BEGIN RSA PRIVATE KEY-----...'
       resource.snis = ['example.com', 'example.org']
