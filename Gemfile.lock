@@ -203,7 +203,7 @@ GEM
     websocket (1.2.9)
     will_paginate (3.3.1)
     yajl-ruby (1.4.3)
-    yard (0.9.32)
+    yard (0.9.35)
 
 PLATFORMS
   ruby
